@@ -1,0 +1,73 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+
+# Virtual environments
+env/
+venv/
+ENV/
+.venv/
+.idea/
+.vscode/
+
+# Django/Migrations
+*.log
+*.pot
+*.pyc
+db.sqlite3
+db.sqlite3-journal
+*.sqlite3
+
+# Django media/static
+/media
+/staticfiles
+staticfiles/
+static/
+media/
+
+# Django migration files (optional if you want to regenerate)
+**/migrations/**/ __pycache__/
+**/migrations/**/ *.pyc
+**/migrations/**/ *.pyo
+**/migrations/**/ *.pyd
+
+# Optional: Ignore all migration files except __init__.py
+# **/migrations/*.py
+# !**/migrations/__init__.py
+
+# Environment variables
+.env
+.env.*
+
+# Byte-compiled / cache
+*.so
+*.egg
+*.egg-info/
+.eggs/
+
+# Build and distribution
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+
+# Node (if you have JS frontend)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# JetBrains
+.idea/
+
+# System Files
+.DS_Store
+Thumbs.db
