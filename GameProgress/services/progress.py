@@ -72,7 +72,19 @@ def unlock_all_achievements():
             progress.unlocked = True
             progress.save()
 
+
 def reset_all_progress():
-    """Reset: Lock all levels + achievements for testing or reinitialization."""
+    """Reset: Lock all levels + achievements and clear progress data."""
+
+    # Lock all level definitions
     lock_all_levels()
+
+    # Lock all achievement progress
     lock_all_achievements()
+
+    # Reset each student's progress (times) per level
+    for progress in LevelProgress.objects.all():
+        progress.best_time = 0
+        progress.current_time = 0
+        progress.save()
+
