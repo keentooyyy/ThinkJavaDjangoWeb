@@ -59,3 +59,20 @@ def unlock_all_levels():
     for level in LevelDefinition.objects.all():
         level.unlocked = True
         level.save()
+
+def lock_all_achievements():
+    for ach in AchievementDefinition.objects.all():
+        for progress in AchievementProgress.objects.filter(achievement=ach):
+            progress.unlocked = False
+            progress.save()
+
+def unlock_all_achievements():
+    for ach in AchievementDefinition.objects.all():
+        for progress in AchievementProgress.objects.filter(achievement=ach):
+            progress.unlocked = True
+            progress.save()
+
+def reset_all_progress():
+    """Reset: Lock all levels + achievements for testing or reinitialization."""
+    lock_all_levels()
+    lock_all_achievements()
