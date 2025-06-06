@@ -4,6 +4,9 @@ from collections import OrderedDict
 from GameProgress.models import LevelProgress, AchievementProgress, LevelDefinition, AchievementDefinition
 from StudentManagementSystem.models.student import Student
 
+# Correct ES3-compatible __type strings
+LEVEL_TYPE = "System.Collections.Generic.Dictionary`2[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[LevelData, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]],mscorlib"
+ACHIEVEMENT_TYPE = "System.Collections.Generic.Dictionary`2[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[AchievementSaveData, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]],mscorlib"
 
 def get_game_progress(request, student_id):
     try:
@@ -31,11 +34,11 @@ def get_game_progress(request, student_id):
 
         return JsonResponse({
             "levels": {
-                "__type": "...",
+                "__type": LEVEL_TYPE,
                 "value": levels
             },
             "achievements": {
-                "__type": "...",
+                "__type": ACHIEVEMENT_TYPE,
                 "value": achievements
             }
         }, json_dumps_params={"indent": 4})

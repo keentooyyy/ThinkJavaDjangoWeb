@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404
 
 from GameProgress.models import LevelDefinition, AchievementDefinition, LevelProgress, AchievementProgress
+from StudentManagementSystem.models.student import Student
 
 
 def sync_all_students_with_all_progress():
