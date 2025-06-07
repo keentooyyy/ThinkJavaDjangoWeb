@@ -1,5 +1,9 @@
 from django.core.management.base import BaseCommand
-from StudentManagementSystem.models import Department, YearLevel, Section
+
+from StudentManagementSystem.models.department import Department
+from StudentManagementSystem.models.section import Section
+from StudentManagementSystem.models.year_level import YearLevel
+
 
 class Command(BaseCommand):
     help = "Seed default departments, year levels, and sections"
