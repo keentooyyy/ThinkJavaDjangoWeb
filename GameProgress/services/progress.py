@@ -88,3 +88,14 @@ def reset_all_progress():
         progress.current_time = 0
         progress.save()
 
+def unlock_achievement(code):
+    ach = get_object_or_404(AchievementDefinition, code=code)
+    ach.unlocked = True
+    ach.save()
+    return ach
+
+def lock_achievement(code):
+    ach = get_object_or_404(AchievementDefinition, code=code)
+    ach.unlocked = False
+    ach.save()
+    return ach
