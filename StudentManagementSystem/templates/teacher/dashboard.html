@@ -91,6 +91,21 @@
 {% endif %}
 
 
+<h3>Generate Section Join Code</h3>
+<form method="post" action="{% url 'generate_section_code' %}">
+  {% csrf_token %}
+  <label for="generate_section_id">Select Section:</label>
+  <select name="section_id" id="generate_section_id" required>
+    {% for hs in handled_sections %}
+      <option value="{{ hs.section.id }}_{{ hs.department.id }}_{{ hs.year_level.id }}">
+        {{ hs.department.name }}{{ hs.year_level.year }}{{ hs.section.letter }}
+      </option>
+    {% endfor %}
+  </select>
+
+  <button type="submit">Generate Code</button>
+</form>
+
 
 <br><a href="{% url 'teacher_logout' %}">Logout</a>
 </body>
