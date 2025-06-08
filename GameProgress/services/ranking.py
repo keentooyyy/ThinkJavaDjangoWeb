@@ -31,23 +31,16 @@ def get_student_performance(student):
     }
 
 
-def get_all_student_rankings(sort_by="time_remaining", sort_order="desc", filter_by=None):
-    """
-    Returns a list of ranked student performance dictionaries.
+def get_all_student_rankings(sort_by="time_remaining", sort_order="desc", filter_by=None, department_filter=None):
+    from StudentManagementSystem.models.student import Student
 
-    Args:
-        sort_by (str): One of "time_remaining", "achievements", "percentage", "name", "section"
-        sort_order (str): "asc" or "desc"
-        filter_by (str): Optional full_section filter like "CS3A"
-
-    Returns:
-        List[Dict]: Ranked students
-    """
     students = Student.objects.all()
 
-    # 🧪 Optional filtering (future)
-    # if filter_by == "CS3":
-    #     students = [s for s in students if s.full_section.startswith("CS3")]
+    if filter_by:
+        students = [s for s in students if s.full_section == filter_by]
+
+    if department_filter:
+        students = [s for s in students if s.department and s.department.name == department_filter]
 
     rankings = [get_student_performance(s) for s in students]
 

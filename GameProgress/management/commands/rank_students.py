@@ -5,7 +5,6 @@ class Command(BaseCommand):
     help = "Show ranked students based on time attack performance and achievements"
 
     def add_arguments(self, parser):
-        # 🧭 Sorting criteria
         parser.add_argument(
             '--sort-by',
             type=str,
@@ -21,7 +20,6 @@ class Command(BaseCommand):
             )
         )
 
-        # 🔄 Ascending/Descending
         parser.add_argument(
             '--sort-order',
             type=str,
@@ -30,11 +28,30 @@ class Command(BaseCommand):
             help="Sort direction: 'asc' or 'desc' (default: desc)"
         )
 
+        parser.add_argument(
+            '--filter-by',
+            type=str,
+            help="Filter students by exact full_section (e.g., CS3A)"
+        )
+
+        parser.add_argument(
+            '--department',
+            type=str,
+            help="Filter students by department code (e.g., CS, IT)"
+        )
+
     def handle(self, *args, **options):
         sort_by = options['sort_by']
         sort_order = options['sort_order']
+        filter_by = options.get('filter_by')
+        department = options.get('department')
 
-        rankings = get_all_student_rankings(sort_by=sort_by, sort_order=sort_order)
+        rankings = get_all_student_rankings(
+            sort_by=sort_by,
+            sort_order=sort_order,
+            filter_by=filter_by,
+            department_filter=department
+        )
 
         if not rankings:
             self.stdout.write("⚠️ No student rankings found.")
@@ -52,6 +69,7 @@ class Command(BaseCommand):
             )
 
         self.stdout.write("\n✅ Done.")
+
 
 # -------------------------------------
 # 🧪 Usage Examples:
