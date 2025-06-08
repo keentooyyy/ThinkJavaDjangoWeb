@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Teacher Dashboard</title>
+</head>
+<body>
+<h2>Welcome, {{ teacher.teacher_id }}</h2>
+<p>This is your dashboard. Below are the top student performances.</p>
+
+<h3>Handled Sections</h3>
+<ul>
+    {% for label in sections_handled %}
+        <li>{{ label }}</li>
+    {% empty %}
+        <li>No sections assigned.</li>
+    {% endfor %}
+</ul>
+
+
+
+
+<h3>Top Students</h3>
+<table border="1" cellpadding="5" cellspacing="0">
+    <thead>
+    <tr>
+        <th>#</th>
+        <th>Name</th>
+        <th>Section</th>
+        <th>Department</th>
+        <th>Year</th>
+        <th>Time Remaining</th>
+        <th>Achievements</th>
+        <th>Efficiency (%)</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for student in rankings %}
+    <tr>
+        <td>{{ forloop.counter }}</td>
+        <td>{{ student.name }}</td>
+        <td>{{ student.section }}</td>
+        <td>{{ student.department }}</td>
+        <td>{{ student.year_level }}</td>
+        <td>{{ student.total_time_remaining }}</td>
+        <td>{{ student.achievements_unlocked }}</td>
+        <td>{{ student.percentage_remaining }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="8">No data available.</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<br><a href="{% url 'teacher_logout' %}">Logout</a>
+</body>
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Dashboard</title>
+  <style>
+    body { font-family: sans-serif; margin: 20px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    th { background-color: #f4f4f4; }
+    .message { margin-bottom: 10px; }
+    .success { color: green; }
+    .error { color: red; }
+    .section-group { margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <h2>Welcome, {{ admin.username }}</h2>
+  <p>This is your admin dashboard.</p>
+
+  {% if messages %}
+    {% for message in messages %}
+      <p class="message {{ message.tags }}">{{ message }}</p>
+    {% endfor %}
+  {% endif %}
+
+  <h3>Create New Teacher</h3>
+<form method="post" action="{% url 'create_teacher' %}">
+  {% csrf_token %}
+  <label for="teacher_id">Teacher ID:</label><br>
+  <input type="text" id="teacher_id" name="teacher_id" required><br><br>
+
+  <label for="password">Password:</label><br>
+  <input type="password" id="password" name="password" required><br><br>
+
+  <!-- 🔒 Year level is always 1 -->
+  <input type="hidden" name="year_level" value="1">
+
+  <!-- SECTION GROUP START -->
+  <div id="section-group-container">
+    <div class="section-group">
+      <label>Department:</label>
+      <select name="departments[]" required>
+        <option value="">-- Select Department --</option>
+        {% for dept in departments %}
+          <option value="{{ dept.id }}">{{ dept.name }}</option>
+        {% endfor %}
+      </select>
+
+      <label>Section:</label>
+      <select name="section_ids[]" required>
+        <option value="">-- Select Section --</option>
+        {% for section in sections %}
+          <option value="{{ section.id }}">{{ section.letter }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+
+  <button type="button" onclick="addSectionGroup()">➕ Add More Sections</button>
+  <!-- SECTION GROUP END -->
+
+  <br><br>
+  <button type="submit">Create Teacher</button>
+</form>
+
+  <hr>
+
+  <h3>Student Performance Rankings</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Name</th>
+        <th>Section</th>
+        <th>Department</th>
+        <th>Year</th>
+        <th>Time Remaining</th>
+        <th>Achievements</th>
+        <th>Efficiency (%)</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for student in rankings %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td>{{ student.name }}</td>
+          <td>{{ student.section }}</td>
+          <td>{{ student.department }}</td>
+          <td>{{ student.year_level }}</td>
+          <td>{{ student.total_time_remaining }}</td>
+          <td>{{ student.achievements_unlocked }}</td>
+          <td>{{ student.percentage_remaining }}</td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="8">No student data available.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <br><a href="{% url 'admin_logout' %}">Logout</a>
+
+  <!-- JavaScript to add more section groups -->
+  <script>
+  function addSectionGroup() {
+    const container = document.getElementById('section-group-container');
+    const firstGroup = container.querySelector('.section-group');
+    const newGroup = firstGroup.cloneNode(true);
+
+    const selects = newGroup.querySelectorAll('select');
+    selects.forEach(select => select.selectedIndex = 0);
+
+    container.appendChild(newGroup);
+  }
+</script>
+</body>
+</html>
