@@ -12,9 +12,10 @@ def teacher_dashboard(request):
     teacher = Teacher.objects.get(id=teacher_id)
     rankings = get_all_student_rankings(sort_by="percentage", sort_order="desc")
 
-    # Get all assignments
+    # Full handled sections (with related fields)
     handled_sections = teacher.handled_sections.select_related('department', 'year_level', 'section')
 
+    # Text-based section list (optional use)
     section_info = [
         f"{hs.department.name}{hs.year_level.year}{hs.section.letter}"
         for hs in handled_sections
@@ -24,4 +25,5 @@ def teacher_dashboard(request):
         'teacher': teacher,
         'rankings': rankings,
         'sections_handled': section_info,
+        'handled_sections': handled_sections,  # ✅ Pass HandledSection objects, not just Section
     })

@@ -54,6 +54,44 @@
     </tbody>
 </table>
 
+
+<h3>Register New Student</h3>
+<form method="post" action="{% url 'register_student_teacher' %}">
+  {% csrf_token %}
+  <div>
+    <label for="student_id">Student ID:</label>
+    <input type="text" name="student_id" id="student_id" required>
+  </div>
+
+  <div>
+    <label for="password">Password:</label>
+    <input type="password" name="password" id="password" required>
+  </div>
+
+  <div>
+    <label for="section_id">Assign to Section:</label>
+    <select name="section_id" id="section_id" required>
+      {% for hs in handled_sections %}
+        <option value="{{ hs.section.id }}">
+          {{ hs.department.name }}{{ hs.year_level.year }}{{ hs.section.letter }}
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <button type="submit">Register Student</button>
+</form>
+
+{% if messages %}
+  <ul>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
+
+
 <br><a href="{% url 'teacher_logout' %}">Logout</a>
 </body>
 </html>
