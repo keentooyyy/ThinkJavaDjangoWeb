@@ -71,6 +71,9 @@ def reset_all_progress():
         progress.best_time = 0
         progress.current_time = 0
         progress.save()
+    for progress in AchievementProgress.objects.all():
+        progress.unlocked = False
+        progress.save()
 
 
 # ✅ GLOBAL ACHIEVEMENT CONTROL
