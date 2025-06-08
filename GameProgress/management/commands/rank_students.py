@@ -65,7 +65,7 @@ class Command(BaseCommand):
                 f"({student['section']}) - "
                 f"🕒 Time Left: {student['total_time_remaining']}s | "
                 f"🏅 Achievements: {student['achievements_unlocked']} | "
-                f"📊 {student['percentage_remaining']}%"
+                f"🧮 Score: {student['score']}"
             )
 
         self.stdout.write("\n✅ Done.")

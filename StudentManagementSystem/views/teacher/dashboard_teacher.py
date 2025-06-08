@@ -8,7 +8,7 @@ def get_teacher_dashboard_context(teacher):
 
     return {
         'teacher': teacher,
-        'rankings': get_all_student_rankings(sort_by="percentage", sort_order="desc"),
+        'rankings': get_all_student_rankings(sort_by="score", sort_order="desc"),
         'sections_handled': [
             f"{hs.department.name}{hs.year_level.year}{hs.section.letter}"
             for hs in handled_sections
