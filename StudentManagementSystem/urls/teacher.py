@@ -1,5 +1,6 @@
 from django.urls import path
 
+from StudentManagementSystem.views.teacher.progress_control_teacher import progress_control_teacher
 from StudentManagementSystem.views.teacher.register_student_teacher import register_student_teacher
 from StudentManagementSystem.views.teacher.auth_teacher import teacher_login, teacher_logout
 from StudentManagementSystem.views.teacher.dashboard_teacher import teacher_dashboard
@@ -12,5 +13,6 @@ urlpatterns = [
     path('teacher/register-student/', register_student_teacher,
          name='register_student_teacher'),
     path('teacher/generate-section-code/', generate_section_code_view, name='generate_section_code'),
+    path('progress-control/', progress_control_teacher, name='progress_control_teacher'),
 
 ]

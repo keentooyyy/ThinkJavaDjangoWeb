@@ -24,7 +24,7 @@ def get_game_progress(request, student_id):
             }
 
         achievements = OrderedDict()
-        for ach in AchievementDefinition.objects.all():
+        for ach in AchievementDefinition.objects.filter(is_active=True):  # ✅ Only active achievements
             p = achievement_progress.get(ach.id)
             achievements[ach.code] = {
                 "title": ach.title,

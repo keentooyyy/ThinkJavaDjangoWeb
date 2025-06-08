@@ -44,58 +44,50 @@ def add_level(name, unlocked=False):
 def add_achievement(code, title, description):
     achievement, created = AchievementDefinition.objects.get_or_create(
         code=code,
-        defaults={"title": title, "description": description}
+        defaults={"title": title, "description": description, "is_active": True}
     )
     if created:
         sync_all_students_with_all_progress()
     return achievement
+
 
 def lock_all_levels():
     for level in LevelDefinition.objects.all():
         level.unlocked = False
         level.save()
 
+
 def unlock_all_levels():
     for level in LevelDefinition.objects.all():
         level.unlocked = True
         level.save()
 
-def lock_all_achievements():
-    for ach in AchievementDefinition.objects.all():
-        for progress in AchievementProgress.objects.filter(achievement=ach):
-            progress.unlocked = False
-            progress.save()
-
-def unlock_all_achievements():
-    for ach in AchievementDefinition.objects.all():
-        for progress in AchievementProgress.objects.filter(achievement=ach):
-            progress.unlocked = True
-            progress.save()
-
 
 def reset_all_progress():
-    """Reset: Lock all levels + achievements and clear progress data."""
-
-    # Lock all level definitions
+    """Reset all level progress and achievement progress values."""
     lock_all_levels()
 
-    # Lock all achievement progress
-    lock_all_achievements()
-
-    # Reset each student's progress (times) per level
     for progress in LevelProgress.objects.all():
         progress.best_time = 0
         progress.current_time = 0
         progress.save()
 
-def unlock_achievement(code):
+
+# ✅ GLOBAL ACHIEVEMENT CONTROL
+
+def set_achievement_active(code, active=True):
+    """Set whether an achievement is globally unlockable."""
     ach = get_object_or_404(AchievementDefinition, code=code)
-    ach.unlocked = True
+    ach.is_active = active
     ach.save()
     return ach
 
-def lock_achievement(code):
-    ach = get_object_or_404(AchievementDefinition, code=code)
-    ach.unlocked = False
-    ach.save()
-    return ach
+
+def enable_all_achievements():
+    """Mark all achievements as globally unlockable."""
+    AchievementDefinition.objects.update(is_active=True)
+
+
+def disable_all_achievements():
+    """Disable all achievements from being unlockable."""
+    AchievementDefinition.objects.update(is_active=False)

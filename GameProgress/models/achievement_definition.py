@@ -4,7 +4,7 @@ class AchievementDefinition(models.Model):
     code = models.CharField(max_length=100, unique=True)
     title = models.CharField(max_length=200)
     description = models.TextField()
-    unlocked = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)  # ✅ This is the only control you need
 
     def __str__(self):
         return self.code

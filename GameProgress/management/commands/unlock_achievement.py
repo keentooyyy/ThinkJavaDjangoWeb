@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from GameProgress.services.progress import unlock_achievement
+from GameProgress.services.progress import set_achievement_active
 
 class Command(BaseCommand):
     help = "Unlock a specific global achievement by code"
@@ -10,5 +10,5 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         # ✅ Usage:
         # python manage.py unlock_achievement ach_code
-        achievement = unlock_achievement(options["code"])
+        achievement = set_achievement_active(options["code"], True)
         self.stdout.write(self.style.SUCCESS(f"✅ Unlocked achievement: {achievement.code}"))
