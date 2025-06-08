@@ -24,4 +24,5 @@ urlpatterns = [
     path('api/', include('GameProgress.urls')),
     path('admin/', include('StudentManagementSystem.urls.admin')),
     path('teacher/', include('StudentManagementSystem.urls.teacher')),
+    path('student/', include('StudentManagementSystem.urls.student')),
 ]

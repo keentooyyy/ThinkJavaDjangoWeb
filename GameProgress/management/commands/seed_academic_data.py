@@ -10,7 +10,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         departments = ["CS", "IT"]
-        years = [1, 2, 3, 4]
+        years = [1]
         sections = [chr(c) for c in range(ord("A"), ord("Z") + 1)]
 
         for dept_name in departments:
