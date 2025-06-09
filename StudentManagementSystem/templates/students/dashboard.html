@@ -1,22 +1,9 @@
-<!DOCTYPE html>
-<html>
-<head><title>Student Dashboard</title></head>
-<body>
-  <h2>Welcome, {{ student.name }}</h2>
-  <p><strong>Section:</strong> {{ performance.section }}</p>
-  <p><strong>Department:</strong> {{ performance.department }}</p>
-  <p><strong>Year Level:</strong> {{ performance.year_level }}</p>
+{% extends 'base.html' %}
 
-  <h3>Performance</h3>
-  <ul>
-    <li><strong>Total Time Remaining:</strong> {{ performance.total_time_remaining }} seconds</li>
-    <li><strong>Achievements Unlocked:</strong> {{ performance.achievements_unlocked }}</li>
-    <li><strong>Performance Percentage:</strong> {{ performance.percentage_remaining }}%</li>
-  </ul>
+{% block title %}Student Dashboard{% endblock %}
 
-
-
-
-  <p><a href="{% url 'student_logout' %}">Logout</a></p>
-</body>
-</html>
+{% block content %}
+    {% include 'students/student_info.html' %}
+    {% include 'students/student_performance.html' %}
+    <p><a href="{% url 'student_logout' %}">Logout</a></p>
+{% endblock %}

@@ -23,7 +23,7 @@ def get_student_performance(student):
             total_score += 70
         elif remaining >= 30:
             total_score += 40
-        elif remaining > 0:
+        elif remaining > 1:
             total_score += 10
         else:
             total_score += 0  # Failed or not completed

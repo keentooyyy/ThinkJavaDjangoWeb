@@ -22,7 +22,7 @@ import GameProgress
 urlpatterns = [
     #    path('admin/', admin.site.urls),
     path('api/', include('GameProgress.urls')),
-    path('admin/', include('StudentManagementSystem.urls.admin')),
+    path('', include('StudentManagementSystem.urls.admin')),
     path('teacher/', include('StudentManagementSystem.urls.teacher')),
     path('student/', include('StudentManagementSystem.urls.student')),
 ]

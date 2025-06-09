@@ -1,0 +1,53 @@
+<h3>Create New Teacher</h3>
+<form method="post" action="{% url 'create_teacher' %}">
+    {% csrf_token %}
+    <label for="teacher_id">Teacher ID:</label><br>
+    <input type="text" id="teacher_id" name="teacher_id" required><br><br>
+
+    <label for="password">Password:</label><br>
+    <input type="password" id="password" name="password" required><br><br>
+
+    <!-- 🔒 Year level is always 1 -->
+    <input type="hidden" name="year_level" value="1">
+
+    <!-- SECTION GROUP START -->
+    <div id="section-group-container">
+        <div class="section-group">
+            <label>Department:</label>
+            <select name="departments[]" required>
+                <option value="">-- Select Department --</option>
+                {% for dept in departments %}
+                    <option value="{{ dept.id }}">{{ dept.name }}</option>
+                {% endfor %}
+            </select>
+
+            <label>Section:</label>
+            <select name="section_ids[]" required>
+                <option value="">-- Select Section --</option>
+                {% for section in sections %}
+                    <option value="{{ section.id }}">{{ section.letter }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <button type="button" onclick="addSectionGroup()">➕ Add More Sections</button>
+    <!-- SECTION GROUP END -->
+
+    <br><br>
+    <button type="submit">Create Teacher</button>
+</form>
+
+<!-- JavaScript to add more section groups -->
+<script>
+  function addSectionGroup() {
+    const container = document.getElementById('section-group-container');
+    const firstGroup = container.querySelector('.section-group');
+    const newGroup = firstGroup.cloneNode(true);
+
+    const selects = newGroup.querySelectorAll('select');
+    selects.forEach(select => select.selectedIndex = 0);
+
+    container.appendChild(newGroup);
+  }
+</script>

@@ -1,158 +1,19 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Teacher Dashboard</title>
-</head>
-<body>
-<h2>Welcome, {{ teacher.teacher_id }}</h2>
-<p>This is your dashboard. Below are the top student performances.</p>
+{% extends 'base.html' %}
 
-<h3>Handled Sections</h3>
-<ul>
-    {% for label in sections_handled %}
-        <li>{{ label }}</li>
-    {% empty %}
-        <li>No sections assigned.</li>
-    {% endfor %}
-</ul>
+{% block title %}Teacher Dashboard{% endblock %}
 
 
+{% block content %}
+    {% include 'teacher/teacher_info.html' %}
 
-
-<h3>Top Students</h3>
-<table border="1" cellpadding="5" cellspacing="0">
-    <thead>
-    <tr>
-        <th>#</th>
-        <th>Name</th>
-        <th>Section</th>
-        <th>Department</th>
-        <th>Year</th>
-        <th>Achievements</th>
-        <th>Total Score</th>
-    </tr>
-    </thead>
-    <tbody>
-    {% for student in rankings %}
-    <tr>
-        <td>{{ forloop.counter }}</td>
-        <td>{{ student.name }}</td>
-        <td>{{ student.section }}</td>
-        <td>{{ student.department }}</td>
-        <td>{{ student.year_level }}</td>
-        <td>{{ student.achievements_unlocked }}</td>
-        <td>{{ student.score }}</td>
-    </tr>
-    {% empty %}
-    <tr>
-        <td colspan="8">No data available.</td>
-    </tr>
-    {% endfor %}
-    </tbody>
-</table>
-
-
-<h3>Register New Student</h3>
-<form method="post" action="{% url 'register_student_teacher' %}">
-  {% csrf_token %}
-  <div>
-    <label for="student_id">Student ID:</label>
-    <input type="text" name="student_id" id="student_id" required>
-  </div>
-
-  <div>
-    <label for="password">Password:</label>
-    <input type="password" name="password" id="password" required>
-  </div>
-
-  <div>
-    <label for="section_id">Assign to Section:</label>
-    <select name="section_id" id="section_id" required>
-      {% for hs in handled_sections %}
-        <option value="{{ hs.section.id }}">
-          {{ hs.department.name }}{{ hs.year_level.year }}{{ hs.section.letter }}
-        </option>
-      {% endfor %}
-    </select>
-  </div>
-
-  <button type="submit">Register Student</button>
-</form>
-
-{% if messages %}
-  <ul>
-    {% for message in messages %}
-      <li>{{ message }}</li>
-    {% endfor %}
-  </ul>
-{% endif %}
-
-
-<h3>Generate Section Join Code</h3>
-<form method="post" action="{% url 'generate_section_code' %}">
-  {% csrf_token %}
-  <label for="generate_section_id">Select Section:</label>
-  <select name="section_id" id="generate_section_id" required>
-    {% for hs in handled_sections %}
-      <option value="{{ hs.section.id }}_{{ hs.department.id }}_{{ hs.year_level.id }}">
-        {{ hs.department.name }}{{ hs.year_level.year }}{{ hs.section.letter }}
-      </option>
-    {% endfor %}
-  </select>
-
-  <button type="submit">Generate Code</button>
-</form>
-<div class="container mt-4">
-  <h2>🎮 Progress Control Panel</h2>
-
-  <!-- Global Actions -->
-  <form method="post" class="mb-3" action="{% url 'progress_control_teacher' %}">
-    {% csrf_token %}
-    <button name="action" value="sync" class="btn btn-secondary">Sync All Students</button>
-    <button name="action" value="unlock_levels" class="btn btn-success">Unlock All Levels</button>
-    <button name="action" value="lock_levels" class="btn btn-danger">Lock All Levels</button>
-    <button name="action" value="enable_achievements" class="btn btn-success">Unlock All Achievements</button>
-    <button name="action" value="disable_achievements" class="btn btn-danger">Lock All Achievements</button>
-    <button name="action" value="reset_progress" class="btn btn-warning">Reset All Progress</button>
-  </form>
-
-  <hr>
-
-  <!-- Level Dropdown -->
-  <h5>🔒 Lock/Unlock Specific Level</h5>
-  <form method="post" class="form-inline mb-3" action="{% url 'progress_control_teacher' %}">
-    {% csrf_token %}
-    <div class="form-group">
-      <select name="level_name" class="form-control mr-2" required>
-        {% for level in level_options %}
-          <option value="{{ level.value }}">{{ level.label }}</option>
+    {% if messages %}
+        {% for message in messages %}
+            <p class="message {{ message.tags }}">{{ message }}</p>
         {% endfor %}
-      </select>
-      <button name="action" value="lock_single_level" class="btn btn-danger mr-1">Lock</button>
-      <button name="action" value="unlock_single_level" class="btn btn-success">Unlock</button>
-    </div>
-  </form>
-
-  <!-- Achievement Dropdown -->
-  <h5>🏆 Enable/Disable Specific Achievement</h5>
-<form method="post" class="form-inline" action="{% url 'progress_control_teacher' %}">
-  {% csrf_token %}
-  <div class="form-group">
-    <select name="achievement_code" class="form-control mr-2" required>
-      {% for ach in achievement_options %}
-        <option value="{{ ach.value }}">
-          {{ ach.label }}{% if not ach.is_active %} (Disabled){% endif %}
-        </option>
-      {% endfor %}
-    </select>
-    <button name="action" value="disable_single_achievement" class="btn btn-danger mr-1">Disable</button>
-    <button name="action" value="enable_single_achievement" class="btn btn-success">Enable</button>
-  </div>
-</form>
-
-</div>
-
-<br><a href="{% url 'teacher_logout' %}">Logout</a>
-</body>
-</html>
+    {% endif %}
+    {% include 'teacher/handled_sections.html' %}
+    {% include 'teacher/student_ranking.html' %}
+    {% include 'teacher/register_student.html' %}
+    {% include 'teacher/generate_section_code.html' %}
+    {% include 'teacher/progress_control.html' %}
+{% endblock %}

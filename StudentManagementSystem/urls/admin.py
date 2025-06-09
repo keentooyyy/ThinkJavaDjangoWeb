@@ -4,7 +4,7 @@ from StudentManagementSystem.views.admin.auth_admin import admin_login, admin_lo
 from StudentManagementSystem.views.admin.dashboard_admin import  create_teacher, admin_dashboard
 
 urlpatterns = [
-    path('login/', admin_login, name='admin_login'),
+    path('', admin_login, name='admin_login'),
     path('logout/', admin_logout, name='admin_logout'),
     path('register/', admin_register, name='admin_register'),
     path('dashboard/', admin_dashboard, name='admin_dashboard'),

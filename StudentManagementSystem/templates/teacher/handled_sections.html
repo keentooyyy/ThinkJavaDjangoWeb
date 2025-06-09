@@ -1,0 +1,10 @@
+{% block handled_sections %}
+    <h3>Handled Sections</h3>
+    <ul>
+        {% for label in sections_handled %}
+            <li>{{ label }}</li>
+        {% empty %}
+            <li>No sections assigned.</li>
+        {% endfor %}
+    </ul>
+{% endblock %}
