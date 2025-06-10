@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 from GameProgress.services.ranking import get_all_student_rankings
 
+
 class Command(BaseCommand):
     help = "Show ranked students based on time attack performance and achievements"
 
@@ -8,13 +9,13 @@ class Command(BaseCommand):
         parser.add_argument(
             '--sort-by',
             type=str,
-            choices=['time_remaining', 'achievements', 'percentage', 'name', 'section'],
-            default='time_remaining',
+            choices=['score', 'time_remaining', 'achievements', 'name', 'section'],
+            default='score',
             help=(
                 "Sort criteria:\n"
+                "  - score: 🧮 total score (time + achievements)\n"
                 "  - time_remaining: ⏱️ total remaining time (higher is better)\n"
                 "  - achievements: 🏅 most achievements unlocked\n"
-                "  - percentage: 📊 percentage of max time preserved\n"
                 "  - name: 🔤 alphabetical\n"
                 "  - section: 🏫 grouped (e.g. CS3A > IT2C)"
             )
@@ -31,13 +32,13 @@ class Command(BaseCommand):
         parser.add_argument(
             '--filter-by',
             type=str,
-            help="Filter students by exact full_section (e.g., CS3A)"
+            help="Filter students by section code (e.g., '1A', '3B')"
         )
 
         parser.add_argument(
             '--department',
             type=str,
-            help="Filter students by department code (e.g., CS, IT)"
+            help="Filter students by department name (e.g., 'CS', 'IT')"
         )
 
     def handle(self, *args, **options):
@@ -71,18 +72,17 @@ class Command(BaseCommand):
         self.stdout.write("\n✅ Done.")
 
 
-# -------------------------------------
-# 🧪 Usage Examples:
-#
-# Default:
+# # Default (by score descending)
 # python manage.py rank_students
 #
-# Sort by achievements (descending):
-# python manage.py rank_students --sort-by achievements
-#
-# Sort alphabetically:
+# # Sort by name A–Z
 # python manage.py rank_students --sort-by name --sort-order asc
 #
-# Sort from worst performers (least time left):
-# python manage.py rank_students --sort-order asc
-# -------------------------------------
+# # Filter to CS students only
+# python manage.py rank_students --department CS
+#
+# # Filter to section CS3A
+# python manage.py rank_students --department CS --filter-by 3A
+#
+# # Sort by achievements descending
+# python manage.py rank_students --sort-by achievement

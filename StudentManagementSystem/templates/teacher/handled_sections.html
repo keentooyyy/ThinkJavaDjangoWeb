@@ -1,8 +1,8 @@
 {% block handled_sections %}
     <h3>Handled Sections</h3>
     <ul>
-        {% for label in sections_handled %}
-            <li>{{ label }}</li>
+        {% for hs in handled_sections %}
+            <li>{{ hs.department.name }}{{ hs.year_level.year }}{{ hs.section.letter }}</li>
         {% empty %}
             <li>No sections assigned.</li>
         {% endfor %}

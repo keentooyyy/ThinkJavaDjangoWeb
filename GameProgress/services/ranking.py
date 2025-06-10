@@ -36,7 +36,7 @@ def get_student_performance(student):
         "student_id": student.id,
         "name": student.name,
         "section": getattr(student, "full_section", "N/A"),
-        "department": getattr(student, "department", None).name if getattr(student, "department", None) else "N/A",
+        "department": getattr(student.section, "department", None).name if getattr(student.section, "department", None) else "N/A",  # Updated to access section.department
         "year_level": getattr(student, "year_level", None).year if getattr(student, "year_level", None) else "N/A",
         "section_letter": getattr(student, "section", None).letter if getattr(student, "section", None) else "N/A",
         "total_time_remaining": total_time_remaining,
@@ -45,16 +45,28 @@ def get_student_performance(student):
     }
 
 
+
 def get_all_student_rankings(sort_by="score", sort_order="desc", filter_by=None, department_filter=None):
+    # We start by querying all students
     students = Student.objects.all()
 
-    if filter_by:
-        students = [s for s in students if s.full_section == filter_by]
-
+    # Apply department filter if provided
     if department_filter:
-        students = [s for s in students if s.department and s.department.name == department_filter]
+        students = students.filter(section__department__name=department_filter)
 
+    # Apply section filter if present (section_filter will be in '1A', '2B' format)
+    if filter_by:
+        # Assuming section_filter is like '1A', '1B', etc.
+        year = int(filter_by[0])  # First part is the year (e.g., '1' from '1A')
+        section_letter = filter_by[1]  # Second part is the section letter (e.g., 'A' from '1A')
+
+        # Filter students by year and section letter
+        students = students.filter(year_level__year=year, section__letter=section_letter)
+
+    # Retrieve rankings for the filtered students
     rankings = [get_student_performance(s) for s in students]
+
+    # Sort the rankings based on the provided criteria
     reverse = sort_order == "desc"
 
     if sort_by == "score":
@@ -69,3 +81,4 @@ def get_all_student_rankings(sort_by="score", sort_order="desc", filter_by=None,
         rankings.sort(key=lambda r: (r["department"], r["year_level"], r["section_letter"]), reverse=reverse)
 
     return rankings
+

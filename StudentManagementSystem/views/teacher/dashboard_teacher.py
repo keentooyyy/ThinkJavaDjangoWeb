@@ -1,19 +1,45 @@
+import re
+
+from django.http.response import JsonResponse
 from django.shortcuts import render, redirect
-from StudentManagementSystem.models import Teacher
+from django.template.loader import render_to_string
+
 from GameProgress.models import LevelDefinition, AchievementDefinition
 from GameProgress.services.ranking import get_all_student_rankings
+from StudentManagementSystem.models import Teacher
+from StudentManagementSystem.models.department import Department
+from StudentManagementSystem.models.section import Section
+from StudentManagementSystem.models.student import Student
 
 def get_teacher_dashboard_context(teacher):
     handled_sections = teacher.handled_sections.select_related('department', 'year_level', 'section')
 
+    print(f"Handled sections: {handled_sections}")
+    print(f"Handled sections count: {handled_sections.count()}")
+
+    # Get all students (no filters applied for now)
+    students = Student.objects.all()
+
+    # Get the rankings for the filtered students
+    rankings = get_all_student_rankings(sort_by="score", sort_order="desc")
+
+    # Only get the sections that the teacher is handling
+    sections_for_department = [
+        {
+            'section_value': f"{hs.year_level.year}{hs.section.letter}",
+            'section_display': f"{hs.year_level.year} {hs.section.letter}"
+        }
+        for hs in handled_sections
+    ]
+
     return {
         'teacher': teacher,
-        'rankings': get_all_student_rankings(sort_by="score", sort_order="desc"),
-        'sections_handled': [
-            f"{hs.department.name}{hs.year_level.year}{hs.section.letter}"
-            for hs in handled_sections
-        ],
+        'rankings': rankings,
         'handled_sections': handled_sections,
+        'handled_sections_names': [
+            f"{hs.year_level.year} {hs.section.letter}" for hs in handled_sections
+        ],
+        'handled_students': students,  # Current handled students for the teacher (no filter)
         'level_options': [
             {"value": level.name, "label": level.name}
             for level in LevelDefinition.objects.all()
@@ -22,13 +48,15 @@ def get_teacher_dashboard_context(teacher):
             {
                 "value": ach.code,
                 "label": ach.title,
-                "is_active": ach.is_active  # ✅ Include this
+                "is_active": ach.is_active
             }
             for ach in AchievementDefinition.objects.all()
         ],
+        'departments': Department.objects.all(),
+        'sections_for_department': sections_for_department,  # Only sections relevant to the selected department
+        'sections': Section.objects.all(),
     }
 
-# views/teacher_dashboard.py
 
 def teacher_dashboard(request):
     teacher_id = request.session.get('teacher_id')
@@ -36,5 +64,17 @@ def teacher_dashboard(request):
         return redirect('teacher_login')
 
     teacher = Teacher.objects.get(id=teacher_id)
+
+    # Get the context without applying any filters
     context = get_teacher_dashboard_context(teacher)
+
+    # If it's an AJAX request, return the partial content (only the rankings table)
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        updated_table_html = render_to_string('teacher/rankings_table.html', context)
+
+        return JsonResponse({
+            'updated_table_html': updated_table_html,
+        })
+
+    # If it's a regular request, return the full page
     return render(request, 'teacher/dashboard.html', context)

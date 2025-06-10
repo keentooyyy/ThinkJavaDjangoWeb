@@ -1,5 +1,8 @@
 {% block register_student %}
     <h3>Register New Student</h3>
+
+
+
     <form method="post" action="{% url 'register_student_teacher' %}">
         {% csrf_token %}
         <div>
@@ -12,6 +15,9 @@
             <input type="password" name="password" id="password" required>
         </div>
 
+
+{#<p>{{ handled_sections }}</p>#}
+
         <div>
             <label for="section_id">Assign to Section:</label>
             <select name="section_id" id="section_id" required>
@@ -19,6 +25,8 @@
                     <option value="{{ hs.section.id }}">
                         {{ hs.department.name }}{{ hs.year_level.year }}{{ hs.section.letter }}
                     </option>
+                {% empty %}
+                    <option disabled>No sections available</option>
                 {% endfor %}
             </select>
         </div>

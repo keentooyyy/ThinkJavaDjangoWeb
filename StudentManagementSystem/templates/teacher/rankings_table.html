@@ -1,0 +1,30 @@
+{#<table>#}
+{#    <thead>#}
+{#        <tr>#}
+{#            <th>#</th>#}
+{#            <th>Name</th>#}
+{#            <th>Section</th>#}
+{#            <th>Department</th>#}
+{#            <th>Year</th>#}
+{#            <th>Time Remaining</th>#}
+{#            <th>Achievements</th>#}
+{#            <th>Score</th>#}
+{#        </tr>#}
+{#    </thead>#}
+{#    <tbody>#}
+{#        {% for student in rankings %}#}
+{#            <tr>#}
+{#                <td>{{ forloop.counter }}</td>#}
+{#                <td>{{ student.name }}</td>#}
+{#                <td>{{ student.section }}</td>#}
+{#                <td>{{ student.department }}</td>#}
+{#                <td>{{ student.year_level }}</td>#}
+{#                <td>{{ student.total_time_remaining }}</td>#}
+{#                <td>{{ student.achievements_unlocked }}</td>#}
+{#                <td>{{ student.score }}</td>#}
+{#            </tr>#}
+{#        {% empty %}#}
+{#            <tr><td colspan="8">No student data available.</td></tr>#}
+{#        {% endfor %}#}
+{#    </tbody>#}
+{#</table>#}

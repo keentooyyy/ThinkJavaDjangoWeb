@@ -1,3 +1,4 @@
+from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.hashers import make_password
@@ -24,15 +25,38 @@ def admin_dashboard(request):
         messages.error(request, 'Admin account not found.')
         return redirect('admin_login')
 
-    departments = Department.objects.all()
-    sections = Section.objects.all()
-    rankings = get_all_student_rankings()
+    # GET filters
+    department_name = request.GET.get("department")
+    section_filter = request.GET.get("filter_by")
+    sort_by = request.GET.get("sort_by", "score")
+    sort_order = request.GET.get("sort_order", "desc")
+    page_number = request.GET.get("page", 1)
+    per_page = int(request.GET.get("per_page", 25))
+
+    departments = Department.objects.all().order_by("name")
+    sections = Section.objects.filter(department__name=department_name).order_by("year_level__year", "letter") if department_name else []
+
+    rankings = get_all_student_rankings(
+        sort_by=sort_by,
+        sort_order=sort_order,
+        filter_by=section_filter,
+        department_filter=department_name,
+    )
+
+    paginator = Paginator(rankings, per_page)
+    page_obj = paginator.get_page(page_number)
 
     return render(request, 'admin/dashboard.html', {
         'admin': admin,
         'departments': departments,
         'sections': sections,
-        'rankings': rankings,
+        'rankings': page_obj.object_list,
+        'page_obj': page_obj,
+        'selected_department': department_name,
+        'selected_section': section_filter,
+        'sort_by': sort_by,
+        'sort_order': sort_order,
+        'per_page': per_page,
     })
 
 def create_teacher(request):
