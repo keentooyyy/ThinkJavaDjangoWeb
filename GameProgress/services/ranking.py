@@ -9,7 +9,7 @@ def get_student_performance(student):
     total_score = 0
     total_levels = LevelDefinition.objects.count()
     achievements_unlocked = achievement_progress.filter(unlocked=True).count()
-    total_achievements = AchievementProgress.objects.filter(student=student).count()
+    total_achievements = achievement_progress.count()
     total_time_remaining = 0
 
     for lp in level_progress:
@@ -36,7 +36,7 @@ def get_student_performance(student):
         "student_id": student.id,
         "name": student.name,
         "section": getattr(student, "full_section", "N/A"),
-        "department": getattr(student.section, "department", None).name if getattr(student.section, "department", None) else "N/A",  # Updated to access section.department
+        "department": getattr(student.section, "department", None).name if getattr(student.section, "department", None) else "N/A",
         "year_level": getattr(student, "year_level", None).year if getattr(student, "year_level", None) else "N/A",
         "section_letter": getattr(student, "section", None).letter if getattr(student, "section", None) else "N/A",
         "total_time_remaining": total_time_remaining,
@@ -45,28 +45,31 @@ def get_student_performance(student):
     }
 
 
-
-def get_all_student_rankings(sort_by="score", sort_order="desc", filter_by=None, department_filter=None):
-    # We start by querying all students
+def get_all_student_rankings(sort_by="score", sort_order="desc", filter_by=None, department_filter=None, limit_to_students=None):
+    # Base queryset
     students = Student.objects.all()
 
-    # Apply department filter if provided
+    # Optional limit to a predefined set of student IDs (e.g., teacher's students)
+    if limit_to_students is not None:
+        students = students.filter(id__in=limit_to_students)
+
+    # Filter by department
     if department_filter:
         students = students.filter(section__department__name=department_filter)
 
-    # Apply section filter if present (section_filter will be in '1A', '2B' format)
+    # Filter by section in format '1A', '2B', etc.
     if filter_by:
-        # Assuming section_filter is like '1A', '1B', etc.
-        year = int(filter_by[0])  # First part is the year (e.g., '1' from '1A')
-        section_letter = filter_by[1]  # Second part is the section letter (e.g., 'A' from '1A')
+        try:
+            year = int(filter_by[0])
+            section_letter = filter_by[1].upper()
+            students = students.filter(year_level__year=year, section__letter=section_letter)
+        except (IndexError, ValueError):
+            pass  # Ignore invalid filter input
 
-        # Filter students by year and section letter
-        students = students.filter(year_level__year=year, section__letter=section_letter)
-
-    # Retrieve rankings for the filtered students
+    # Compute performance per student
     rankings = [get_student_performance(s) for s in students]
 
-    # Sort the rankings based on the provided criteria
+    # Sort by selected criteria
     reverse = sort_order == "desc"
 
     if sort_by == "score":
@@ -81,4 +84,3 @@ def get_all_student_rankings(sort_by="score", sort_order="desc", filter_by=None,
         rankings.sort(key=lambda r: (r["department"], r["year_level"], r["section_letter"]), reverse=reverse)
 
     return rankings
-

@@ -10,26 +10,26 @@
     <!-- 🔒 Year level is always 1 -->
     <input type="hidden" name="year_level" value="1">
 
-    <!-- SECTION GROUP START -->
     <div id="section-group-container">
         <div class="section-group">
             <label>Department:</label>
-            <select name="departments[]" required>
+            <select name="departments[]" class="dept-select" required>
                 <option value="">-- Select Department --</option>
                 {% for dept in departments %}
                     <option value="{{ dept.id }}">{{ dept.name }}</option>
                 {% endfor %}
             </select>
 
-            <label>Section:</label>
-            <select name="section_ids[]" required>
-                <option value="">-- Select Section --</option>
-                {% for section in sections %}
-                    <option value="{{ section.id }}">{{ section.letter }}</option>
+            <label>Section Letter:</label>
+            <select name="letters[]" class="section-select" required>
+                <option value="">-- Select Section Letter --</option>
+                {% for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" %}
+                    <option value="{{ letter }}">{{ letter }}</option>
                 {% endfor %}
             </select>
         </div>
     </div>
+
 
     <button type="button" onclick="addSectionGroup()">➕ Add More Sections</button>
     <!-- SECTION GROUP END -->
@@ -40,14 +40,18 @@
 
 <!-- JavaScript to add more section groups -->
 <script>
-  function addSectionGroup() {
-    const container = document.getElementById('section-group-container');
-    const firstGroup = container.querySelector('.section-group');
-    const newGroup = firstGroup.cloneNode(true);
+    function addSectionGroup() {
+        const container = document.getElementById('section-group-container');
+        const firstGroup = container.querySelector('.section-group');
+        const newGroup = firstGroup.cloneNode(true);
 
-    const selects = newGroup.querySelectorAll('select');
-    selects.forEach(select => select.selectedIndex = 0);
+        // Clear values of cloned selects
+        const deptSelect = newGroup.querySelector('.dept-select');
+        const sectionSelect = newGroup.querySelector('.section-select');
 
-    container.appendChild(newGroup);
-  }
+        deptSelect.selectedIndex = 0;
+        sectionSelect.selectedIndex = 0;
+
+        container.appendChild(newGroup);
+    }
 </script>

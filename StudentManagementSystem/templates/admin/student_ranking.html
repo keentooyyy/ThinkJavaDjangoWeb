@@ -1,5 +1,5 @@
 <h3>Student Performance Rankings</h3>
-
+<input type="hidden" name="teacher_mode" value="{{ teacher_mode|default:'0' }}">
 <form method="get" class="filter-form">
     <label for="department">Department:</label>
     <select name="department" id="department">
@@ -38,15 +38,18 @@
         <option value="asc" {% if sort_order == "asc" %}selected{% endif %}>Ascending</option>
     </select>
 
+    <label for="per_page">Show:</label>
+    <select name="per_page" onchange="this.form.submit()">
+        <option value="10" {% if per_page == 10 %}selected{% endif %}>10</option>
+        <option value="25" {% if per_page == 25 %}selected{% endif %}>25</option>
+        <option value="50" {% if per_page == 50 %}selected{% endif %}>50</option>
+    </select>
+
     <button type="submit">Apply</button>
+
+
 </form>
 
-<label for="per_page">Show:</label>
-<select name="per_page" onchange="this.form.submit()">
-    <option value="10" {% if per_page == 10 %}selected{% endif %}>10</option>
-    <option value="25" {% if per_page == 25 %}selected{% endif %}>25</option>
-    <option value="50" {% if per_page == 50 %}selected{% endif %}>50</option>
-</select>
 
 <table>
     <thead>

@@ -10,6 +10,8 @@ from StudentManagementSystem.models import Teacher
 from StudentManagementSystem.models.department import Department
 from StudentManagementSystem.models.section import Section
 from StudentManagementSystem.models.student import Student
+from StudentManagementSystem.views.admin.ranking_students import get_rankings_context
+
 
 def get_teacher_dashboard_context(teacher):
     handled_sections = teacher.handled_sections.select_related('department', 'year_level', 'section')
@@ -31,6 +33,7 @@ def get_teacher_dashboard_context(teacher):
         }
         for hs in handled_sections
     ]
+
 
     return {
         'teacher': teacher,
@@ -65,16 +68,13 @@ def teacher_dashboard(request):
 
     teacher = Teacher.objects.get(id=teacher_id)
 
-    # Get the context without applying any filters
+    # Get static + relational UI data
     context = get_teacher_dashboard_context(teacher)
 
-    # If it's an AJAX request, return the partial content (only the rankings table)
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        updated_table_html = render_to_string('teacher/rankings_table.html', context)
+    # Get dynamic ranking data
+    ranking_context = get_rankings_context(request, teacher=teacher)
 
-        return JsonResponse({
-            'updated_table_html': updated_table_html,
-        })
+    # Merge both
+    context.update(ranking_context)
 
-    # If it's a regular request, return the full page
     return render(request, 'teacher/dashboard.html', context)
