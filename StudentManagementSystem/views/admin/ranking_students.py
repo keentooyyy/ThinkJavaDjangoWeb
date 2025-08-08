@@ -32,7 +32,11 @@ def get_rankings_context(request, teacher=None):
         else:
             filtered_section_ids = all_handled_section_ids
 
-        sections = Section.objects.filter(id__in=filtered_section_ids).select_related("year_level").order_by("year_level__year", "letter")
+        # sections = Section.objects.filter(id__in=filtered_section_ids).select_related("year_level").order_by("year_level__year", "letter")
+
+        # Update the sections queryset to remove duplicates based on year_level and letter
+        sections = Section.objects.select_related("year_level").order_by("year_level__year", "letter").distinct(
+            "year_level", "letter")
 
         # Rankings limited to teacher's handled students
         limit_to_students = Student.objects.filter(
