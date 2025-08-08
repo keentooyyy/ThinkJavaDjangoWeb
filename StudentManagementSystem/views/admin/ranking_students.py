@@ -4,7 +4,6 @@ from StudentManagementSystem.models.section import Section
 from StudentManagementSystem.models.student import Student
 from GameProgress.services.ranking import get_all_student_rankings
 
-
 def get_rankings_context(request, teacher=None):
     department_name = request.GET.get("department")
     section_filter = request.GET.get("filter_by")
@@ -32,27 +31,34 @@ def get_rankings_context(request, teacher=None):
         else:
             filtered_section_ids = all_handled_section_ids
 
-        # sections = Section.objects.filter(id__in=filtered_section_ids).select_related("year_level").order_by("year_level__year", "letter")
-
-        # Update the sections queryset to remove duplicates based on year_level and letter
-        sections = Section.objects.select_related("year_level").order_by("year_level__year", "letter").distinct(
-            "year_level", "letter")
-
-        # Rankings limited to teacher's handled students
-        limit_to_students = Student.objects.filter(
-            section__id__in=filtered_section_ids
-        ).values_list('id', flat=True)
+        # Fetch all sections for the teacher's handled sections
+        sections = Section.objects.filter(id__in=filtered_section_ids).select_related('year_level') \
+            .order_by('year_level__year', 'letter')
 
     else:
-        # Admin mode
+        # Admin mode: Fetch sections for the selected department or all sections
         if department_name and department_name.lower() != "all":
-            sections = Section.objects.filter(
-                department__name=department_name
-            ).select_related("year_level").order_by("year_level__year", "letter")
+            sections = Section.objects.filter(department__name=department_name) \
+                .select_related("year_level").order_by("year_level__year", "letter")
         else:
             sections = Section.objects.select_related("year_level").order_by("year_level__year", "letter")
 
+    # Remove duplicates based on year_level and letter for both teacher and admin modes
+    unique_sections = []
+    seen = set()
+    for section in sections:
+        section_key = (section.year_level.id, section.letter)
+        if section_key not in seen:
+            seen.add(section_key)
+            unique_sections.append(section)
 
+    sections = unique_sections  # Now `sections` will contain unique values
+
+    # Rankings limited to teacher's handled students in teacher mode
+    if teacher_mode and teacher:
+        limit_to_students = Student.objects.filter(
+            section__id__in=filtered_section_ids
+        ).values_list('id', flat=True)
 
     rankings = get_all_student_rankings(
         sort_by=sort_by,
@@ -77,4 +83,3 @@ def get_rankings_context(request, teacher=None):
         'per_page': per_page,
         'teacher_mode': teacher_mode,
     }
-
