@@ -15,7 +15,7 @@ def student_dashboard(request):
         return redirect('unified_login')
 
     performance = get_student_performance(student)
-    print(performance)
+    # print(performance)
 
     return render(request, 'students/dashboard.html', {
         'student': student,
