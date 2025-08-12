@@ -1,7 +1,8 @@
 from django.urls import path
 
 from StudentManagementSystem.views.admin.apis.helper_functions_admin import get_sections_by_department
-from StudentManagementSystem.views.admin.auth_admin import admin_login, admin_logout, admin_register
+from StudentManagementSystem.views.admin.auth_admin import admin_register
+# from StudentManagementSystem.views.admin.auth_admin import admin_login, admin_logout, admin_register
 from StudentManagementSystem.views.admin.dashboard_admin import create_teacher, admin_dashboard
 from StudentManagementSystem.views.admin.proggress_addition_admin import add_achievement, add_level
 from StudentManagementSystem.views.auth_unified import unified_login, unified_logout
