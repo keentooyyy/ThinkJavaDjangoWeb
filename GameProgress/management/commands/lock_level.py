@@ -1,5 +1,7 @@
 from django.core.management.base import BaseCommand
+
 from GameProgress.services.progress import lock_level
+
 
 class Command(BaseCommand):
     help = "Lock a specific global level"

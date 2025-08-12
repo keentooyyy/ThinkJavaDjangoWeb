@@ -1,8 +1,4 @@
-import re
-
-from django.http.response import JsonResponse
 from django.shortcuts import render, redirect
-from django.template.loader import render_to_string
 
 from GameProgress.models import LevelDefinition, AchievementDefinition
 from GameProgress.services.ranking import get_all_student_rankings

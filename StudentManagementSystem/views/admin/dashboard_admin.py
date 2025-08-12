@@ -1,9 +1,10 @@
-from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
+import json
+
 from django.contrib import messages
 from django.contrib.auth.hashers import make_password
+from django.shortcuts import render, redirect
 
-from GameProgress.services.ranking import get_all_student_rankings
 from StudentManagementSystem.models import SimpleAdmin, Teacher
 from StudentManagementSystem.models.department import Department
 from StudentManagementSystem.models.section import Section
@@ -11,9 +12,6 @@ from StudentManagementSystem.models.teachers import HandledSection
 from StudentManagementSystem.models.year_level import YearLevel
 from StudentManagementSystem.views.admin.ranking_students import get_rankings_context
 
-
-from django.core.serializers import serialize
-import json
 
 def admin_dashboard(request):
     admin_id = request.session.get('admin_id')

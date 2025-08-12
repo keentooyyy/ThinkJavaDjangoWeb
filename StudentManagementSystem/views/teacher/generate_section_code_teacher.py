@@ -1,7 +1,8 @@
 import random
 import string
-from django.shortcuts import redirect
+
 from django.contrib import messages
+from django.shortcuts import redirect
 
 from StudentManagementSystem.models.section_code import SectionJoinCode
 from StudentManagementSystem.models.teachers import HandledSection

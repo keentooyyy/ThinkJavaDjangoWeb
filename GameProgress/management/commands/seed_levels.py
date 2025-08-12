@@ -1,5 +1,7 @@
 from django.core.management.base import BaseCommand
+
 from GameProgress.models.level_definition import LevelDefinition
+
 
 class Command(BaseCommand):
     help = "Seed Tutorial and numbered levels (Level1, Level2, ...)"

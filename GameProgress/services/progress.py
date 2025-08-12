@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+
 from GameProgress.models import (
     LevelDefinition,
     AchievementDefinition,

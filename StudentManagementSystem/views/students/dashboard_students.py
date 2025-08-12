@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect
+
 from GameProgress.services.ranking import get_student_performance
 from StudentManagementSystem.models import Student
+
 
 def student_dashboard(request):
     student_id = request.session.get('student_id')

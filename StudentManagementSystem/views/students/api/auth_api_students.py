@@ -1,8 +1,11 @@
-from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
-from django.contrib.auth.hashers import check_password
-from StudentManagementSystem.models import Student
 import json
+
+from django.contrib.auth.hashers import check_password
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
+from StudentManagementSystem.models import Student
+
 
 @csrf_exempt  # Required if Unity won't send CSRF token
 def api_student_login(request):

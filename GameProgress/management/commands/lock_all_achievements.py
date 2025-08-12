@@ -1,5 +1,7 @@
 from django.core.management.base import BaseCommand
+
 from GameProgress.services.progress import disable_all_achievements
+
 
 class Command(BaseCommand):
     help = "Lock all student achievements"

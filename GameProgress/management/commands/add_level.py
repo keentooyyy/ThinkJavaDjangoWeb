@@ -1,5 +1,7 @@
 from django.core.management.base import BaseCommand
+
 from GameProgress.services.progress import add_level
+
 
 class Command(BaseCommand):
     help = "Add a new global level (optionally unlocked)"

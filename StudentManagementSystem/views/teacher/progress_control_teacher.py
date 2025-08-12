@@ -1,8 +1,8 @@
 # views/progress_control.py
 
-from django.shortcuts import render, redirect
 from django.contrib import messages
-from StudentManagementSystem.models import Teacher
+from django.shortcuts import render, redirect
+
 from GameProgress.services.progress import (
     sync_all_students_with_all_progress,
     lock_all_levels, unlock_all_levels,
@@ -11,6 +11,7 @@ from GameProgress.services.progress import (
     lock_level, unlock_level,
     set_achievement_active
 )
+from StudentManagementSystem.models import Teacher
 from StudentManagementSystem.views.teacher.dashboard_teacher import get_teacher_dashboard_context
 
 

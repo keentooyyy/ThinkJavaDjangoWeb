@@ -1,8 +1,10 @@
 from django.core.paginator import Paginator
+
+from GameProgress.services.ranking import get_all_student_rankings
 from StudentManagementSystem.models.department import Department
 from StudentManagementSystem.models.section import Section
 from StudentManagementSystem.models.student import Student
-from GameProgress.services.ranking import get_all_student_rankings
+
 
 def get_rankings_context(request, teacher=None):
     department_name = request.GET.get("department")

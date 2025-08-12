@@ -1,9 +1,10 @@
+import json
+
 from django.http import JsonResponse, HttpResponseBadRequest
 from django.views.decorators.csrf import csrf_exempt
+
 from GameProgress.models import LevelDefinition, LevelProgress, AchievementDefinition, AchievementProgress
 from StudentManagementSystem.models.student import Student
-
-import json
 
 
 @csrf_exempt

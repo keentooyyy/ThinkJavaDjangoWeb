@@ -1,5 +1,6 @@
-from django.http import JsonResponse
 from collections import OrderedDict
+
+from django.http import JsonResponse
 
 from GameProgress.models import LevelProgress, AchievementProgress, LevelDefinition, AchievementDefinition
 from StudentManagementSystem.models.student import Student

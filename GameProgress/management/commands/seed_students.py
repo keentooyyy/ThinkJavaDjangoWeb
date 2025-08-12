@@ -1,16 +1,15 @@
 import random
 
-from django.core.management.base import BaseCommand
 from django.contrib.auth.hashers import make_password
-
-from StudentManagementSystem.models.student import Student
-from StudentManagementSystem.models.section import Section
-from GameProgress.models.level_definition import LevelDefinition
-from GameProgress.models.achievement_definition import AchievementDefinition
-from GameProgress.models.level_progress import LevelProgress
-from GameProgress.models.achievement_progress import AchievementProgress
-
+from django.core.management.base import BaseCommand
 from faker import Faker
+
+from GameProgress.models.achievement_definition import AchievementDefinition
+from GameProgress.models.achievement_progress import AchievementProgress
+from GameProgress.models.level_definition import LevelDefinition
+from GameProgress.models.level_progress import LevelProgress
+from StudentManagementSystem.models.section import Section
+from StudentManagementSystem.models.student import Student
 
 fake = Faker()
 

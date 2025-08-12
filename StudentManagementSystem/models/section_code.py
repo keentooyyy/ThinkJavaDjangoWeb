@@ -1,9 +1,11 @@
 # StudentManagementSystem/models/section_code.py
 
 from django.db import models
-from StudentManagementSystem.models.section import Section
+
 from StudentManagementSystem.models.department import Department
+from StudentManagementSystem.models.section import Section
 from StudentManagementSystem.models.year_level import YearLevel
+
 
 class SectionJoinCode(models.Model):
     section = models.ForeignKey(Section, on_delete=models.CASCADE)

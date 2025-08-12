@@ -1,11 +1,12 @@
 # StudentManagementSystem/models/teacher.py
+from datetime import date
+
 from django.db import models
 
 from StudentManagementSystem.models.department import Department
 from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.models.section import Section
 from StudentManagementSystem.models.year_level import YearLevel
-from datetime import date
 
 
 class Teacher(models.Model):

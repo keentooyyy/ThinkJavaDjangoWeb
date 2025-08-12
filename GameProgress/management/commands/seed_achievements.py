@@ -1,5 +1,7 @@
 from django.core.management.base import BaseCommand
+
 from GameProgress.models.achievement_definition import AchievementDefinition
+
 
 class Command(BaseCommand):
     help = "Seed default game achievements with formatted codes"

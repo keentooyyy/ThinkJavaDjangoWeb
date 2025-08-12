@@ -1,4 +1,5 @@
 from django.core.management.base import BaseCommand
+
 from GameProgress.services.ranking import get_all_student_rankings
 
 

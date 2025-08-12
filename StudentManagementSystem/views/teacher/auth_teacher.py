@@ -1,7 +1,9 @@
-from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.hashers import check_password
+from django.shortcuts import render, redirect
+
 from StudentManagementSystem.models import Teacher
+
 
 def teacher_login(request):
     if request.method == 'POST':

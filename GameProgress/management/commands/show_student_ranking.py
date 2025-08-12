@@ -1,6 +1,8 @@
 from django.core.management.base import BaseCommand
+
 from GameProgress.services.ranking import get_student_performance
 from StudentManagementSystem.models.student import Student
+
 
 class Command(BaseCommand):
     help = "Show ranking details for a single student by ID only"

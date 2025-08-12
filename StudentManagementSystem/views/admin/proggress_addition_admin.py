@@ -1,5 +1,5 @@
-from django.shortcuts import redirect
 from django.contrib import messages
+from django.shortcuts import redirect
 
 from GameProgress.models import LevelDefinition, AchievementDefinition
 from GameProgress.services.progress import sync_all_students_with_all_progress
