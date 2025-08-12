@@ -38,26 +38,26 @@ def student_register(request):
     return render(request, 'students/register.html')
 
 
-def student_login(request):
-    if request.method == 'POST':
-        student_id = request.POST.get('user_id')
-        password = request.POST.get('password')
+# def student_login(request):
+#     if request.method == 'POST':
+#         student_id = request.POST.get('user_id')
+#         password = request.POST.get('password')
+#
+#         try:
+#             student = Student.objects.get(student_id=student_id)
+#             if check_password(password, student.password):
+#                 request.session['student_id'] = student.id
+#                 messages.success(request, 'Login successful.')
+#                 return redirect('student_dashboard')
+#             else:
+#                 messages.error(request, 'Incorrect password.')
+#         except Student.DoesNotExist:
+#             messages.error(request, 'Student ID not found.')
+#
+#     return render(request, 'students/login.html')
 
-        try:
-            student = Student.objects.get(student_id=student_id)
-            if check_password(password, student.password):
-                request.session['student_id'] = student.id
-                messages.success(request, 'Login successful.')
-                return redirect('student_dashboard')
-            else:
-                messages.error(request, 'Incorrect password.')
-        except Student.DoesNotExist:
-            messages.error(request, 'Student ID not found.')
 
-    return render(request, 'students/login.html')
-
-
-def student_logout(request):
-    request.session.flush()
-    messages.success(request, 'Logged out successfully.')
-    return redirect('unified_login')
+# def student_logout(request):
+#     request.session.flush()
+#     messages.success(request, 'Logged out successfully.')
+#     return redirect('unified_login')
