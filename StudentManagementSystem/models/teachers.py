@@ -2,6 +2,7 @@
 from django.db import models
 
 from StudentManagementSystem.models.department import Department
+from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.models.section import Section
 from StudentManagementSystem.models.year_level import YearLevel
 
@@ -9,6 +10,11 @@ from StudentManagementSystem.models.year_level import YearLevel
 class Teacher(models.Model):
     teacher_id = models.CharField(max_length=50, unique=True)
     password = models.CharField(max_length=128)  # store hashed passwords ideally
+    role = models.CharField(
+        max_length=20,
+        choices=Role.choices,
+        default=Role.TEACHER  # Default to 'Teacher' role
+    )
 
     def __str__(self):
         return self.teacher_id

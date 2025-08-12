@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.hashers import make_password
 
 from StudentManagementSystem.models.department import Department
+from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.models.section import Section
 from StudentManagementSystem.models.year_level import YearLevel
 
@@ -11,6 +12,11 @@ class Student(models.Model):
     password = models.CharField(max_length=128)  # should be hashed
     year_level = models.ForeignKey(YearLevel, on_delete=models.CASCADE, null=True, blank=True)
     section = models.ForeignKey(Section, on_delete=models.CASCADE, null=True, blank=True)
+    role = models.CharField(
+        max_length=20,
+        choices=Role.choices,
+        default=Role.STUDENT  # Default to 'Student' role
+    )
 
     def __str__(self):
         return f"{self.name} ({self.student_id})"
