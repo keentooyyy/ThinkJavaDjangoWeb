@@ -5,6 +5,10 @@ class Command(BaseCommand):
     help = "Seed Tutorial and numbered levels (Level1, Level2, ...)"
 
     def handle(self, *args, **kwargs):
+        # ✅ Usage:
+        # python manage.py seed_levels
+
+
         level_names = ["Tutorial"] + [f"Level{i}" for i in range(1, 6)]  # Customize upper range
 
         for name in level_names:

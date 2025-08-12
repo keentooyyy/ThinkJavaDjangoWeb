@@ -5,6 +5,8 @@ class Command(BaseCommand):
     help = "Seed default game achievements with formatted codes"
 
     def handle(self, *args, **kwargs):
+        # ✅ Usage:
+        # python manage.py seed_achievements
         titles_and_descs = [
             ("First Steps", "Complete your first level."),
             ("Speedrunner", "Finish a level under 30 seconds."),

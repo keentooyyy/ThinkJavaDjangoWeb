@@ -20,6 +20,10 @@ def generate_student_id():
 
 
 class Command(BaseCommand):
+    # ✅ Usage:
+    # python manage.py seed_students --students [any number here e.g 1,10,100,1000]
+    # python manage.py seed_students --students 50
+
     help = "Seed fake students and their progress using existing sections and definitions"
 
     def add_arguments(self, parser):

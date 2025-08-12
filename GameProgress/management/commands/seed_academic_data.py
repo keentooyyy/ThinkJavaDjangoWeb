@@ -7,6 +7,8 @@ class Command(BaseCommand):
     help = "Seed default departments, year levels, and sections"
 
     def handle(self, *args, **kwargs):
+        # ✅ Usage:
+        # python manage.py seed_academic_data
         # Define departments and year levels to seed
         departments = ["CS", "IT"]
         years = [1]  # Add more years if needed
