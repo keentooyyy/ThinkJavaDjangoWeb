@@ -1,10 +1,11 @@
-from django.db import models
-from django.contrib.auth.hashers import make_password
+from datetime import date
 
-from StudentManagementSystem.models.department import Department
+from django.db import models
+
 from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.models.section import Section
 from StudentManagementSystem.models.year_level import YearLevel
+
 
 class Student(models.Model):
     student_id = models.CharField(max_length=50, unique=True)  # unique username or ID
@@ -30,7 +31,6 @@ class Student(models.Model):
         return "N/A"
 
     def age(self):
-        from datetime import date
         today = date.today()
         age = today.year - self.date_of_birth.year
         if today.month < self.date_of_birth.month or (

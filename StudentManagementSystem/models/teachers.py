@@ -5,10 +5,14 @@ from StudentManagementSystem.models.department import Department
 from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.models.section import Section
 from StudentManagementSystem.models.year_level import YearLevel
+from datetime import date
 
 
 class Teacher(models.Model):
     teacher_id = models.CharField(max_length=50, unique=True)
+    first_name = models.CharField(max_length=150)
+    last_name = models.CharField(max_length=150)
+    date_of_birth = models.DateField()
     password = models.CharField(max_length=128)  # store hashed passwords ideally
     role = models.CharField(
         max_length=20,
@@ -18,6 +22,14 @@ class Teacher(models.Model):
 
     def __str__(self):
         return self.teacher_id
+
+    def age(self):
+        today = date.today()
+        age = today.year - self.date_of_birth.year
+        if today.month < self.date_of_birth.month or (
+                today.month == self.date_of_birth.month and today.day < self.date_of_birth.day):
+            age -= 1
+        return age
 
 
 class HandledSection(models.Model):
