@@ -5,16 +5,17 @@ from StudentManagementSystem.models import Student
 
 
 def student_dashboard(request):
-    student_id = request.session.get('student_id')
+    student_id = request.session.get('user_id')
     if not student_id:
-        return redirect('student_login')
+        return redirect('unified_login')
 
     try:
         student = Student.objects.get(id=student_id)
     except Student.DoesNotExist:
-        return redirect('student_login')
+        return redirect('unified_login')
 
     performance = get_student_performance(student)
+    print(performance)
 
     return render(request, 'students/dashboard.html', {
         'student': student,

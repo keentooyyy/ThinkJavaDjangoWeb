@@ -7,7 +7,7 @@ from StudentManagementSystem.models import SectionJoinCode, Student
 
 def student_register(request):
     if request.method == 'POST':
-        student_id = request.POST.get('student_id')
+        student_id = request.POST.get('user_id')
         name = request.POST.get('name')
         password = request.POST.get('password')
         section_code = request.POST.get('section_code')
@@ -33,14 +33,14 @@ def student_register(request):
         )
 
         messages.success(request, 'Registration successful. Please log in.')
-        return redirect('student_login')
+        return redirect('unified_login')
 
     return render(request, 'students/register.html')
 
 
 def student_login(request):
     if request.method == 'POST':
-        student_id = request.POST.get('student_id')
+        student_id = request.POST.get('user_id')
         password = request.POST.get('password')
 
         try:
@@ -60,4 +60,4 @@ def student_login(request):
 def student_logout(request):
     request.session.flush()
     messages.success(request, 'Logged out successfully.')
-    return redirect('student_login')
+    return redirect('unified_login')
