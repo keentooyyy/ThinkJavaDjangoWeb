@@ -91,7 +91,7 @@
         <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
         <div class="page-links">
             {% if page_obj.has_previous %}
-                <a href="?department={{ selected_department }}&filter_by={{ selected_section }}&sort_by={{ sort_by }}&sort_order={{ sort_order }}&per_page={{ per_page }}&page={{ page_obj.previous_page_number }}">
+                <a href="?{% if selected_department %}department={{ selected_department }}{% endif %}{% if selected_section %}&filter_by={{ selected_section }}{% endif %}{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if sort_order %}&sort_order={{ sort_order }}{% endif %}{% if per_page %}&per_page={{ per_page }}{% endif %}&page={{ page_obj.previous_page_number }}">
                     &laquo; Prev
                 </a>
             {% endif %}
@@ -100,14 +100,14 @@
                 {% if page_obj.number == num %}
                     <strong>{{ num }}</strong>
                 {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %}
-                    <a href="?department={{ selected_department }}&filter_by={{ selected_section }}&sort_by={{ sort_by }}&sort_order={{ sort_order }}&per_page={{ per_page }}&page={{ num }}">
+                    <a href="?{% if selected_department %}department={{ selected_department }}{% endif %}{% if selected_section %}&filter_by={{ selected_section }}{% endif %}{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if sort_order %}&sort_order={{ sort_order }}{% endif %}{% if per_page %}&per_page={{ per_page }}{% endif %}&page={{ num }}">
                         {{ num }}
                     </a>
                 {% endif %}
             {% endfor %}
 
             {% if page_obj.has_next %}
-                <a href="?department={{ selected_department }}&filter_by={{ selected_section }}&sort_by={{ sort_by }}&sort_order={{ sort_order }}&per_page={{ per_page }}&page={{ page_obj.next_page_number }}">
+                <a href="?{% if selected_department %}department={{ selected_department }}{% endif %}{% if selected_section %}&filter_by={{ selected_section }}{% endif %}{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if sort_order %}&sort_order={{ sort_order }}{% endif %}{% if per_page %}&per_page={{ per_page }}{% endif %}&page={{ page_obj.next_page_number }}">
                     Next &raquo;
                 </a>
             {% endif %}

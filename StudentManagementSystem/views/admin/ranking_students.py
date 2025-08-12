@@ -16,7 +16,6 @@ def get_rankings_context(request, teacher=None):
     teacher_mode = request.GET.get("teacher_mode") == "1" or teacher is not None
 
     departments = Department.objects.all().order_by("name")
-    sections = []
     limit_to_students = None
 
     if teacher_mode and teacher:

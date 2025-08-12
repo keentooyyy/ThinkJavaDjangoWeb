@@ -25,7 +25,8 @@ def api_student_login(request):
             return JsonResponse({
                 "status": "success",
                 "student_id": student.id,
-                "name": student.name,
+                "first_name": student.first_name,
+                "last_name": student.last_name,
                 "section": str(student.section),  # Optional
                 "year_level": str(student.year_level),  # Optional
             })
