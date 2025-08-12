@@ -11,7 +11,7 @@ class Student(models.Model):
     student_id = models.CharField(max_length=50, unique=True)  # unique username or ID
     first_name = models.CharField(max_length=150)
     last_name = models.CharField(max_length=150)
-    date_of_birth = models.DateField()
+    date_of_birth = models.DateField(null=True, blank=True)
     password = models.CharField(max_length=128)  # should be hashed
     year_level = models.ForeignKey(YearLevel, on_delete=models.CASCADE, null=True, blank=True)
     section = models.ForeignKey(Section, on_delete=models.CASCADE, null=True, blank=True)

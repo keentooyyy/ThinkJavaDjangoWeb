@@ -44,11 +44,14 @@ def create_teacher(request):
 
     if request.method == 'POST':
         teacher_id = request.POST.get('teacher_id')
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
         raw_password = request.POST.get('password')
         dept_ids = request.POST.getlist('departments[]')
         letters = request.POST.getlist('letters[]')
 
-        if not teacher_id or not raw_password or not dept_ids or not letters:
+
+        if not teacher_id or not raw_password or not dept_ids or not letters or not first_name or not last_name:
             messages.error(request, 'Please fill in all fields.')
             return redirect('admin_dashboard')
 
@@ -60,7 +63,10 @@ def create_teacher(request):
             hashed_password = make_password(raw_password)
             teacher = Teacher.objects.create(
                 teacher_id=teacher_id,
-                password=hashed_password
+                first_name=first_name,
+                last_name=last_name,
+                password=hashed_password,
+                date_of_birth=None,
             )
 
             # Always Year 1 (you can modify to be dynamic later)

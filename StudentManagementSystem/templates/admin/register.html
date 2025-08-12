@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Admin Register</title>
+</head>
+<body>
+    <h2>Admin Registration</h2>
+    <form method="post" action="">
+        {% csrf_token %}
+        <label for="username">Username:</label><br />
+        <input type="text" id="username" name="username" required /><br /><br />
+
+        <label for="password">Password:</label><br />
+        <input type="password" id="password" name="password" required /><br /><br />
+
+        <button type="submit">Register</button>
+    </form>
+    <p>Already registered? <a href="{% url 'unified_login' %}">Login here</a></p>
+</body>
+</html>

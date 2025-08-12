@@ -13,7 +13,7 @@ class Teacher(models.Model):
     teacher_id = models.CharField(max_length=50, unique=True)
     first_name = models.CharField(max_length=150)
     last_name = models.CharField(max_length=150)
-    date_of_birth = models.DateField()
+    date_of_birth = models.DateField(null=True, blank=True)
     password = models.CharField(max_length=128)  # store hashed passwords ideally
     role = models.CharField(
         max_length=20,

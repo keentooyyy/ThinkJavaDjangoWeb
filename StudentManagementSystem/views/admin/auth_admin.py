@@ -34,5 +34,5 @@ def admin_register(request):
         hashed_password = make_password(raw_password)
         SimpleAdmin.objects.create(username=username, password=hashed_password)
         messages.success(request, 'Registration successful. You can now log in.')
-        return redirect('admin_login')
+        return redirect('unified_login')
     return render(request, 'admin/register.html')
