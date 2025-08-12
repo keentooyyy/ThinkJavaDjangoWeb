@@ -4,9 +4,10 @@ from StudentManagementSystem.views.admin.apis.helper_functions_admin import get_
 from StudentManagementSystem.views.admin.auth_admin import admin_login, admin_logout, admin_register
 from StudentManagementSystem.views.admin.dashboard_admin import create_teacher, admin_dashboard
 from StudentManagementSystem.views.admin.proggress_addition_admin import add_achievement, add_level
+from StudentManagementSystem.views.auth_unified import unified_login
 
 urlpatterns = [
-    path('', admin_login, name='admin_login'),
+    path('', unified_login, name='unified_login'),
     path('logout/', admin_logout, name='admin_logout'),
     path('register/', admin_register, name='admin_register'),
     path('dashboard/', admin_dashboard, name='admin_dashboard'),

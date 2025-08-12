@@ -5,7 +5,7 @@ from StudentManagementSystem.views.students.dashboard_students import student_da
 
 urlpatterns = [
     path('register/', student_register, name='student_register'),
-    path('login/', student_login, name='student_login'),
+    # path('login/', student_login, name='student_login'),
     path('logout/', student_logout, name='student_logout'),
     path('dashboard/', student_dashboard, name='student_dashboard'),
 ]

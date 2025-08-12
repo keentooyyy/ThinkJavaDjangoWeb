@@ -14,9 +14,9 @@ from StudentManagementSystem.views.admin.ranking_students import get_rankings_co
 
 
 def admin_dashboard(request):
-    admin_id = request.session.get('admin_id')
+    admin_id = request.session.get('user_id')
     if not admin_id:
-        return redirect('admin_login')
+        return redirect('unified_login')
 
     admin = SimpleAdmin.objects.get(id=admin_id)
     ranking_context = get_rankings_context(request)
@@ -38,9 +38,9 @@ def admin_dashboard(request):
         **ranking_context
     })
 def create_teacher(request):
-    admin_id = request.session.get('admin_id')
+    admin_id = request.session.get('user_id')
     if not admin_id:
-        return redirect('admin_login')
+        return redirect('unified_login')
 
     if request.method == 'POST':
         teacher_id = request.POST.get('teacher_id')
