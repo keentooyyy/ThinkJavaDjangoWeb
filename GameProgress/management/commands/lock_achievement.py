@@ -1,5 +1,7 @@
 from django.core.management.base import BaseCommand
+
 from GameProgress.services.progress import set_achievement_active
+
 
 class Command(BaseCommand):
     help = "Lock a specific global achievement by code"

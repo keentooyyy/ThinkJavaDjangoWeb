@@ -1,12 +1,12 @@
 # StudentManagementSystem/views/teacher/register_student_teacher.py
 
-from django.shortcuts import redirect
 from django.contrib import messages
 from django.contrib.auth.hashers import make_password
+from django.shortcuts import redirect
 
 from StudentManagementSystem.models import Student
-from StudentManagementSystem.models.section import Section
 from StudentManagementSystem.models.teachers import HandledSection
+
 
 def register_student_teacher(request):
     teacher_id = request.session.get('teacher_id')
