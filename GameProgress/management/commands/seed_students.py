@@ -44,7 +44,9 @@ class Command(BaseCommand):
             section = random.choice(sections)
             student = Student.objects.create(
                 student_id=student_id,
-                name=fake.name(),
+                first_name=fake.first_name(),
+                last_name=fake.last_name(),
+                date_of_birth=fake.date_of_birth(),
                 password=make_password('123'),
                 year_level=section.year_level,
                 section=section

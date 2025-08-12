@@ -55,7 +55,8 @@
     <thead>
     <tr>
         <th>#</th>
-        <th>Name</th>
+        <th>First Name</th>
+        <th>Last Name</th>
         <th>Section</th>
         <th>Department</th>
         <th>Year</th>
@@ -68,7 +69,8 @@
     {% for student in rankings %}
         <tr>
             <td>{{ forloop.counter }}</td>
-            <td>{{ student.name }}</td>
+            <td>{{ student.first_name }}</td>
+            <td>{{ student.last_name }}</td>
             <td>{{ student.section }}</td>
             <td>{{ student.department }}</td>
             <td>{{ student.year_level }}</td>

@@ -34,7 +34,8 @@ def get_student_performance(student):
 
     return {
         "student_id": student.id,
-        "name": student.name,
+        "first_name": student.first_name,
+        "last_name": student.last_name,
         "section": getattr(student, "full_section", "N/A"),
         "department": getattr(student.section, "department", None).name if getattr(student.section, "department", None) else "N/A",
         "year_level": getattr(student, "year_level", None).year if getattr(student, "year_level", None) else "N/A",
