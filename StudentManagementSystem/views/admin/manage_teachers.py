@@ -1,13 +1,16 @@
 from django.contrib.auth.hashers import make_password
 from django.http.response import JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
-from pyexpat.errors import messages
+from django.contrib import messages  # Import messages module
+
 
 from StudentManagementSystem.models import Teacher
 from StudentManagementSystem.models.department import Department
 from StudentManagementSystem.models.section import Section
 from StudentManagementSystem.models.teachers import HandledSection
 from StudentManagementSystem.models.year_level import YearLevel
+
+from django.db import IntegrityError  # Import IntegrityError for handling database constraints
 
 
 def create_teacher(request):
@@ -23,17 +26,21 @@ def create_teacher(request):
         dept_ids = request.POST.getlist('departments[]')
         letters = request.POST.getlist('letters[]')
 
-
+        # Ensure all fields are filled
         if not teacher_id or not raw_password or not dept_ids or not letters or not first_name or not last_name:
             messages.error(request, 'Please fill in all fields.')
             return redirect('admin_dashboard')
 
+        # Check if teacher_id already exists
         if Teacher.objects.filter(teacher_id=teacher_id).exists():
-            messages.error(request, 'Teacher ID already exists.')
+            messages.error(request, 'Teacher ID already exists. Please choose a different ID.')
             return redirect('admin_dashboard')
 
         try:
+            # Hash the password
             hashed_password = make_password(raw_password)
+
+            # Create the teacher object
             teacher = Teacher.objects.create(
                 teacher_id=teacher_id,
                 first_name=first_name,
@@ -42,20 +49,18 @@ def create_teacher(request):
                 date_of_birth=None,
             )
 
-            # Always Year 1 (you can modify to be dynamic later)
+            # Default to Year 1 (you can modify to be dynamic later)
             year_level = YearLevel.objects.get_or_create(year=1)[0]
             labels = []
 
+            # Add the teacher's sections
             for dept_id, letter in zip(dept_ids, letters):
                 department = Department.objects.get(id=dept_id)
 
                 # Find the actual Section row
-                section = Section.objects.get(
-                    department=department,
-                    year_level=year_level,
-                    letter=letter
-                )
+                section = Section.objects.get(department=department, year_level=year_level, letter=letter)
 
+                # Create a HandledSection object to link the teacher and section
                 HandledSection.objects.create(
                     teacher=teacher,
                     section=section,
@@ -65,10 +70,17 @@ def create_teacher(request):
 
                 labels.append(f"{section.department.name}{section.year_level.year}{section.letter}")
 
-            messages.success(request, f'Teacher \"{teacher_id}\" assigned to: {', '.join(labels)}')
+            messages.success(request, f'Teacher "{teacher_id}" assigned to: {", ".join(labels)}')
+
+        except IntegrityError as e:
+            # Handle IntegrityError (like duplicate teacher_id)
+            messages.error(request, 'Error: Teacher ID already exists in the database.')
+            print(f"IntegrityError: {str(e)}")
 
         except Exception as e:
+            # Catch any other exceptions that occur during teacher creation
             messages.error(request, f'Error creating teacher: {str(e)}')
+            print(f"Exception: {str(e)}")
 
     return redirect('admin_dashboard')
 
@@ -150,23 +162,23 @@ def edit_teacher(request, teacher_id):
 
 
 
-def edit_section(request, section_id):
-    if request.method == 'POST':
-        # Get the section to be edited
-        section = get_object_or_404(HandledSection, id=section_id)
-
-        # Get new data from the request
-        department_id = request.POST.get('department')
-        section_letter = request.POST.get('letter')
-
-        # Fetch the department and update the section
-        department = get_object_or_404(Department, id=department_id)
-        section.department = department
-        section.letter = section_letter
-        section.save()
-
-        return JsonResponse({'success': True})
-    return JsonResponse({'success': False}, status=400)
+# def edit_section(request, section_id):
+#     if request.method == 'POST':
+#         # Get the section to be edited
+#         section = get_object_or_404(HandledSection, id=section_id)
+#
+#         # Get new data from the request
+#         department_id = request.POST.get('department')
+#         section_letter = request.POST.get('letter')
+#
+#         # Fetch the department and update the section
+#         department = get_object_or_404(Department, id=department_id)
+#         section.department = department
+#         section.letter = section_letter
+#         section.save()
+#
+#         return JsonResponse({'success': True})
+#     return JsonResponse({'success': False}, status=400)
 
 
 
@@ -179,4 +191,17 @@ def remove_section(request, section_id):
         section.delete()
 
         return JsonResponse({'success': True})
+    return JsonResponse({'success': False}, status=400)
+
+
+def delete_teacher(request, teacher_id):
+    if request.method == 'DELETE':
+        # Get the teacher object based on teacher_id
+        teacher = get_object_or_404(Teacher, id=teacher_id)
+
+        # Delete the teacher from the database
+        teacher.delete()
+
+        return JsonResponse({'success': True})
+
     return JsonResponse({'success': False}, status=400)

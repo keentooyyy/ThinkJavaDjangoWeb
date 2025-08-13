@@ -17,6 +17,7 @@
             <td>
                 <!-- Edit Button for Modal -->
                 <button onclick="openEditModal({{ teacher.id }})">Edit</button>
+                <button onclick="deleteTeacher({{ teacher.id }})">Delete</button>
             </td>
         </tr>
     {% endfor %}
@@ -50,7 +51,7 @@
                 </tr>
             </thead>
             <tbody>
-                <!-- Existing sections will be added here dynamically -->
+                <!-- Existing sections will be dynamically added here -->
             </tbody>
         </table>
 
@@ -88,92 +89,85 @@
 <div id="modalOverlay" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 999;"></div>
 
 <script>
-    // Open the modal and pre-fill the data for a specific teacher
-    function openEditModal(teacherId) {
-        fetch(`/admin_teacher/${teacherId}/get_details/`)
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('teacher_id_edit_modal').value = data.teacher_id;
-                document.getElementById('first_name_modal').value = data.first_name;
-                document.getElementById('last_name_modal').value = data.last_name;
-                document.getElementById('password_modal').value = '';  // Optional: clear previous password field
+// Open the modal and pre-fill the data for a specific teacher
+function openEditModal(teacherId) {
+    fetch(`/admin_teacher/${teacherId}/get_details/`)  // Fetch the teacher's current details
+        .then(response => response.json())
+        .then(data => {
+            // Pre-fill the form with the teacher's data
+            document.getElementById('teacher_id_edit_modal').value = data.teacher_id;
+            document.getElementById('first_name_modal').value = data.first_name;
+            document.getElementById('last_name_modal').value = data.last_name;
+            document.getElementById('password_modal').value = '';  // Optional: clear previous password field
 
-                // Show the modal
-                document.getElementById('editModal').style.display = 'block';
-                document.getElementById('modalOverlay').style.display = 'block';
+            // Show the modal
+            document.getElementById('editModal').style.display = 'block';
+            document.getElementById('modalOverlay').style.display = 'block';
 
-                // Display existing handled sections in the table
-                const sectionTableBody = document.querySelector('#sections-table tbody');
-                sectionTableBody.innerHTML = ''; // Clear existing rows
-                data.handled_sections.forEach((section) => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${section.department}</td>
-                        <td>${section.year_level}</td>
-                        <td>${section.letter}</td>
-                        <td>
-                            <button type="button" onclick="removeSectionRow(this, ${section.id})">Remove</button>
-                        </td>
-                    `;
-                    sectionTableBody.appendChild(row);
-                });
-            })
-            .catch(error => console.error('Error fetching teacher data:', error));
-    }
-
-    // Add a new section (dropdowns for department and section)
-    function addSectionGroupModal() {
-        const container = document.getElementById('section-group-container_modal');
-        const firstGroup = container.querySelector('.section-group_modal');
-        const newGroup = firstGroup.cloneNode(true);
-
-        // Clear values of cloned selects
-        const deptSelect = newGroup.querySelector('.dept-select');
-        const sectionSelect = newGroup.querySelector('.section-select');
-
-        deptSelect.selectedIndex = 0;
-        sectionSelect.selectedIndex = 0;
-
-        newGroup.classList.add('section-group');  // Add the class to the cloned group
-        container.appendChild(newGroup);
-    }
-
-    // Remove a section group (dropdowns for department and section)
-    function removeSectionGroup(button) {
-        const group = button.closest('.section-group');
-        if (group) {
-            group.remove();
-        }
-    }
-
-    // Remove a section row from the table (handled sections)
-    function removeSectionRow(button, sectionId) {
-        // Send request to delete the section from the teacher
-        fetch(`/admin_teacher/remove_section/${sectionId}/`, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-            }
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    button.closest('tr').remove();
-                }
-            })
-            .catch(error => {
-                console.error('Error removing section:', error);
+            // Display existing handled sections in the table
+            const sectionTableBody = document.querySelector('#sections-table tbody');
+            sectionTableBody.innerHTML = '';  // Clear existing rows
+            data.handled_sections.forEach((section) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${section.department}</td>
+                    <td>${section.year_level}</td>
+                    <td>${section.letter}</td>
+                    <td>
+                        <button type="button" onclick="removeSectionRow(this, ${section.id})">Remove</button>
+                    </td>
+                `;
+                sectionTableBody.appendChild(row);
             });
+        })
+        .catch(error => console.error('Error fetching teacher data:', error));
+}
+
+// Add a new section (dropdowns for department and section)
+function addSectionGroupModal() {
+    const container = document.getElementById('section-group-container_modal');
+    const firstGroup = container.querySelector('.section-group_modal');
+    const newGroup = firstGroup.cloneNode(true);
+
+    // Clear values of cloned selects
+    const deptSelect = newGroup.querySelector('.dept-select');
+    const sectionSelect = newGroup.querySelector('.section-select');
+
+    deptSelect.selectedIndex = 0;
+    sectionSelect.selectedIndex = 0;
+
+    newGroup.classList.add('section-group');  // Add the class to the cloned group
+    container.appendChild(newGroup);
+}
+
+// Remove a section group (dropdowns for department and section)
+function removeSectionGroup(button) {
+    const group = button.closest('.section-group');
+    if (group) {
+        group.remove();  // Remove the section group
     }
+}
 
-    {#// Edit a section (open a modal to edit the department or letter)#}
-    {#function editSection(sectionId) {#}
-    {#    // Open modal or simply highlight the row to edit#}
-    {#    console.log(`Edit section with ID: ${sectionId}`);#}
-    {#    // Here you can either open another modal or pre-fill values for the edit#}
-    {##}
+// Remove a section row from the table (handled sections)
+function removeSectionRow(button, sectionId) {
+    fetch(`/admin_teacher/remove_section/${sectionId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            button.closest('tr').remove();  // Remove the row from the table if deletion is successful
+        }
+    })
+    .catch(error => {
+        console.error('Error removing section:', error);
+    });
+}
 
-    // Handle the form submission via AJAX to update teacher details
+// Handle the form submission via AJAX to update teacher details
 document.getElementById('editTeacherForm').addEventListener('submit', function (event) {
     event.preventDefault();  // Prevent the default form submission
 
@@ -184,22 +178,18 @@ document.getElementById('editTeacherForm').addEventListener('submit', function (
         method: 'POST',
         body: formData  // Send the form data with the request
     })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Update the modal with the new data without reloading the page
-                updateModalContent(teacherId); // Call a function to update the modal with the new data
-                // Optionally show a success message
-                {#alert('Teacher updated successfully!');#}
-            } else {
-                // Show an error message if something went wrong
-                {#alert('Error updating teacher.');#}
-            }
-        })
-        .catch(error => {
-            console.error('Error updating teacher:', error);
-            {#alert('Something went wrong!');#}
-        });
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update the modal with the new data without reloading the page
+            updateModalContent(teacherId); // Call a function to update the modal with the new data
+        } else {
+            console.error('Error updating teacher.');
+        }
+    })
+    .catch(error => {
+        console.error('Error updating teacher:', error);
+    });
 });
 
 // Function to update the modal with the latest teacher data after submission
@@ -207,7 +197,6 @@ function updateModalContent(teacherId) {
     fetch(`/admin_teacher/${teacherId}/get_details/`)  // Fetch updated teacher data
         .then(response => response.json())
         .then(data => {
-            // Update the modal fields with the new data
             document.getElementById('first_name_modal').value = data.first_name;
             document.getElementById('last_name_modal').value = data.last_name;
             document.getElementById('password_modal').value = '';  // Optional: clear previous password field
@@ -216,7 +205,6 @@ function updateModalContent(teacherId) {
             const sectionTableBody = document.querySelector('#sections-table tbody');
             sectionTableBody.innerHTML = '';  // Clear the existing rows
 
-            // Add the updated sections to the modal table
             data.handled_sections.forEach((section) => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
@@ -233,9 +221,40 @@ function updateModalContent(teacherId) {
         .catch(error => console.error('Error fetching updated teacher data:', error));
 }
 
-    // Close the modal
-    function closeEditModal() {
-        document.getElementById('editModal').style.display = 'none';
-        document.getElementById('modalOverlay').style.display = 'none';
+// Close the modal
+function closeEditModal() {
+    document.getElementById('editModal').style.display = 'none';
+    document.getElementById('modalOverlay').style.display = 'none';
+}
+
+
+function deleteTeacher(teacherId) {
+    if (confirm('Are you sure you want to delete this teacher?')) {
+        // Send a DELETE request to the backend
+        fetch(`/admin_teacher/delete/${teacherId}/`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Refresh the page to reflect the changes
+                location.reload();  // Reload the page to show the updated teacher list
+            } else {
+                console.error('Error deleting teacher:', data);
+                alert('Error deleting teacher.');
+            }
+        })
+        .catch(error => {
+            console.error('Error deleting teacher:', error);
+            alert('Something went wrong!');
+        });
     }
+}
+
+
+
+
 </script>
