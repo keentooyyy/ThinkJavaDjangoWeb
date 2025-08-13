@@ -183,6 +183,8 @@ document.getElementById('editTeacherForm').addEventListener('submit', function (
         if (data.success) {
             // Update the modal with the new data without reloading the page
             updateModalContent(teacherId); // Call a function to update the modal with the new data
+            closeEditModal();
+            location.reload();
         } else {
             console.error('Error updating teacher.');
         }
