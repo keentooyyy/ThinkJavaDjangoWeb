@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.contrib.auth.hashers import check_password, make_password
+from django.contrib.auth.hashers import make_password
 from django.shortcuts import render, redirect
 
 from StudentManagementSystem.models import SectionJoinCode, Student

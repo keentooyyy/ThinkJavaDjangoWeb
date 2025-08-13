@@ -1,5 +1,7 @@
 from functools import wraps
+
 from django.shortcuts import redirect
+
 
 def session_login_required(role=None):
     def decorator(view_func):

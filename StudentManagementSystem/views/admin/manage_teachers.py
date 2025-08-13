@@ -1,16 +1,14 @@
+from django.contrib import messages  # Import messages module
 from django.contrib.auth.hashers import make_password
+from django.db import IntegrityError  # Import IntegrityError for handling database constraints
 from django.http.response import JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
-from django.contrib import messages  # Import messages module
-
 
 from StudentManagementSystem.models import Teacher
 from StudentManagementSystem.models.department import Department
 from StudentManagementSystem.models.section import Section
 from StudentManagementSystem.models.teachers import HandledSection
 from StudentManagementSystem.models.year_level import YearLevel
-
-from django.db import IntegrityError  # Import IntegrityError for handling database constraints
 
 
 def create_teacher(request):
