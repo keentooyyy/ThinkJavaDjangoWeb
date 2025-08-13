@@ -12,8 +12,8 @@ from StudentManagementSystem.views.admin.ranking_students import get_rankings_co
 def get_teacher_dashboard_context(teacher):
     handled_sections = teacher.handled_sections.select_related('department', 'year_level', 'section')
 
-    print(f"Handled sections: {handled_sections}")
-    print(f"Handled sections count: {handled_sections.count()}")
+    # print(f"Handled sections: {handled_sections}")
+    # print(f"Handled sections count: {handled_sections.count()}")
 
     # Get all students (no filters applied for now)
     students = Student.objects.all()

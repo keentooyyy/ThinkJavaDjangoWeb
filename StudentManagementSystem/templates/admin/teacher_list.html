@@ -23,9 +23,8 @@
     </tbody>
 </table>
 
-<!-- Simple Modal for Editing Teacher -->
-<div id="editModal"
-     style="display:none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border: 1px solid #ccc; z-index: 1000;">
+<!-- Modal for Editing Teacher's Information and Handling Sections -->
+<div id="editModal" style="display:none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border: 1px solid #ccc; z-index: 1000;">
     <h4>Edit Teacher</h4>
     <form id="editTeacherForm" method="POST">
         {% csrf_token %}
@@ -43,15 +42,15 @@
         <h5>Handled Sections</h5>
         <table id="sections-table">
             <thead>
-            <tr>
-                <th>Department</th>
-                <th>Year Level</th>
-                <th>Section Letter</th>
-                <th>Actions</th>
-            </tr>
+                <tr>
+                    <th>Department</th>
+                    <th>Year Level</th>
+                    <th>Section Letter</th>
+                    <th>Actions</th>
+                </tr>
             </thead>
             <tbody>
-            <!-- Existing sections will be added here -->
+                <!-- Existing sections will be added here dynamically -->
             </tbody>
         </table>
 
@@ -86,21 +85,22 @@
 </div>
 
 <!-- Background overlay to dim the rest of the screen when modal is open -->
-<div id="modalOverlay"
-     style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 999;"></div>
+<div id="modalOverlay" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 999;"></div>
 
 <script>
-    // Open the modal and pre-fill the form with teacher data
+    // Open the modal and pre-fill the data for a specific teacher
     function openEditModal(teacherId) {
-        fetch(`/admin_teacher/${teacherId}/get_details/`)  // Fetch teacher data
+        fetch(`/admin_teacher/${teacherId}/get_details/`)
             .then(response => response.json())
             .then(data => {
                 document.getElementById('teacher_id_edit_modal').value = data.teacher_id;
                 document.getElementById('first_name_modal').value = data.first_name;
                 document.getElementById('last_name_modal').value = data.last_name;
                 document.getElementById('password_modal').value = '';  // Optional: clear previous password field
-                document.getElementById('editModal').style.display = 'block';  // Show modal
-                document.getElementById('modalOverlay').style.display = 'block'; // Show background overlay
+
+                // Show the modal
+                document.getElementById('editModal').style.display = 'block';
+                document.getElementById('modalOverlay').style.display = 'block';
 
                 // Display existing handled sections in the table
                 const sectionTableBody = document.querySelector('#sections-table tbody');
@@ -111,7 +111,9 @@
                         <td>${section.department}</td>
                         <td>${section.year_level}</td>
                         <td>${section.letter}</td>
-                        <td><button type="button" onclick="removeSectionRow(this)">Remove</button></td>
+                        <td>
+                            <button type="button" onclick="removeSectionRow(this, ${section.id})">Remove</button>
+                        </td>
                     `;
                     sectionTableBody.appendChild(row);
                 });
@@ -119,13 +121,7 @@
             .catch(error => console.error('Error fetching teacher data:', error));
     }
 
-    // Close the modal
-    function closeEditModal() {
-        document.getElementById('editModal').style.display = 'none';  // Hide modal
-        document.getElementById('modalOverlay').style.display = 'none';  // Hide background overlay
-    }
-
-    // Add new section group (dropdowns for department and section)
+    // Add a new section (dropdowns for department and section)
     function addSectionGroupModal() {
         const container = document.getElementById('section-group-container_modal');
         const firstGroup = container.querySelector('.section-group_modal');
@@ -138,55 +134,108 @@
         deptSelect.selectedIndex = 0;
         sectionSelect.selectedIndex = 0;
 
-        // Ensure that the newly cloned group has the 'section-group' class
         newGroup.classList.add('section-group');  // Add the class to the cloned group
-
         container.appendChild(newGroup);
     }
 
-    // Remove a specific section group (dropdowns for department and section)
+    // Remove a section group (dropdowns for department and section)
     function removeSectionGroup(button) {
         const group = button.closest('.section-group');
         if (group) {
-            group.remove();  // Only remove if group is found
+            group.remove();
         }
     }
 
-    // Remove a section row from the table
-    function removeSectionRow(button) {
-        const row = button.closest('tr');
-        if (row) {
-            row.remove();  // Only remove if row is found
-        }
-    }
-
-
-    // Handle the form submission via AJAX to update teacher details
-    // Handle the form submission via AJAX to update teacher details
-    document.getElementById('editTeacherForm').addEventListener('submit', function (event) {
-        event.preventDefault();  // Prevent the default form submission
-
-        const formData = new FormData(this);  // Create a FormData object from the form
-
-        const teacherId = document.getElementById('teacher_id_edit_modal').value; // Get teacher ID from the modal
-
-        fetch(`/admin_teacher/${teacherId}/edit/`, {  // Use the correct URL for editing the teacher
+    // Remove a section row from the table (handled sections)
+    function removeSectionRow(button, sectionId) {
+        // Send request to delete the section from the teacher
+        fetch(`/admin_teacher/remove_section/${sectionId}/`, {
             method: 'POST',
-            body: formData  // Send the form data with the request
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
         })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('Teacher updated successfully!');
-                    closeEditModal();
-                    location.reload();  // Reload the page to show the updated teacher list
-                } else {
-                    alert('Error updating teacher.');
+                    button.closest('tr').remove();
                 }
             })
             .catch(error => {
-                console.error('Error updating teacher:', error);
-                alert('Something went wrong!');
+                console.error('Error removing section:', error);
             });
-    });
+    }
+
+    {#// Edit a section (open a modal to edit the department or letter)#}
+    {#function editSection(sectionId) {#}
+    {#    // Open modal or simply highlight the row to edit#}
+    {#    console.log(`Edit section with ID: ${sectionId}`);#}
+    {#    // Here you can either open another modal or pre-fill values for the edit#}
+    {##}
+
+    // Handle the form submission via AJAX to update teacher details
+document.getElementById('editTeacherForm').addEventListener('submit', function (event) {
+    event.preventDefault();  // Prevent the default form submission
+
+    const formData = new FormData(this);  // Create a FormData object from the form
+    const teacherId = document.getElementById('teacher_id_edit_modal').value; // Get teacher ID from the modal
+
+    fetch(`/admin_teacher/${teacherId}/edit/`, {  // Use the correct URL for editing the teacher
+        method: 'POST',
+        body: formData  // Send the form data with the request
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update the modal with the new data without reloading the page
+                updateModalContent(teacherId); // Call a function to update the modal with the new data
+                // Optionally show a success message
+                {#alert('Teacher updated successfully!');#}
+            } else {
+                // Show an error message if something went wrong
+                {#alert('Error updating teacher.');#}
+            }
+        })
+        .catch(error => {
+            console.error('Error updating teacher:', error);
+            {#alert('Something went wrong!');#}
+        });
+});
+
+// Function to update the modal with the latest teacher data after submission
+function updateModalContent(teacherId) {
+    fetch(`/admin_teacher/${teacherId}/get_details/`)  // Fetch updated teacher data
+        .then(response => response.json())
+        .then(data => {
+            // Update the modal fields with the new data
+            document.getElementById('first_name_modal').value = data.first_name;
+            document.getElementById('last_name_modal').value = data.last_name;
+            document.getElementById('password_modal').value = '';  // Optional: clear previous password field
+
+            // Update the handled sections table
+            const sectionTableBody = document.querySelector('#sections-table tbody');
+            sectionTableBody.innerHTML = '';  // Clear the existing rows
+
+            // Add the updated sections to the modal table
+            data.handled_sections.forEach((section) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${section.department}</td>
+                    <td>${section.year_level}</td>
+                    <td>${section.letter}</td>
+                    <td>
+                        <button type="button" onclick="removeSectionRow(this, ${section.id})">Remove</button>
+                    </td>
+                `;
+                sectionTableBody.appendChild(row);
+            });
+        })
+        .catch(error => console.error('Error fetching updated teacher data:', error));
+}
+
+    // Close the modal
+    function closeEditModal() {
+        document.getElementById('editModal').style.display = 'none';
+        document.getElementById('modalOverlay').style.display = 'none';
+    }
 </script>

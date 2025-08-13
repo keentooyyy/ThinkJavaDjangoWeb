@@ -105,7 +105,7 @@ def get_teacher_details(request, teacher_id):
 
 
 
-def edit_teacher(request, teacher_id):  # Capture teacher_id from the URL
+def edit_teacher(request, teacher_id):
     if request.method == 'POST':
         # Get the teacher object based on the teacher_id
         teacher = get_object_or_404(Teacher, id=teacher_id)
@@ -113,10 +113,11 @@ def edit_teacher(request, teacher_id):  # Capture teacher_id from the URL
         # Get the data from the POST request
         first_name = request.POST.get('first_name_modal')
         last_name = request.POST.get('last_name_modal')
-        raw_password = request.POST.get('password')  # Optional password field
+        raw_password = request.POST.get('password_modal')  # Optional password field
+        departments = request.POST.getlist('departments[]')  # New departments added
+        letters = request.POST.getlist('letters[]')  # New section letters added
 
-        print(first_name, last_name)
-        # Update teacher data
+        # Update teacher data (first name, last name, and password)
         teacher.first_name = first_name
         teacher.last_name = last_name
 
@@ -127,9 +128,55 @@ def edit_teacher(request, teacher_id):  # Capture teacher_id from the URL
         # Save the updated teacher object
         teacher.save()
 
-        # Success message
-        # messages.success(request, 'Teacher updated successfully.')
+        # Add new handled sections (department and section) if they don't already exist
+        for dept_id, letter in zip(departments, letters):
+            department = get_object_or_404(Department, id=dept_id)
+            section = get_object_or_404(Section, department=department, letter=letter)
+
+            # Check if this teacher already has this section assigned
+            if not HandledSection.objects.filter(teacher=teacher, section=section).exists():
+                # Create new handled section for the teacher
+                HandledSection.objects.create(
+                    teacher=teacher,
+                    section=section,
+                    department=department,
+                    year_level=section.year_level  # Assuming year_level is tied to the section
+                )
+
         return JsonResponse({'success': True})  # Send a success response
 
-    # If not a POST request, return failure response
     return JsonResponse({'success': False}, status=400)  # Return error if it's not a POST request
+
+
+
+
+def edit_section(request, section_id):
+    if request.method == 'POST':
+        # Get the section to be edited
+        section = get_object_or_404(HandledSection, id=section_id)
+
+        # Get new data from the request
+        department_id = request.POST.get('department')
+        section_letter = request.POST.get('letter')
+
+        # Fetch the department and update the section
+        department = get_object_or_404(Department, id=department_id)
+        section.department = department
+        section.letter = section_letter
+        section.save()
+
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False}, status=400)
+
+
+
+def remove_section(request, section_id):
+    if request.method == 'POST':
+        # Get the section to be removed
+        section = get_object_or_404(HandledSection, id=section_id)
+
+        # Delete the section from the teacher's handled sections
+        section.delete()
+
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False}, status=400)
