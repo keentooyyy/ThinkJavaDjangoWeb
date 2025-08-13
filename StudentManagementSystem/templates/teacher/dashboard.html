@@ -4,6 +4,7 @@
 
 
 {% block content %}
+    <p><a href="{% url 'unified_logout' %}">Logout</a></p>
     {% include 'teacher/teacher_info.html' %}
 
     {% if messages %}

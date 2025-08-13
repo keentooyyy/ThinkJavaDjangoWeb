@@ -58,9 +58,9 @@ def get_teacher_dashboard_context(teacher):
 
 
 def teacher_dashboard(request):
-    teacher_id = request.session.get('teacher_id')
+    teacher_id = request.session.get('user_id')
     if not teacher_id:
-        return redirect('teacher_login')
+        return redirect('unified_login')
 
     teacher = Teacher.objects.get(id=teacher_id)
 

@@ -9,13 +9,17 @@ from StudentManagementSystem.models.teachers import HandledSection
 
 
 def register_student_teacher(request):
-    teacher_id = request.session.get('teacher_id')
+    teacher_id = request.session.get('user_id')
     if not teacher_id or request.method != 'POST':
         messages.error(request, "Unauthorized access.")
         return redirect('teacher_dashboard')
 
     student_id = request.POST.get('student_id')
-    password = request.POST.get('password')
+    first_name = request.POST.get('first_name')
+    last_name = request.POST.get('last_name')
+
+    # Default password 123
+    password = 123
     section_id = request.POST.get('section_id')
 
     if not (student_id and password and section_id):
@@ -38,7 +42,8 @@ def register_student_teacher(request):
 
     student = Student(
         student_id=student_id,
-        name="",
+        first_name=first_name,
+        last_name=last_name,
         department=selected_handled.department,
         year_level=selected_handled.year_level,
         section=selected_handled.section,
