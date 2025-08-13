@@ -141,19 +141,26 @@ def edit_teacher(request, teacher_id):
         teacher.save()
 
         # Add new handled sections (department and section) if they don't already exist
-        for dept_id, letter in zip(departments, letters):
-            department = get_object_or_404(Department, id=dept_id)
-            section = get_object_or_404(Section, department=department, letter=letter)
+        # Check if 'departments' and 'letters' are not empty
+        if departments and letters:
+            for dept_id, letter in zip(departments, letters):
+                if dept_id and letter:  # Only process if both dept_id and letter are valid
+                    try:
+                        department = Department.objects.get(id=dept_id)
+                        section = Section.objects.get(department=department, letter=letter)
 
-            # Check if this teacher already has this section assigned
-            if not HandledSection.objects.filter(teacher=teacher, section=section).exists():
-                # Create new handled section for the teacher
-                HandledSection.objects.create(
-                    teacher=teacher,
-                    section=section,
-                    department=department,
-                    year_level=section.year_level  # Assuming year_level is tied to the section
-                )
+                        # Check if this teacher already has this section assigned
+                        if not HandledSection.objects.filter(teacher=teacher, section=section).exists():
+                            # Create new handled section for the teacher
+                            HandledSection.objects.create(
+                                teacher=teacher,
+                                section=section,
+                                department=department,
+                                year_level=section.year_level  # Assuming year_level is tied to the section
+                            )
+                    except (Department.DoesNotExist, Section.DoesNotExist):
+                        # Handle the case where a department or section doesn't exist
+                        continue
 
         return JsonResponse({'success': True})  # Send a success response
 
