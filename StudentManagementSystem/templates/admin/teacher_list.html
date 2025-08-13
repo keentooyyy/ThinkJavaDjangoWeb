@@ -1,30 +1,31 @@
 <h3>Teacher List</h3>
 <table>
     <thead>
-        <tr>
-            <th>Teacher ID</th>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Actions</th>
-        </tr>
+    <tr>
+        <th>Teacher ID</th>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Actions</th>
+    </tr>
     </thead>
     <tbody>
-        {% for teacher in teachers %}
-            <tr>
-                <td>{{ teacher.teacher_id }}</td>
-                <td>{{ teacher.first_name }}</td>
-                <td>{{ teacher.last_name }}</td>
-                <td>
-                    <!-- Edit Button for Modal -->
-                    <button onclick="openEditModal({{ teacher.id }})">Edit</button>
-                </td>
-            </tr>
-        {% endfor %}
+    {% for teacher in teachers %}
+        <tr>
+            <td>{{ teacher.teacher_id }}</td>
+            <td>{{ teacher.first_name }}</td>
+            <td>{{ teacher.last_name }}</td>
+            <td>
+                <!-- Edit Button for Modal -->
+                <button onclick="openEditModal({{ teacher.id }})">Edit</button>
+            </td>
+        </tr>
+    {% endfor %}
     </tbody>
 </table>
 
 <!-- Simple Modal for Editing Teacher -->
-<div id="editModal" style="display:none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border: 1px solid #ccc; z-index: 1000;">
+<div id="editModal"
+     style="display:none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border: 1px solid #ccc; z-index: 1000;">
     <h4>Edit Teacher</h4>
     <form id="editTeacherForm" method="POST">
         {% csrf_token %}
@@ -42,15 +43,15 @@
         <h5>Handled Sections</h5>
         <table id="sections-table">
             <thead>
-                <tr>
-                    <th>Department</th>
-                    <th>Year Level</th>
-                    <th>Section Letter</th>
-                    <th>Actions</th>
-                </tr>
+            <tr>
+                <th>Department</th>
+                <th>Year Level</th>
+                <th>Section Letter</th>
+                <th>Actions</th>
+            </tr>
             </thead>
             <tbody>
-                <!-- Existing sections will be added here -->
+            <!-- Existing sections will be added here -->
             </tbody>
         </table>
 
@@ -77,14 +78,16 @@
             </div>
         </div>
 
-        <button type="button" onclick="addSectionGroupModal()">➕ Add More Sections</button><br><br>
+        <button type="button" onclick="addSectionGroupModal()">➕ Add More Sections</button>
+        <br><br>
         <button type="submit">Save Changes</button>
     </form>
     <button onclick="closeEditModal()">Close</button>
 </div>
 
 <!-- Background overlay to dim the rest of the screen when modal is open -->
-<div id="modalOverlay" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 999;"></div>
+<div id="modalOverlay"
+     style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 999;"></div>
 
 <script>
     // Open the modal and pre-fill the form with teacher data
@@ -135,47 +138,55 @@
         deptSelect.selectedIndex = 0;
         sectionSelect.selectedIndex = 0;
 
+        // Ensure that the newly cloned group has the 'section-group' class
+        newGroup.classList.add('section-group');  // Add the class to the cloned group
+
         container.appendChild(newGroup);
     }
 
     // Remove a specific section group (dropdowns for department and section)
     function removeSectionGroup(button) {
         const group = button.closest('.section-group');
-        group.remove();
+        if (group) {
+            group.remove();  // Only remove if group is found
+        }
     }
 
     // Remove a section row from the table
     function removeSectionRow(button) {
         const row = button.closest('tr');
-        row.remove();
+        if (row) {
+            row.remove();  // Only remove if row is found
+        }
     }
 
+
     // Handle the form submission via AJAX to update teacher details
-// Handle the form submission via AJAX to update teacher details
-document.getElementById('editTeacherForm').addEventListener('submit', function(event) {
-    event.preventDefault();  // Prevent the default form submission
+    // Handle the form submission via AJAX to update teacher details
+    document.getElementById('editTeacherForm').addEventListener('submit', function (event) {
+        event.preventDefault();  // Prevent the default form submission
 
-    const formData = new FormData(this);  // Create a FormData object from the form
+        const formData = new FormData(this);  // Create a FormData object from the form
 
-    const teacherId = document.getElementById('teacher_id_edit_modal').value; // Get teacher ID from the modal
+        const teacherId = document.getElementById('teacher_id_edit_modal').value; // Get teacher ID from the modal
 
-    fetch(`/admin_teacher/${teacherId}/edit/`, {  // Use the correct URL for editing the teacher
-        method: 'POST',
-        body: formData  // Send the form data with the request
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('Teacher updated successfully!');
-            closeEditModal();
-            location.reload();  // Reload the page to show the updated teacher list
-        } else {
-            alert('Error updating teacher.');
-        }
-    })
-    .catch(error => {
-        console.error('Error updating teacher:', error);
-        alert('Something went wrong!');
+        fetch(`/admin_teacher/${teacherId}/edit/`, {  // Use the correct URL for editing the teacher
+            method: 'POST',
+            body: formData  // Send the form data with the request
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Teacher updated successfully!');
+                    closeEditModal();
+                    location.reload();  // Reload the page to show the updated teacher list
+                } else {
+                    alert('Error updating teacher.');
+                }
+            })
+            .catch(error => {
+                console.error('Error updating teacher:', error);
+                alert('Something went wrong!');
+            });
     });
-});
 </script>
