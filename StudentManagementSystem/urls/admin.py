@@ -18,9 +18,9 @@ urlpatterns = [
 
     # Teacher Management Routes
     path('create-teacher/', create_teacher, name='create_teacher'),
-    path('teacher/list/', teacher_list, name='teacher_list'),  # List of teachers
-    path('teacher/<int:teacher_id>/get_details/', get_teacher_details, name='get_teacher_details'),  # Fetch details for the modal
-    path('teacher/edit/', edit_teacher, name='edit_teacher'),  # Edit teacher
+    path('admin_teacher/list/', teacher_list, name='teacher_list'),  # List of teachers
+    path('admin_teacher/<int:teacher_id>/get_details/', get_teacher_details, name='get_teacher_details'),  # Fetch details for the modal
+    path('admin_teacher/<int:teacher_id>/edit/', edit_teacher, name='edit_teacher'), # Edit teacher
 
     # Other Routes
     path('get-sections-by-department/', get_sections_by_department, name='get_sections_by_department'),

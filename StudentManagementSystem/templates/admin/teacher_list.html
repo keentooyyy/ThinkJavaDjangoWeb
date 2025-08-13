@@ -58,7 +58,7 @@
         <div id="section-group-container_modal">
             <div class="section-group_modal">
                 <label>Department:</label>
-                <select name="departments[]" class="dept-select" required>
+                <select name="departments[]" class="dept-select">
                     <option value="">-- Select Department --</option>
                     {% for dept in departments %}
                         <option value="{{ dept.id }}">{{ dept.name }}</option>
@@ -66,7 +66,7 @@
                 </select>
 
                 <label>Section Letter:</label>
-                <select name="letters[]" class="section-select" required>
+                <select name="letters[]" class="section-select">
                     <option value="">-- Select Section Letter --</option>
                     {% for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" %}
                         <option value="{{ letter }}">{{ letter }}</option>
@@ -89,7 +89,7 @@
 <script>
     // Open the modal and pre-fill the form with teacher data
     function openEditModal(teacherId) {
-        fetch(`/teacher/${teacherId}/get_details/`)  // Fetch teacher data
+        fetch(`/admin_teacher/${teacherId}/get_details/`)  // Fetch teacher data
             .then(response => response.json())
             .then(data => {
                 document.getElementById('teacher_id_edit_modal').value = data.teacher_id;
@@ -151,25 +151,31 @@
     }
 
     // Handle the form submission via AJAX to update teacher details
-    document.getElementById('editTeacherForm').addEventListener('submit', function(event) {
-        event.preventDefault();
+// Handle the form submission via AJAX to update teacher details
+document.getElementById('editTeacherForm').addEventListener('submit', function(event) {
+    event.preventDefault();  // Prevent the default form submission
 
-        const formData = new FormData(this);
+    const formData = new FormData(this);  // Create a FormData object from the form
 
-        fetch('/teacher/edit/', {  // Example endpoint to handle form submission
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Teacher updated successfully!');
-                closeEditModal();
-                location.reload();  // Reload the page to show the updated teacher list
-            } else {
-                alert('Error updating teacher.');
-            }
-        })
-        .catch(error => console.error('Error updating teacher:', error));
+    const teacherId = document.getElementById('teacher_id_edit_modal').value; // Get teacher ID from the modal
+
+    fetch(`/admin_teacher/${teacherId}/edit/`, {  // Use the correct URL for editing the teacher
+        method: 'POST',
+        body: formData  // Send the form data with the request
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Teacher updated successfully!');
+            closeEditModal();
+            location.reload();  // Reload the page to show the updated teacher list
+        } else {
+            alert('Error updating teacher.');
+        }
+    })
+    .catch(error => {
+        console.error('Error updating teacher:', error);
+        alert('Something went wrong!');
     });
+});
 </script>

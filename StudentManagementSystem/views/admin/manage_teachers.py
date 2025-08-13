@@ -81,6 +81,7 @@ def teacher_list(request):
 # 2. View to fetch teacher details for the modal
 def get_teacher_details(request, teacher_id):
     teacher = get_object_or_404(Teacher, id=teacher_id)
+
     handled_sections = teacher.handled_sections.all()  # Fetch the handled sections for this teacher
 
     # Prepare data to send to the frontend
@@ -95,24 +96,26 @@ def get_teacher_details(request, teacher_id):
     ]
 
     data = {
-        'teacher_id': teacher.teacher_id,
+        'teacher_id': teacher.id,
         'first_name': teacher.first_name,
         'last_name': teacher.last_name,
         'handled_sections': sections_data
     }
     return JsonResponse(data)
 
-# 3. View to handle teacher updates
-def edit_teacher(request):
-    if request.method == 'POST':
-        teacher_id = request.POST.get('teacher_id')
-        first_name = request.POST.get('first_name')
-        last_name = request.POST.get('last_name')
-        raw_password = request.POST.get('password')  # Optional password field
 
+
+def edit_teacher(request, teacher_id):  # Capture teacher_id from the URL
+    if request.method == 'POST':
         # Get the teacher object based on the teacher_id
         teacher = get_object_or_404(Teacher, id=teacher_id)
 
+        # Get the data from the POST request
+        first_name = request.POST.get('first_name_modal')
+        last_name = request.POST.get('last_name_modal')
+        raw_password = request.POST.get('password')  # Optional password field
+
+        print(first_name, last_name)
         # Update teacher data
         teacher.first_name = first_name
         teacher.last_name = last_name
@@ -125,7 +128,7 @@ def edit_teacher(request):
         teacher.save()
 
         # Success message
-        messages.success(request, 'Teacher updated successfully.')
+        # messages.success(request, 'Teacher updated successfully.')
         return JsonResponse({'success': True})  # Send a success response
 
     # If not a POST request, return failure response
