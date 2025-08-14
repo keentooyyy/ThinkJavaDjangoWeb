@@ -3,8 +3,14 @@
 
 {% block content %}
 {#    <h2>Edit Profile {{ teacher.first_name }} {{ teacher.last_name }}</h2>#}
-    <h2>Editing Profile</h2>
+    <h2>My Profile</h2>
 
+
+    {% if messages %}
+        {% for message in messages %}
+            <p class="message {{ message.tags }}">{{ message }}</p>
+        {% endfor %}
+    {% endif %}
     <form method="POST">
         {% csrf_token %}
         <div>
@@ -18,13 +24,18 @@
         </div>
 
         <div>
+            <label for="age">Age:</label>
+            <span>{{ teacher.age }}</span>
+        </div>
+
+        <div>
             <label for="date_of_birth">Date of Birth:</label>
-            <input type="date" id="date_of_birth" name="date_of_birth" value="{{ teacher.date_of_birth|date:'Y-m-d' }}" required>
+            <input type="date" id="date_of_birth" name="date_of_birth" value="{{ teacher.date_of_birth|date:'Y-m-d' }}">
         </div>
 
         <div>
             <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required>
+            <input type="password" id="password" name="password">
         </div>
 
         <button type="submit">Update Profile</button>

@@ -1,8 +1,8 @@
-# StudentManagementSystem/views/teacher/edit_teacher.py
+from datetime import date
 from django.contrib import messages
-from django.shortcuts import render, redirect, get_object_or_404
-
+from django.shortcuts import get_object_or_404, redirect, render
 from StudentManagementSystem.decorators.custom_decorators import session_login_required
+from StudentManagementSystem.helpers.helpers import validate_birthday
 from StudentManagementSystem.models import Teacher
 from StudentManagementSystem.models.roles import Role
 
@@ -21,10 +21,26 @@ def edit_profile(request, teacher_id):
         # Update the teacher's data manually using the POST data
         teacher.first_name = request.POST.get('first_name')
         teacher.last_name = request.POST.get('last_name')
-        teacher.date_of_birth = request.POST.get('date_of_birth')
-        teacher.password = request.POST.get('password')  # You can hash it if needed
+
+        # Handle date of birth (allow empty or None)
+        dob = request.POST.get('date_of_birth')
+        if dob:  # If a date of birth is provided
+            dob_date, error_message = validate_birthday(dob)
+            if error_message:
+                messages.error(request, error_message)
+                return render(request, 'teacher/edit_profile.html', {'teacher': teacher})  # Stay on the edit page
+
+            teacher.date_of_birth = dob_date
+        else:  # If no date of birth is provided, set it to None or leave unchanged
+            teacher.date_of_birth = None
+
+        # Handle password (allow empty or unchanged)
+        new_password = request.POST.get('password')
+        if new_password:  # If a password is provided, hash and save it
+            teacher.password = new_password  # Make sure to hash it before saving, if needed
+
         teacher.save()  # Save the updated teacher information
         messages.success(request, "Profile updated successfully!")
-        return redirect('teacher_dashboard')  # Redirect to dashboard after successful update
+        return redirect('edit_profile', teacher_id=teacher.id)  # Redirect back to the profile page
 
     return render(request, 'teacher/edit_profile.html', {'teacher': teacher})

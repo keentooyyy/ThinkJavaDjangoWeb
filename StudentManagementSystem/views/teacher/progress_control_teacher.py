@@ -16,9 +16,9 @@ from StudentManagementSystem.views.teacher.dashboard_teacher import get_teacher_
 
 
 def progress_control_teacher(request):
-    teacher_id = request.session.get('teacher_id')
+    teacher_id = request.session.get('user_id')
     if not teacher_id:
-        return redirect('teacher_login')
+        return redirect('unified_login')
 
     teacher = Teacher.objects.get(id=teacher_id)
 
