@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-m&#q@ny(28l2puruj9a&xwpuu$jdu6xobhay(n2b#0!sw=_50y
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -126,3 +126,20 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Custom Login URL
 LOGIN_URL = '/'
+
+
+#HTTPS TEST
+# Security settings for HTTPS
+SECURE_SSL_REDIRECT = True  # Redirect HTTP to HTTPS
+SESSION_COOKIE_SECURE = True  # Only send cookies over HTTPS
+CSRF_COOKIE_SECURE = True  # CSRF cookie only sent over HTTPS
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')  # Trust Caddy proxy headers
+
+# HSTS for enforced HTTPS
+SECURE_HSTS_SECONDS = 31536000  # 1 year
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']  # Allow local development domains
+
+
