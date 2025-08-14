@@ -1,8 +1,8 @@
 
 {% block teacher_info %}
-    <h2>
+    <h2>Welcome,
         <a href="{% url 'edit_profile' teacher.id %}">
-            Welcome, {{ teacher.first_name }} {{ teacher.last_name }}
+            {{ teacher.first_name }} {{ teacher.last_name }}
         </a>
     </h2>
     <p>This is your dashboard. Below are the top student performances.</p>
