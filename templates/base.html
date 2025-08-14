@@ -1,4 +1,3 @@
-{% load tailwind_cli %}
 {% load static %}
 
 <!DOCTYPE html>
@@ -7,25 +6,73 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}My Django App{% endblock %}</title>
-    {% tailwind_css %}
+
+
+    <link rel="icon" href="{% static 'assets/images/favicon-32x32.png' %}" type="image/png"/>
+    <!-- Plugins -->
+    <link href="{% static 'assets/plugins/simplebar/css/simplebar.css' %}" rel="stylesheet"/>
+    <link href="{% static 'assets/plugins/perfect-scrollbar/css/perfect-scrollbar.css' %}" rel="stylesheet"/>
+    <link href="{% static 'assets/plugins/highcharts/css/highcharts.css' %}" rel="stylesheet"/>
+    <link href="{% static 'assets/plugins/vectormap/jquery-jvectormap-2.0.2.css' %}" rel="stylesheet"/>
+    <link href="{% static 'assets/plugins/metismenu/css/metisMenu.min.css' %}" rel="stylesheet"/>
+    <!-- Loader -->
+    <link href="{% static 'assets/css/pace.min.css' %}" rel="stylesheet"/>
+    <script src="{% static 'assets/js/pace.min.js' %}"></script>
+    <!-- Bootstrap CSS -->
+    <link href="{% static 'assets/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'assets/css/bootstrap-extended.css' %}" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link href="{% static 'assets/css/app.css' %}" rel="stylesheet">
+    <link href="{% static 'assets/css/icons.css' %}" rel="stylesheet">
+    <!-- Theme Style CSS -->
+    <link rel="stylesheet" href="{% static 'assets/css/dark-theme.css' %}"/>
+    <link rel="stylesheet" href="{% static 'assets/css/semi-dark.css' %}"/>
+    <link rel="stylesheet" href="{% static 'assets/css/header-colors.css' %}"/>
+
 </head>
 <body>
-    <header>
-        <nav>
-            <!-- Your navigation menu -->
-        </nav>
-    </header>
+<header>
+    <nav>
+        <!-- Your navigation menu -->
+    </nav>
+</header>
 
-    <main>
-        {% block content %}
+<main>
+    {% block content %}
         <!-- Default content, can be overridden -->
-        {% endblock %}
-    </main>
+    {% endblock %}
+</main>
 
-    <footer>
-        <p>&copy; 2025 My Django App</p>
-    </footer>
+<footer>
+    <p>&copy; 2025 My Django App</p>
+</footer>
 
-    <!-- <script src="{% static 'scripts.js' %}"></script> -->
+
+<!-- End switcher -->
+<!-- Bootstrap JS -->
+<script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
+<!-- Plugins -->
+<script src="{% static 'assets/js/jquery.min.js' %}"></script>
+<script src="{% static 'assets/plugins/simplebar/js/simplebar.min.js' %}"></script>
+<script src="{% static 'assets/plugins/metismenu/js/metisMenu.min.js' %}"></script>
+<script src="{% static 'assets/plugins/perfect-scrollbar/js/perfect-scrollbar.js' %}"></script>
+<script src="{% static 'assets/plugins/vectormap/jquery-jvectormap-2.0.2.min.js' %}"></script>
+<script src="{% static 'assets/plugins/vectormap/jquery-jvectormap-world-mill-en.js' %}"></script>
+<script src="{% static 'assets/plugins/highcharts/js/highcharts.js' %}"></script>
+<script src="{% static 'assets/plugins/highcharts/js/exporting.js' %}"></script>
+<script src="{% static 'assets/plugins/highcharts/js/variable-pie.js' %}"></script>
+<script src="{% static 'assets/plugins/highcharts/js/export-data.js' %}"></script>
+<script src="{% static 'assets/plugins/highcharts/js/accessibility.js' %}"></script>
+<script src="{% static 'assets/plugins/apexcharts-bundle/js/apexcharts.min.js' %}"></script>
+<script src="{% static 'assets/js/index2.js' %}"></script>
+<!-- App JS -->
+<script src="{% static 'assets/js/app.js' %}"></script>
+<script>
+    new PerfectScrollbar('.customers-list');
+    new PerfectScrollbar('.store-metrics');
+    new PerfectScrollbar('.product-list');
+</script>
+
+
 </body>
 </html>
