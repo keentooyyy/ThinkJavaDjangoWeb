@@ -2,7 +2,7 @@ from datetime import date
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect, render
 from StudentManagementSystem.decorators.custom_decorators import session_login_required
-from StudentManagementSystem.helpers.helpers import validate_birthday
+from StudentManagementSystem.helpers.custom_helpers import validate_birthday
 from StudentManagementSystem.models import Teacher
 from StudentManagementSystem.models.roles import Role
 

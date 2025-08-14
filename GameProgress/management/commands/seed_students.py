@@ -1,8 +1,8 @@
 import random
-
 from django.contrib.auth.hashers import make_password
 from django.core.management.base import BaseCommand
 from faker import Faker
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from GameProgress.models.achievement_definition import AchievementDefinition
 from GameProgress.models.achievement_progress import AchievementProgress
@@ -19,57 +19,67 @@ def generate_student_id():
 
 
 class Command(BaseCommand):
-    # ✅ Usage:
-    # python manage.py seed_students --students [any number here e.g 1,10,100,1000]
-    # python manage.py seed_students --students 50
-
     help = "Seed fake students and their progress using existing sections and definitions"
 
     def add_arguments(self, parser):
         parser.add_argument('--students', type=int, default=10, help='Number of students to create')
 
-    def handle(self, *args, **options):
-        students_to_create = options['students']
-
+    def create_student(self, _):
         sections = list(Section.objects.select_related('year_level').all())
+        levels = list(LevelDefinition.objects.all())
+        achievements = list(AchievementDefinition.objects.all())
+
         if not sections:
             self.stdout.write(self.style.ERROR("❌ No sections found. Please seed sections first."))
             return
 
-        levels = list(LevelDefinition.objects.all())
-        achievements = list(AchievementDefinition.objects.all())
-
-        for _ in range(students_to_create):
+        student_id = generate_student_id()
+        while Student.objects.filter(student_id=student_id).exists():
             student_id = generate_student_id()
-            while Student.objects.filter(student_id=student_id).exists():
-                student_id = generate_student_id()
 
-            section = random.choice(sections)
-            student = Student.objects.create(
-                student_id=student_id,
-                first_name=fake.first_name(),
-                last_name=fake.last_name(),
-                date_of_birth=fake.date_of_birth(),
-                password=make_password('123'),
-                year_level=section.year_level,
-                section=section
+        section = random.choice(sections)
+        student = Student.objects.create(
+            student_id=student_id,
+            first_name=fake.first_name(),
+            last_name=fake.last_name(),
+            date_of_birth=fake.date_of_birth(),
+            password=make_password('123'),
+            year_level=section.year_level,
+            section=section
+        )
+
+        # Create student progress
+        for level in levels:
+            LevelProgress.objects.get_or_create(
+                student=student,
+                level=level,
+                defaults={
+                    'best_time': random.randint(10, 180),
+                    'current_time': random.randint(0, 180)
+                }
             )
 
-            for level in levels:
-                LevelProgress.objects.get_or_create(
-                    student=student,
-                    level=level,
-                    defaults={
-                        'best_time': random.randint(10, 180),
-                        'current_time': random.randint(0, 180)
-                    }
-                )
+        for achievement in achievements:
+            AchievementProgress.objects.get_or_create(
+                student=student,
+                achievement=achievement,
+                defaults={'unlocked': random.choice([True, False])}
+            )
 
-            for achievement in achievements:
-                AchievementProgress.objects.get_or_create(
-                    student=student,
-                    achievement=achievement,
-                    defaults={'unlocked': random.choice([True, False])}
-                )
+        return f"Created student {student_id}"
+
+    def handle(self, *args, **options):
+        students_to_create = options['students']
+
+        # Display the number of students to be created
+        self.stdout.write(self.style.SUCCESS(f"Seeding {students_to_create} students..."))
+
+        # Use ThreadPoolExecutor to parallelize student creation
+        with ThreadPoolExecutor(max_workers=10) as executor:
+            futures = [executor.submit(self.create_student, _) for _ in range(students_to_create)]
+
+            # Process the results and print each student creation
+            for future in as_completed(futures):
+                self.stdout.write(self.style.SUCCESS(future.result()))  # Display result of each student creation
 
         self.stdout.write(self.style.SUCCESS(f"✅ Created {students_to_create} students with progress"))

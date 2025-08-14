@@ -2,7 +2,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-{#    <h2>Edit Profile {{ teacher.first_name }} {{ teacher.last_name }}</h2>#}
+    {#    <h2>Edit Profile {{ teacher.first_name }} {{ teacher.last_name }}</h2>#}
     <h2>My Profile</h2>
 
 
@@ -25,7 +25,11 @@
 
         <div>
             <label for="age">Age:</label>
-            <span>{{ teacher.age }}</span>
+            {% if teacher.date_of_birth %}
+                <span>{{ teacher.age }}</span>  <!-- Display the calculated age if date_of_birth exists -->
+            {% else %}
+                <span>Birthday unset</span>  <!-- Display this if date_of_birth is None -->
+            {% endif %}
         </div>
 
         <div>
