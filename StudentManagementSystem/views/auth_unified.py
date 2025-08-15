@@ -18,6 +18,9 @@ def unified_login(request):
                 request.session['user_id'] = student.id
                 request.session['role'] = Role.STUDENT
                 return redirect('student_dashboard')
+            else:
+                messages.error(request, 'Invalid credentials. User does not exist.')
+                return redirect('unified_login')
         except Student.DoesNotExist:
             pass  # Continue to check for Teacher or Admin
 
@@ -28,6 +31,9 @@ def unified_login(request):
                 request.session['user_id'] = teacher.id
                 request.session['role'] = Role.TEACHER
                 return redirect('teacher_dashboard')
+            else:
+                messages.error(request, 'Invalid credentials. User does not exist.')
+                return redirect('unified_login')
         except Teacher.DoesNotExist:
             pass  # Continue to check for Admin
 
@@ -38,11 +44,15 @@ def unified_login(request):
                 request.session['user_id'] = admin.id
                 request.session['role'] = Role.ADMIN
                 return redirect('admin_dashboard')
+            else:
+                messages.error(request, 'Invalid credentials. User does not exist.')
+                return redirect('unified_login')
         except SimpleAdmin.DoesNotExist:
-            messages.error(request, 'Invalid credentials.')
+            messages.error(request, 'Invalid credentials. User does not exist.')
             return redirect('unified_login')
 
     return render(request, 'login.html')
+
 
 
 def unified_logout(request):
