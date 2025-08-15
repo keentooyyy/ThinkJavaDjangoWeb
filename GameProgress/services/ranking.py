@@ -89,7 +89,7 @@ def get_all_student_rankings(sort_by="score", sort_order="desc", filter_by=None,
     return rankings
 
 
-
+# Ranking Based on Sections
 def get_section_rankings(sort_order="desc", limit=5):
     # Base queryset for students
     students = Student.objects.all()
