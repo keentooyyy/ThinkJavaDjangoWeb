@@ -3,6 +3,7 @@ import json
 from django.shortcuts import render, redirect
 
 from StudentManagementSystem.models import SimpleAdmin, Teacher
+from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.models.section import Section
 from StudentManagementSystem.views.admin.ranking_students import get_rankings_context
 
@@ -31,7 +32,10 @@ def admin_dashboard(request):
 
     return render(request, 'admin/dashboard.html', {
         'admin': admin,
+        'username': admin.username,
+        'role': Role.ADMIN,
         'teachers': teachers,  # Pass the teachers list to the template
         'sections_by_department': json.dumps(sections_by_department),
         **ranking_context
+
     })

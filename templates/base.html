@@ -1,7 +1,7 @@
 {% load static %}
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="light-theme">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -37,10 +37,8 @@
     {% block sidebar %} {% endblock %}
     {% block header %}{% endblock %}
     {% block content %}{% endblock %}
-
 </div>
 
-</body>
 
 <!-- End switcher -->
 <!-- Bootstrap JS -->
@@ -50,24 +48,49 @@
 <script src="{% static 'assets/plugins/simplebar/js/simplebar.min.js' %}"></script>
 <script src="{% static 'assets/plugins/metismenu/js/metisMenu.min.js' %}"></script>
 <script src="{% static 'assets/plugins/perfect-scrollbar/js/perfect-scrollbar.js' %}"></script>
-<script src="{% static 'assets/plugins/vectormap/jquery-jvectormap-2.0.2.min.js' %}"></script>
-<script src="{% static 'assets/plugins/vectormap/jquery-jvectormap-world-mill-en.js' %}"></script>
-<script src="{% static 'assets/plugins/highcharts/js/highcharts.js' %}"></script>
-<script src="{% static 'assets/plugins/highcharts/js/exporting.js' %}"></script>
-<script src="{% static 'assets/plugins/highcharts/js/variable-pie.js' %}"></script>
-<script src="{% static 'assets/plugins/highcharts/js/export-data.js' %}"></script>
-<script src="{% static 'assets/plugins/highcharts/js/accessibility.js' %}"></script>
-<script src="{% static 'assets/plugins/apexcharts-bundle/js/apexcharts.min.js' %}"></script>
-<script src="{% static 'assets/js/index2.js' %}"></script>
 <!-- App JS -->
-<script src="{% static 'assets/js/app.js' %}"></script>
-<script>
-    new PerfectScrollbar('.customers-list');
-    new PerfectScrollbar('.store-metrics');
-    new PerfectScrollbar('.product-list');
-</script>
+{#<script src="{% static 'assets/js/app.js' %}"></script>#}
 
 {% block scripts %}
     <!-- Default content, can be overridden -->
 {% endblock %}
+
+<script>
+    //mobile toggle
+    $(".mobile-toggle-menu").on("click", function () {
+		$(".wrapper").addClass("toggled");
+	});
+
+    //dark mode
+    $(".dark-mode").on("click", function () {
+
+            if ($(".dark-mode-icon i").attr("class") == 'bx bx-sun') {
+                $(".dark-mode-icon i").attr("class", "bx bx-moon");
+                $("html").attr("class", "light-theme")
+            } else {
+                $(".dark-mode-icon i").attr("class", "bx bx-sun");
+                $("html").attr("class", "dark-theme")
+            }
+
+        })
+
+    // toggle menu button
+	$(".toggle-icon").click(function () {
+		if ($(".wrapper").hasClass("toggled")) {
+			// unpin sidebar when hovered
+			$(".wrapper").removeClass("toggled");
+			$(".sidebar-wrapper").unbind("hover");
+		} else {
+			$(".wrapper").addClass("toggled");
+			$(".sidebar-wrapper").hover(function () {
+				$(".wrapper").addClass("sidebar-hovered");
+			}, function () {
+				$(".wrapper").removeClass("sidebar-hovered");
+			})
+		}
+	});
+
+</script>
+</body>
+
 </html>
