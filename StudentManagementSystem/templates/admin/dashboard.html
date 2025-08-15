@@ -9,7 +9,7 @@
 {% block content %}
     <div class="page-wrapper">
         {#        <p><a href="{% url 'unified_logout' %}">Logout</a></p>#}
-{#        <p>This is your admin dashboard.</p>#}
+        {#        <p>This is your admin dashboard.</p>#}
 
         {% if messages %}
             {% for message in messages %}
@@ -18,17 +18,89 @@
         {% endif %}
 
 
-    {% include 'admin/stats.html' %}
-    <div class="d-none">
-        {% include 'admin/teacher_form.html' %}
-        {% include 'admin/teacher_list.html' %}
-        {% include 'admin/student_ranking.html' %}
-        {% include 'admin/add_progress.html' %}
-    </div>
+        {% include 'admin/stats.html' %}
+
+
+        <div class="d-none">
+            {% include 'admin/teacher_form.html' %}
+            {% include 'admin/teacher_list.html' %}
+            {% include 'admin/student_ranking.html' %}
+            {% include 'admin/add_progress.html' %}
+        </div>
 
 
     </div>
 
 
+
+{% endblock %}
+
+{% block scripts %}
+
+    <script>
+        // Get the ranking data passed from Django
+        var rankingBySection = {{ ranking_by_section|safe }};
+
+        // Extract section names and average scores from the ranking data
+        var sectionNames = rankingBySection.map(function (item) {
+            return item.section;
+        });
+
+        var averageScores = rankingBySection.map(function (item) {
+            return item.average_score;
+        });
+
+        // Define custom colors for each bar
+        var colors = ['#FF5733', '#33FF57', '#3357FF', '#F5A623', '#8E44AD']; // Customize this array to match the number of sections
+
+        // Create the Highcharts column chart
+        Highcharts.chart('section_ranking', {
+            chart: {
+                type: 'column',  // Column chart type
+                height: '500',
+
+            },
+            title: {
+                text: 'Top 5 Sections by Average Score'  // Title of the chart
+            },
+            subtitle: {
+                text: 'Based on student performance'
+            },
+            legend: {
+                enabled: false  // Disable the legend (removes the clickable item)
+            },
+            xAxis: {
+                categories: sectionNames,  // X-axis labels as section names
+                title: {
+                    text: 'Section'  // Label for X-axis
+                }
+            },
+            yAxis: {
+                min: 0,
+                title: {
+                    text: 'Average Score'  // Label for Y-axis
+                }
+            },
+            credits: {
+                enabled: false  // Disable Highcharts branding (the "Highcharts.com" logo and link)
+            },
+            series: [{
+                name: 'Average Score',
+                data: averageScores,  // Y-axis data (average scores for each section)
+                colorByPoint: true,  // Apply color to each point (bar)
+                colors: colors,  // Custom colors array
+                dataLabels: {
+                    enabled: true,
+                    formatter: function () {
+                        return this.y.toFixed(2);  // Format the value to 2 decimal places
+                    },// Enable data labels
+                    style: {
+                        fontWeight: 'bold',
+                        color: 'white'  // Color of the data label text
+                    }
+                }
+            }]
+        });
+    </script>
 
 {% endblock %}

@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from GameProgress.models import LevelProgress, AchievementProgress, LevelDefinition
 from StudentManagementSystem.models.student import Student
 
@@ -85,3 +87,39 @@ def get_all_student_rankings(sort_by="score", sort_order="desc", filter_by=None,
         rankings.sort(key=lambda r: (r["department"], r["year_level"], r["section_letter"]), reverse=reverse)
 
     return rankings
+
+
+
+def get_section_rankings(sort_order="desc", limit=5):
+    # Base queryset for students
+    students = Student.objects.all()
+
+    # Group students by their full section
+    section_groups = defaultdict(list)
+
+    for student in students:
+        # Get the full section for each student
+        full_section = getattr(student, "full_section", "N/A")
+
+        # Calculate the student's performance and score
+        student_performance = get_student_performance(student)
+        student_score = student_performance["score"]
+
+        # Add the student and their score to the appropriate section group
+        section_groups[full_section].append(student_score)
+
+    # Calculate the average score for each section
+    section_averages = []
+    for section, scores in section_groups.items():
+        average_score = sum(scores) / len(scores) if scores else 0
+        section_averages.append({
+            "section": section,
+            "average_score": average_score
+        })
+
+    # Sort sections by average score
+    reverse = sort_order == "desc"
+    section_averages.sort(key=lambda x: x["average_score"], reverse=reverse)
+
+    # Return the top N sections based on average score
+    return section_averages[:limit]

@@ -2,6 +2,7 @@ import json
 
 from django.shortcuts import render, redirect
 
+from GameProgress.services.ranking import get_section_rankings
 from StudentManagementSystem.models import SimpleAdmin, Teacher, Student
 from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.models.section import Section
@@ -41,6 +42,11 @@ def admin_dashboard(request):
     section_count = Section.objects.count()
 
 
+    ranking_by_section = get_section_rankings()
+    print(ranking_by_section)
+
+
+
     return render(request, 'admin/dashboard.html', {
         'admin': admin,
         'username': admin.username,
@@ -53,6 +59,7 @@ def admin_dashboard(request):
         'student_count_IT': student_count_IT,
         'teacher_count': teacher_count,
         'section_count': section_count,
+        'ranking_by_section': json.dumps(ranking_by_section),
 
     })
 
