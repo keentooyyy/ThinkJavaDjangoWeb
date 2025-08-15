@@ -6,7 +6,7 @@
         <div class="simplebar-mask">
             <div class="simplebar-offset" style="right: 0px; bottom: 0px;">
                 <div class="simplebar-content-wrapper" style="height: 100%; overflow: hidden scroll;">
-                    <div class="simplebar-content mm-active" style="padding: 0px;">
+                    <div class="simplebar-content mm-active h-100 d-flex flex-column" style="padding: 0px;">
                         {#                            <div class="">#}
                         {#                                <div>#}
                         {#                                    <h4 class="text-primary my-2 p-4">ThinkJava</h4>#}
@@ -22,15 +22,44 @@
                         </div>
                         <hr class="m-0">
                         <!--navigation-->
-                        <ul class="metismenu px-2 mm-show" id="menu">
-                            <li>
+                        <ul class="metismenu px-2 mm-show h-100" id="menu">
+
+                            <li class="">
                                 <a href="#">
                                     <div class="parent-icon"><i class="bx bx-home"></i>
                                     </div>
                                     <div class="menu-title">Dashboard</div>
                                 </a>
                             </li>
-                            <li class="mt-5">
+                            <li class="">
+                                <a href="#">
+                                    <div class="parent-icon"><i class="bx bx-home"></i>
+                                    </div>
+                                    <div class="menu-title">Dashboard</div>
+                                </a>
+                            </li>
+                            <li class="">
+                                <a href="#">
+                                    <div class="parent-icon"><i class="bx bx-home"></i>
+                                    </div>
+                                    <div class="menu-title">Dashboard</div>
+                                </a>
+                            </li>
+                            <li class="">
+                                <a href="#">
+                                    <div class="parent-icon"><i class="bx bx-home"></i>
+                                    </div>
+                                    <div class="menu-title">Dashboard</div>
+                                </a>
+                            </li>
+                            <li class="">
+                                <a href="#">
+                                    <div class="parent-icon"><i class="bx bx-home"></i>
+                                    </div>
+                                    <div class="menu-title">Dashboard</div>
+                                </a>
+                            </li>
+                            <li class="mt-auto">
                                 <a href="{% url 'unified_logout' %}">
                                     <div class="parent-icon "><i class="bx bx-log-out text-danger"></i>
                                     </div>
