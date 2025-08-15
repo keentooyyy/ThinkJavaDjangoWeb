@@ -4,11 +4,18 @@
 {% block title %}Login{% endblock %}
 
 {% block content %}
-    <div class="section-authentication-signin d-flex align-items-center justify-content-center my-5 my-lg-0">
-        <div class="container">
-            <div class="row row-cols-1 row-cols-lg-2 row-cols-xl-2">
-                <div class="col mx-auto">
-                    <div class="card rounded-4">
+{#    <div class="section-authentication-signin d-flex align-items-center justify-content-center my-5 my-lg-0">#}
+    <div class="section-authentication-signin d-flex">
+        <div class="container-fluid">
+
+            <div class="row">
+
+            <div class="col-8 d-none d-xl-block" style="background: url('{% static 'assets/images/8-bit-pixel-art-city-2o.jpg' %}'); background-size: cover; height: 100vh;">
+                {#<img src="{% static 'assets/images/8-bit-pixel-art-city-2o.jpg' %}" alt="">#}
+            </div>
+
+                <div class="col-8 col-lg-4 mx-auto d-flex flex-column justify-content-center">
+                    <div class="card rounded-4 h-auto h-xl-50">
                         <div class="card-body">
                             <div class="p-4 rounded">
                                 <div class="text-center">
@@ -77,6 +84,13 @@
                                                 </button>
                                             </div>
                                         </div>
+                                        <div class="col-12">
+                                            <div class="d-grid">
+                                                <button type="submit" class="btn btn-outline-primary"><i
+                                                        class="bx bxs-user"></i>Sign Up
+                                                </button>
+                                            </div>
+                                        </div>
                                     </form>
                                 </div>
                             </div>
@@ -84,8 +98,11 @@
                     </div>
                 </div>
             </div>
+
+
             <!--end row-->
         </div>
+
     </div>
 
 
