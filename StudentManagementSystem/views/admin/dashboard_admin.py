@@ -2,7 +2,7 @@ import json
 
 from django.shortcuts import render, redirect
 
-from StudentManagementSystem.models import SimpleAdmin, Teacher
+from StudentManagementSystem.models import SimpleAdmin, Teacher, Student
 from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.models.section import Section
 from StudentManagementSystem.views.admin.ranking_students import get_rankings_context
@@ -30,12 +30,35 @@ def admin_dashboard(request):
             'letter': section.letter
         })
 
+    student_count_total = Student.objects.count()
+    cs_id = 1
+    it_id = 2
+    student_count_CS = count_students(cs_id)
+    student_count_IT = count_students(it_id)
+
+    teacher_count = Teacher.objects.count()
+
+    section_count = Section.objects.count()
+
+
     return render(request, 'admin/dashboard.html', {
         'admin': admin,
         'username': admin.username,
         'role': Role.ADMIN,
         'teachers': teachers,  # Pass the teachers list to the template
         'sections_by_department': json.dumps(sections_by_department),
-        **ranking_context
+        **ranking_context,
+        'student_count': student_count_total,
+        'student_count_CS': student_count_CS,
+        'student_count_IT': student_count_IT,
+        'teacher_count': teacher_count,
+        'section_count': section_count,
 
     })
+
+def count_students(department_id=None):
+    if department_id:
+        # If department_id is provided, count students within that department
+        return Student.objects.filter(section__department_id=department_id).count()
+    # If no department_id is provided, count all students
+    return Student.objects.count()
