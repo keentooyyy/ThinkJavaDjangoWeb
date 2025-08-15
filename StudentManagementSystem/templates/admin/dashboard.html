@@ -3,6 +3,8 @@
 {% block title %}Admin Dashboard{% endblock %}
 {% block sidebar %}{% include 'sidebar.html' %} {% endblock %}
 
+{% block header %} {% include 'header.html' %} {% endblock %}
+
 {% block content %}
     <div class="page-wrapper">
         <p><a href="{% url 'unified_logout' %}">Logout</a></p>

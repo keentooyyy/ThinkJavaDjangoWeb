@@ -35,14 +35,11 @@
 
 <div class="wrapper">
     {% block sidebar %} {% endblock %}
-    {% block content %}
-        <!-- Default content, can be overridden -->
-    {% endblock %}
+    {% block header %}{% endblock %}
+    {% block content %}{% endblock %}
+
 </div>
 
-{% block scripts %}
-    <!-- Default content, can be overridden -->
-{% endblock %}
 </body>
 
 <!-- End switcher -->
@@ -69,4 +66,8 @@
     new PerfectScrollbar('.store-metrics');
     new PerfectScrollbar('.product-list');
 </script>
+
+{% block scripts %}
+    <!-- Default content, can be overridden -->
+{% endblock %}
 </html>
