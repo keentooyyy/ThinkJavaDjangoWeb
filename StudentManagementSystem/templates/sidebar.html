@@ -1,5 +1,3 @@
-{#{% extends 'base.html' %}#}
-
 <div class="sidebar-wrapper" data-simplebar="init">
     <div class="simplebar-wrapper" style="margin: 0px;">
         <div class="simplebar-height-auto-observer-wrapper">
@@ -27,6 +25,11 @@
                                     <div class="menu-title">Dashboard</div>
                                 </a>
                             </li>
+
+
+
+
+                            {% if request.session.role == 'ADMIN' %}
                             <li>
                                 <a href="javascript:;" class="has-arrow">
                                     <div class="parent-icon"><i class="bx bx-edit"></i>
@@ -34,17 +37,20 @@
                                     <div class="menu-title">Manage Teachers</div>
                                 </a>
                                 <ul class="mm-collapse">
-                                    <li><a href="#"><i class="bx bx-right-arrow-alt"></i>Products</a>
+                                    <li><a href="{% url 'create_teacher' %}"><i class="bx bx-right-arrow-alt"></i>Add New Teacher</a>
                                     </li>
-                                    <li><a href="#"><i class="bx bx-right-arrow-alt"></i>Products</a>
+                                    <li><a href="#"><i class="bx bx-right-arrow-alt"></i>Edit Teachers</a>
                                     </li>
-                                    <li><a href="#"><i class="bx bx-right-arrow-alt"></i>Products</a>
-                                    </li>
-                                    <li><a href="#"><i class="bx bx-right-arrow-alt"></i>Products</a>
+                                    <li><a href="#"><i class="bx bx-right-arrow-alt"></i>List of Teachers</a>
                                     </li>
 
                                 </ul>
                             </li>
+
+                            {% endif %}
+
+
+
 {#                            <li class="">#}
 {#                                <a href="#">#}
 {#                                    <div class="parent-icon"><i class="bx bx-edit"></i>#}

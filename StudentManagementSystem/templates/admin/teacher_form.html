@@ -1,66 +1,101 @@
-<h3>Create New Teacher</h3>
-<form method="post" action="{% url 'create_teacher' %}">
-    {% csrf_token %}
-    <label for="teacher_id">Teacher ID:</label><br>
-    <input type="text" id="teacher_id" name="teacher_id" required><br><br>
+{#<h3>Create New Teacher</h3>#}
+{#<form method="post" action="{% url 'create_teacher' %}">#}
+{#    {% csrf_token %}#}
+{#    <label for="teacher_id">Teacher ID:</label><br>#}
+{#    <input type="text" id="teacher_id" name="teacher_id" required><br><br>#}
+{##}
+{##}
+{#    <label for="first_name">First Name:</label><br>#}
+{#    <input type="text" id="first_name" name="first_name" required><br><br>#}
+{##}
+{##}
+{#    <label for="last_name">Last Name:</label><br>#}
+{#    <input type="text" id="last_name" name="last_name" required><br><br>#}
+{##}
+{##}
+{#    <label for="password">Password:</label><br>#}
+{#    <input type="password" id="password" name="password" required><br><br>#}
+{##}
+{#    <!-- 🔒 Year level is always 1 -->#}
+{#    <input type="hidden" name="year_level" value="1">#}
+{##}
+{#    <div id="section-group-container">#}
+{#        <div class="section-group">#}
+{#            <label>Department:</label>#}
+{#            <select name="departments[]" class="dept-select" required>#}
+{#                <option value="">-- Select Department --</option>#}
+{#                {% for dept in departments %}#}
+{#                    <option value="{{ dept.id }}">{{ dept.name }}</option>#}
+{#                {% endfor %}#}
+{#            </select>#}
+{##}
+{#            <label>Section Letter:</label>#}
+{#            <select name="letters[]" class="section-select" required>#}
+{#                <option value="">-- Select Section Letter --</option>#}
+{#                {% for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" %}#}
+{#                    <option value="{{ letter }}">{{ letter }}</option>#}
+{#                {% endfor %}#}
+{#            </select>#}
+{#        </div>#}
+{#    </div>#}
+{##}
+{##}
+{#    <button type="button" onclick="addSectionGroup()">➕ Add More Sections</button>#}
+{#    <!-- SECTION GROUP END -->#}
+{##}
+{#    <br><br>#}
+{#    <button type="submit">Create Teacher</button>#}
+{#</form>#}
+{##}
+{#<!-- JavaScript to add more section groups -->#}
+{#<script>#}
+{#    function addSectionGroup() {#}
+{#        const container = document.getElementById('section-group-container');#}
+{#        const firstGroup = container.querySelector('.section-group');#}
+{#        const newGroup = firstGroup.cloneNode(true);#}
+{##}
+{#        // Clear values of cloned selects#}
+{#        const deptSelect = newGroup.querySelector('.dept-select');#}
+{#        const sectionSelect = newGroup.querySelector('.section-select');#}
+{##}
+{#        deptSelect.selectedIndex = 0;#}
+{#        sectionSelect.selectedIndex = 0;#}
+{##}
+{#        container.appendChild(newGroup);#}
+{#    }#}
+{#</script>#}
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Admin Dashboard{% endblock %}
+{% block sidebar %}{% include 'sidebar.html' %} {% endblock %}
+
+{% block header %} {% include 'header.html' %} {% endblock %}
 
 
-    <label for="first_name">First Name:</label><br>
-    <input type="text" id="first_name" name="first_name" required><br><br>
+{% block content %}
+    <div class="page-wrapper">
 
 
-    <label for="last_name">Last Name:</label><br>
-    <input type="text" id="last_name" name="last_name" required><br><br>
 
 
-    <label for="password">Password:</label><br>
-    <input type="password" id="password" name="password" required><br><br>
 
-    <!-- 🔒 Year level is always 1 -->
-    <input type="hidden" name="year_level" value="1">
-
-    <div id="section-group-container">
-        <div class="section-group">
-            <label>Department:</label>
-            <select name="departments[]" class="dept-select" required>
-                <option value="">-- Select Department --</option>
-                {% for dept in departments %}
-                    <option value="{{ dept.id }}">{{ dept.name }}</option>
-                {% endfor %}
-            </select>
-
-            <label>Section Letter:</label>
-            <select name="letters[]" class="section-select" required>
-                <option value="">-- Select Section Letter --</option>
-                {% for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" %}
-                    <option value="{{ letter }}">{{ letter }}</option>
-                {% endfor %}
-            </select>
-        </div>
     </div>
 
 
-    <button type="button" onclick="addSectionGroup()">➕ Add More Sections</button>
-    <!-- SECTION GROUP END -->
 
-    <br><br>
-    <button type="submit">Create Teacher</button>
-</form>
 
-<!-- JavaScript to add more section groups -->
-<script>
-    function addSectionGroup() {
-        const container = document.getElementById('section-group-container');
-        const firstGroup = container.querySelector('.section-group');
-        const newGroup = firstGroup.cloneNode(true);
 
-        // Clear values of cloned selects
-        const deptSelect = newGroup.querySelector('.dept-select');
-        const sectionSelect = newGroup.querySelector('.section-select');
 
-        deptSelect.selectedIndex = 0;
-        sectionSelect.selectedIndex = 0;
+{% endblock %}
 
-        container.appendChild(newGroup);
-    }
-</script>
+
+{% block footer %}
+
+
+{% include 'footer.html' %}
+
+
+{% endblock %}
+

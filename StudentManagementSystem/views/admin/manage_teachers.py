@@ -12,11 +12,12 @@ from StudentManagementSystem.models.year_level import YearLevel
 
 
 def create_teacher(request):
-    admin_id = request.session.get('user_id')
-    if not admin_id:
-        return redirect('unified_login')
+    # Get all departments to display in the select box
+    departments = Department.objects.all()
 
+    # If the request method is POST, process the form submission
     if request.method == 'POST':
+        # Get form data from the POST request
         teacher_id = request.POST.get('teacher_id')
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
@@ -27,12 +28,12 @@ def create_teacher(request):
         # Ensure all fields are filled
         if not teacher_id or not raw_password or not dept_ids or not letters or not first_name or not last_name:
             messages.error(request, 'Please fill in all fields.')
-            return redirect('admin_dashboard')
+            return redirect('create_teacher')
 
         # Check if teacher_id already exists
         if Teacher.objects.filter(teacher_id=teacher_id).exists():
             messages.error(request, 'Teacher ID already exists. Please choose a different ID.')
-            return redirect('admin_dashboard')
+            return redirect('create_teacher')
 
         try:
             # Hash the password
@@ -80,7 +81,10 @@ def create_teacher(request):
             messages.error(request, f'Error creating teacher: {str(e)}')
             print(f"Exception: {str(e)}")
 
-    return redirect('admin_dashboard')
+        return redirect('admin_dashboard')  # Redirect after successful teacher creation
+
+    # If the request method is GET, render the form
+    return render(request, 'admin/teacher_form.html', {'departments': departments})
 
 
 # 1. View to render the teacher list
