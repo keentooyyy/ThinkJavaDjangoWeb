@@ -1,0 +1,14 @@
+pip~=25.1.1
+Faker~=37.5.3
+click~=8.2.1
+shellingham~=1.5.4
+Django~=5.2.5
+asgiref~=3.9.1
+sqlparse~=0.5.3
+colorama~=0.4.6
+requests~=2.32.4
+semver~=3.0.4
+certifi~=2025.8.3
+urllib3~=2.5.0
+idna~=3.10
+charset-normalizer~=3.4.3
