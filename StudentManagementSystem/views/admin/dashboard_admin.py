@@ -43,7 +43,7 @@ def admin_dashboard(request):
 
 
     ranking_by_section = get_section_rankings()
-    print(ranking_by_section)
+    # print(ranking_by_section)
 
 
 

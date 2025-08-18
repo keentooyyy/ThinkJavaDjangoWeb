@@ -1,3 +1,4 @@
+var $ = jQuery.noConflict();
 $(function () {
 	"use strict";
 	/* perfect scrol bar */

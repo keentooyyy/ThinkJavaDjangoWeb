@@ -10,24 +10,24 @@
 
     {#    <link rel="icon" href="{% static 'assets/images/favicon-32x32.png' %}" type="image/png"/>#}
     <!-- Plugins -->
-    <link href="{% static 'assets/plugins/simplebar/css/simplebar.css' %}" rel="stylesheet"/>
-    <link href="{% static 'assets/plugins/perfect-scrollbar/css/perfect-scrollbar.css' %}" rel="stylesheet"/>
-    <link href="{% static 'assets/plugins/highcharts/css/highcharts.css' %}" rel="stylesheet"/>
-    <link href="{% static 'assets/plugins/vectormap/jquery-jvectormap-2.0.2.css' %}" rel="stylesheet"/>
-    <link href="{% static 'assets/plugins/metismenu/css/metisMenu.min.css' %}" rel="stylesheet"/>
+    <link href="{% static 'plugins/simplebar/css/simplebar.css' %}" rel="stylesheet"/>
+    <link href="{% static 'plugins/perfect-scrollbar/css/perfect-scrollbar.css' %}" rel="stylesheet"/>
+    <link href="{% static 'plugins/highcharts/css/highcharts.css' %}" rel="stylesheet"/>
+    <link href="{% static 'plugins/vectormap/jquery-jvectormap-2.0.2.css' %}" rel="stylesheet"/>
+    <link href="{% static 'plugins/metismenu/css/metisMenu.min.css' %}" rel="stylesheet"/>
     <!-- Loader -->
-    <link href="{% static 'assets/css/pace.min.css' %}" rel="stylesheet"/>
-    <script src="{% static 'assets/js/pace.min.js' %}"></script>
+    <link href="{% static 'css/pace.min.css' %}" rel="stylesheet"/>
+    <script src="{% static 'js/pace.min.js' %}"></script>
     <!-- Bootstrap CSS -->
-    <link href="{% static 'assets/css/bootstrap.min.css' %}" rel="stylesheet">
-    <link href="{% static 'assets/css/bootstrap-extended.css' %}" rel="stylesheet">
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/bootstrap-extended.css' %}" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
-    <link href="{% static 'assets/css/app.css' %}" rel="stylesheet">
-    <link href="{% static 'assets/css/icons.css' %}" rel="stylesheet">
+    <link href="{% static 'css/app.css' %}" rel="stylesheet">
+    <link href="{% static 'css/icons.css' %}" rel="stylesheet">
     <!-- Theme Style CSS -->
-    <link rel="stylesheet" href="{% static 'assets/css/dark-theme.css' %}"/>
-    <link rel="stylesheet" href="{% static 'assets/css/semi-dark.css' %}"/>
-    <link rel="stylesheet" href="{% static 'assets/css/header-colors.css' %}"/>
+    <link rel="stylesheet" href="{% static 'css/dark-theme.css' %}"/>
+    <link rel="stylesheet" href="{% static 'css/semi-dark.css' %}"/>
+    <link rel="stylesheet" href="{% static 'css/header-colors.css' %}"/>
 
 </head>
 <body>
@@ -44,58 +44,62 @@
 </div>
 
 
-<!-- End switcher -->
+<!-- jQuery first -->
+<script src="{% static 'js/jquery.min.js' %}"></script>
+
 <!-- Bootstrap JS -->
-<script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+
 <!-- Plugins -->
-<script src="{% static 'assets/js/jquery.min.js' %}"></script>
-<script src="{% static 'assets/plugins/simplebar/js/simplebar.min.js' %}"></script>
-<script src="{% static 'assets/plugins/metismenu/js/metisMenu.min.js' %}"></script>
-<script src="{% static 'assets/plugins/perfect-scrollbar/js/perfect-scrollbar.js' %}"></script>
-<script src="{% static 'assets/plugins/highcharts/js/highcharts.js' %}"></script>
+<script src="{% static 'plugins/simplebar/js/simplebar.min.js' %}"></script>
+<script src="{% static 'plugins/metismenu/js/metisMenu.min.js' %}"></script>
+<script src="{% static 'plugins/perfect-scrollbar/js/perfect-scrollbar.js' %}"></script>
+<script src="{% static 'plugins/highcharts/js/highcharts.js' %}"></script>
+
 <!-- App JS -->
-{#<script src="{% static 'assets/js/app.js' %}"></script>#}
+<script src="{% static 'js/app.js' %}"></script>
+
 
 {% block scripts %}
     <!-- Default content, can be overridden -->
 {% endblock %}
 
-<script>
-    //mobile toggle
-    $(".mobile-toggle-menu").on("click", function () {
-        $(".wrapper").addClass("toggled");
-    });
-
-    //dark mode
-    $(".dark-mode").on("click", function () {
-
-        if ($(".dark-mode-icon i").attr("class") == 'bx bx-sun') {
-            $(".dark-mode-icon i").attr("class", "bx bx-moon");
-            $("html").attr("class", "light-theme")
-        } else {
-            $(".dark-mode-icon i").attr("class", "bx bx-sun");
-            $("html").attr("class", "dark-theme")
-        }
-
-    })
-
-    // toggle menu button
-    $(".toggle-icon").click(function () {
-        if ($(".wrapper").hasClass("toggled")) {
-            // unpin sidebar when hovered
-            $(".wrapper").removeClass("toggled");
-            $(".sidebar-wrapper").unbind("hover");
-        } else {
-            $(".wrapper").addClass("toggled");
-            $(".sidebar-wrapper").hover(function () {
-                $(".wrapper").addClass("sidebar-hovered");
-            }, function () {
-                $(".wrapper").removeClass("sidebar-hovered");
-            })
-        }
-    });
-
-</script>
+{#<script>#}
+{#    //mobile toggle#}
+{#    $(".mobile-toggle-menu").on("click", function () {#}
+{#        $(".wrapper").addClass("toggled");#}
+{#    });#}
+{##}
+{#    //dark mode#}
+{#    $(".dark-mode").on("click", function () {#}
+{##}
+{#        if ($(".dark-mode-icon i").attr("class") == 'bx bx-sun') {#}
+{#            $(".dark-mode-icon i").attr("class", "bx bx-moon");#}
+{#            $("html").attr("class", "light-theme")#}
+{#        } else {#}
+{#            $(".dark-mode-icon i").attr("class", "bx bx-sun");#}
+{#            $("html").attr("class", "dark-theme")#}
+{#        }#}
+{##}
+{#    })#}
+{##}
+{#    // toggle menu button#}
+{#    $(".toggle-icon").click(function () {#}
+{#        if ($(".wrapper").hasClass("toggled")) {#}
+{#            // unpin sidebar when hovered#}
+{#            $(".wrapper").removeClass("toggled");#}
+{#            $(".sidebar-wrapper").unbind("hover");#}
+{#        } else {#}
+{#            $(".wrapper").addClass("toggled");#}
+{#            $(".sidebar-wrapper").hover(function () {#}
+{#                $(".wrapper").addClass("sidebar-hovered");#}
+{#            }, function () {#}
+{#                $(".wrapper").removeClass("sidebar-hovered");#}
+{#            })#}
+{#        }#}
+{#    });#}
+{##}
+{#</script>#}
 </body>
 
 </html>
