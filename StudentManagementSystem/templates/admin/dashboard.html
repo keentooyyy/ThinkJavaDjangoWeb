@@ -1,42 +1,47 @@
 {% extends 'base.html' %}
 {% load static %}
 
+
 {% block title %}Admin Dashboard{% endblock %}
+
+
 {% block sidebar %}{% include 'sidebar.html' %} {% endblock %}
+
 
 {% block header %} {% include 'header.html' %} {% endblock %}
 
+
+
 {% block content %}
     <div class="page-wrapper">
-{#        {% if messages %}#}
-{#            {% for message in messages %}#}
-{#                <p class="message {{ message.tags }}">{{ message }}</p>#}
-{#            {% endfor %}#}
-{#        {% endif %}#}
 
 
         {% include 'admin/stats.html' %}
 
 
-
-
-
     </div>
 
 
+
     <div class="d-none">
-{#            {% include 'admin/teacher_form.html' %}#}
-            {% include 'admin/teacher_list.html' %}
-            {% include 'admin/student_ranking.html' %}
-            {% include 'admin/add_progress.html' %}
-        </div>
+        {% include 'admin/teacher_list.html' %}
+        {% include 'admin/student_ranking.html' %}
+        {% include 'admin/add_progress.html' %}
+    </div>
 
 
 
 {% endblock %}
+
+
+
+
 {% block footer %}
     {% include 'footer.html' %}
 {% endblock %}
+
+
+
 
 {% block scripts %}
 

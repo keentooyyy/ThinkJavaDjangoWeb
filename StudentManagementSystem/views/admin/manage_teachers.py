@@ -4,14 +4,20 @@ from django.db import IntegrityError  # Import IntegrityError for handling datab
 from django.http.response import JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
 
-from StudentManagementSystem.models import Teacher
+from StudentManagementSystem.models import Teacher, SimpleAdmin
 from StudentManagementSystem.models.department import Department
+from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.models.section import Section
 from StudentManagementSystem.models.teachers import HandledSection
 from StudentManagementSystem.models.year_level import YearLevel
 
 
 def create_teacher(request):
+    admin_id = request.session.get('user_id')
+    if not admin_id:
+        return redirect('unified_login')
+
+    admin = SimpleAdmin.objects.get(id=admin_id)
     # Get all departments to display in the select box
     departments = Department.objects.all()
 
@@ -84,13 +90,20 @@ def create_teacher(request):
         return redirect('admin_dashboard')  # Redirect after successful teacher creation
 
     # If the request method is GET, render the form
-    return render(request, 'admin/teacher_form.html', {'departments': departments})
+    return render(request, 'admin/teacher_form.html', {
+        'departments': departments,
+        'username': admin.username,
+        'role': Role.ADMIN,
+    })
 
 
 # 1. View to render the teacher list
 def teacher_list(request):
     teachers = Teacher.objects.all()  # Get all teachers from the database
-    return render(request, 'admin/teacher_list.html', {'teachers': teachers})
+    return render(request, 'admin/teacher_list.html', {
+        'teachers': teachers,
+    })
+
 
 # 2. View to fetch teacher details for the modal
 def get_teacher_details(request, teacher_id):
@@ -116,7 +129,6 @@ def get_teacher_details(request, teacher_id):
         'handled_sections': sections_data
     }
     return JsonResponse(data)
-
 
 
 def edit_teacher(request, teacher_id):
@@ -169,8 +181,6 @@ def edit_teacher(request, teacher_id):
     return JsonResponse({'success': False}, status=400)  # Return error if it's not a POST request
 
 
-
-
 # def edit_section(request, section_id):
 #     if request.method == 'POST':
 #         # Get the section to be edited
@@ -188,7 +198,6 @@ def edit_teacher(request, teacher_id):
 #
 #         return JsonResponse({'success': True})
 #     return JsonResponse({'success': False}, status=400)
-
 
 
 def remove_section(request, section_id):

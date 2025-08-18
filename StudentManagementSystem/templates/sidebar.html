@@ -19,10 +19,26 @@
                         <ul class="metismenu px-2 mm-show h-100" id="menu">
 
                             <li class="">
-                                <a href="#">
-                                    <div class="parent-icon"><i class="bx bx-home"></i>
-                                    </div>
-                                    <div class="menu-title">Dashboard</div>
+
+                                {% if request.session.role == 'ADMIN' %}
+                                    <a href="{% url 'admin_dashboard' %}">
+
+
+
+                                {% elif request.session.role == 'TEACHER' %}
+                                    <a href="{% url 'teacher_dashboard' %}">
+
+
+
+                                {% elif request.session.role == 'STUDENT' %}
+                                    <a href="{% url 'student_dashboard' %}">
+
+
+
+                                {% endif %}
+                                <div class="parent-icon"><i class="bx bx-home"></i>
+                                </div>
+                                <div class="menu-title">Dashboard</div>
                                 </a>
                             </li>
 
@@ -30,34 +46,38 @@
 
 
                             {% if request.session.role == 'ADMIN' %}
-                            <li>
-                                <a href="javascript:;" class="has-arrow">
-                                    <div class="parent-icon"><i class="bx bx-edit"></i>
-                                    </div>
-                                    <div class="menu-title">Manage Teachers</div>
-                                </a>
-                                <ul class="mm-collapse">
-                                    <li><a href="{% url 'create_teacher' %}"><i class="bx bx-right-arrow-alt"></i>Add New Teacher</a>
-                                    </li>
-                                    <li><a href="#"><i class="bx bx-right-arrow-alt"></i>Edit Teachers</a>
-                                    </li>
-                                    <li><a href="#"><i class="bx bx-right-arrow-alt"></i>List of Teachers</a>
-                                    </li>
 
-                                </ul>
-                            </li>
+                                <li>
+                                    <a href="javascript:;" class="has-arrow">
+                                        <div class="parent-icon"><i class="bx bx-edit"></i>
+                                        </div>
+                                        <div class="menu-title">Manage Teachers</div>
+                                    </a>
+                                    <ul class="mm-collapse">
+                                        <li><a href="{% url 'create_teacher' %}"><i class="bx bx-right-arrow-alt"></i>Add
+                                            New Teacher</a>
+                                        </li>
+                                        <li><a href="#"><i class="bx bx-right-arrow-alt"></i>Edit Teachers</a>
+                                        </li>
+                                        <li><a href="#"><i class="bx bx-right-arrow-alt"></i>List of Teachers</a>
+                                        </li>
+
+                                    </ul>
+                                </li>
 
                             {% endif %}
 
 
 
-{#                            <li class="">#}
-{#                                <a href="#">#}
-{#                                    <div class="parent-icon"><i class="bx bx-edit"></i>#}
-{#                                    </div>#}
-{#                                    <div class="menu-title">Manage Teachers</div>#}
-{#                                </a>#}
-{#                            </li>#}
+                            {#                            <li class="">#}
+                            {#                                <a href="#">#}
+                            {#                                    <div class="parent-icon"><i class="bx bx-edit"></i>#}
+                            {#                                    </div>#}
+                            {#                                    <div class="menu-title">Manage Teachers</div>#}
+                            {#                                </a>#}
+                            {#                            </li>#}
+
+
                             <li class="mt-auto">
                                 <a href="{% url 'unified_logout' %}">
                                     <div class="parent-icon "><i class="bx bx-log-out text-danger"></i>
@@ -74,13 +94,5 @@
             </div>
         </div>
         <div class="simplebar-placeholder" style="width: auto; height: 1351px;"></div>
-    </div>
-    <div class="simplebar-track simplebar-horizontal" style="visibility: hidden;">
-        <div class="simplebar-scrollbar"
-             style="width: 0px; display: none; transform: translate3d(0px, 0px, 0px);"></div>
-    </div>
-    <div class="simplebar-track simplebar-vertical" style="visibility: visible;">
-        <div class="simplebar-scrollbar"
-             style="height: 680px; transform: translate3d(0px, 0px, 0px); display: block;"></div>
     </div>
 </div>
