@@ -17,64 +17,70 @@
                 <div class="card-body p-5">
                     <h6 class="mb-0 text-uppercase">Create New Teacher</h6>
                     <hr>
+                    <form method="post" action="{% url 'create_teacher' %}">
+                        {% csrf_token %}
 
 
-                    <div class="row">
-                        <div class="col-4">
-                            <p class="font-16">Teacher ID:</p>
-                        </div>
-                        <div class="col-8">
-                            <div class="input-group mb-3">
-                                <input name="teacher_id" id="teacher_id" class="form-control" type="text"
-                                       placeholder="Teacher ID"
-                                       aria-label="Teacher ID">
-                                <button class="btn btn-outline-primary" type="button" id="button-addon2">Generate ID
-                                </button>
+                        <div class="row">
+
+                            <div class="col-4">
+                                <p class="font-16">Teacher ID:</p>
                             </div>
-
-                        </div>
-                    </div>
-
-
-                    <div class="row">
-                        <div class="col-4">
-                            <p class="font-16">Full Name:</p>
-                        </div>
-                        <div class="col-8">
-                            <div class="row">
-                                <div class="col">
-                                    <input name="first_name" id="first_name" class="form-control mb-3" type="text"
-                                           placeholder="First Name"
-                                           aria-label="default input example">
-
+                            <div class="col-8">
+                                <div class="input-group mb-3">
+                                    <input name="teacher_id" id="teacher_id" class="form-control" type="text"
+                                           placeholder="Teacher ID"
+                                           aria-label="Teacher ID">
+                                    <button class="btn btn-outline-primary" type="button" id="button-addon2">Generate ID
+                                    </button>
                                 </div>
-                                <div class="col">
-                                    <input name="last_name" id="last_name" class="form-control mb-3" type="text"
-                                           placeholder="Last Name"
-                                           aria-label="default input example">
+
+                            </div>
+                        </div>
+
+
+                        <div class="row">
+                            <div class="col-4">
+                                <p class="font-16">Full Name:</p>
+                            </div>
+                            <div class="col-8">
+                                <div class="row">
+                                    <div class="col">
+                                        <input name="first_name" id="first_name" class="form-control mb-3" type="text"
+                                               placeholder="First Name"
+                                               aria-label="default input example">
+
+                                    </div>
+                                    <div class="col">
+                                        <input name="last_name" id="last_name" class="form-control mb-3" type="text"
+                                               placeholder="Last Name"
+                                               aria-label="default input example">
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
 
-                    <div class="row">
-                        <div class="col-4">
-                            <p class="font-16">Password:</p>
-                        </div>
-                        <div class="col-8">
-                            <div class="input-group mb-3">
-                                <input name="password" id="password" class="form-control" type="password"
-                                       placeholder="Password"
-                                       aria-label="Password" value="123">
-                                <a href="javascript:;" class="input-group-text bg-transparent" id="togglePassword"><i
-                                        class="bx bx-hide"></i></a>
+                        <div class="row">
+                            <div class="col-4">
+                                <p class="font-16">Password:</p>
+                            </div>
+                            <div class="col-8">
+                                <div class="input-group mb-3">
+                                    <input name="password" id="password" class="form-control" type="password"
+                                           placeholder="Password"
+                                           aria-label="Password" value="123">
+                                    <a href="javascript:;" class="input-group-text bg-transparent"
+                                       id="togglePassword"><i
+                                            class="bx bx-hide"></i></a>
+                                </div>
+
                             </div>
 
+                            <input type="hidden" name="year_level" value="1" class="d-none">
                         </div>
-                    </div>
 
-
+                    </form>
                 </div>
 
 
@@ -82,54 +88,54 @@
         </div>
 
 
-        <h3>Create New Teacher</h3>
-        <form method="post" action="{% url 'create_teacher' %}">
-            {% csrf_token %}
-            <label for="teacher_id">Teacher ID:</label><br>
-            <input type="text" id="teacher_id" name="teacher_id" required><br><br>
-
-
-            <label for="first_name">First Name:</label><br>
-            <input type="text" id="first_name" name="first_name" required><br><br>
-
-
-            <label for="last_name">Last Name:</label><br>
-            <input type="text" id="last_name" name="last_name" required><br><br>
-
-
-            <label for="password">Password:</label><br>
-            <input type="password" id="password" name="password" required><br><br>
-
-            <!-- 🔒 Year level is always 1 -->
-            <input type="hidden" name="year_level" value="1">
-
-            <div id="section-group-container">
-                <div class="section-group">
-                    <label>Department:</label>
-                    <select name="departments[]" class="dept-select" required>
-                        <option value="">-- Select Department --</option>
-                        {% for dept in departments %}
-                            <option value="{{ dept.id }}">{{ dept.name }}</option>
-                        {% endfor %}
-                    </select>
-
-                    <label>Section Letter:</label>
-                    <select name="letters[]" class="section-select" required>
-                        <option value="">-- Select Section Letter --</option>
-                        {% for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" %}
-                            <option value="{{ letter }}">{{ letter }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-            </div>
-
-
-            <button type="button" onclick="addSectionGroup()">➕ Add More Sections</button>
-            <!-- SECTION GROUP END -->
-
-            <br><br>
-            <button type="submit">Create Teacher</button>
-        </form>
+        {#        <h3>Create New Teacher</h3>#}
+        {#        <form method="post" action="{% url 'create_teacher' %}">#}
+        {#            {% csrf_token %}#}
+        {#            <label for="teacher_id">Teacher ID:</label><br>#}
+        {#            <input type="text" id="teacher_id" name="teacher_id" required><br><br>#}
+        {##}
+        {##}
+        {#            <label for="first_name">First Name:</label><br>#}
+        {#            <input type="text" id="first_name" name="first_name" required><br><br>#}
+        {##}
+        {##}
+        {#            <label for="last_name">Last Name:</label><br>#}
+        {#            <input type="text" id="last_name" name="last_name" required><br><br>#}
+        {##}
+        {##}
+        {#            <label for="password">Password:</label><br>#}
+        {#            <input type="password" id="password" name="password" required><br><br>#}
+        {##}
+        {#            <!-- 🔒 Year level is always 1 -->#}
+        {##}
+        {##}
+        {#            <div id="section-group-container">#}
+        {#                <div class="section-group">#}
+        {#                    <label>Department:</label>#}
+        {#                    <select name="departments[]" class="dept-select" required>#}
+        {#                        <option value="">-- Select Department --</option>#}
+        {#                        {% for dept in departments %}#}
+        {#                            <option value="{{ dept.id }}">{{ dept.name }}</option>#}
+        {#                        {% endfor %}#}
+        {#                    </select>#}
+        {##}
+        {#                    <label>Section Letter:</label>#}
+        {#                    <select name="letters[]" class="section-select" required>#}
+        {#                        <option value="">-- Select Section Letter --</option>#}
+        {#                        {% for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" %}#}
+        {#                            <option value="{{ letter }}">{{ letter }}</option>#}
+        {#                        {% endfor %}#}
+        {#                    </select>#}
+        {#                </div>#}
+        {#            </div>#}
+        {##}
+        {##}
+        {#            <button type="button" onclick="addSectionGroup()">➕ Add More Sections</button>#}
+        {#            <!-- SECTION GROUP END -->#}
+        {##}
+        {#            <br><br>#}
+        {#            <button type="submit">Create Teacher</button>#}
+        {#        </form>#}
 
 
         {% include 'admin/teacher_list.html' %}
