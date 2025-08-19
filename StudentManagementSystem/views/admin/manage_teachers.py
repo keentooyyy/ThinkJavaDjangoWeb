@@ -12,6 +12,10 @@ from StudentManagementSystem.models.teachers import HandledSection
 from StudentManagementSystem.models.year_level import YearLevel
 
 
+
+
+
+
 def create_teacher(request):
     admin_id = request.session.get('user_id')
     if not admin_id:
@@ -43,6 +47,18 @@ def create_teacher(request):
         if Teacher.objects.filter(teacher_id=teacher_id).exists():
             messages.error(request, 'Teacher ID already exists. Please choose a different ID.')
             return redirect('create_teacher')
+
+        # Check if the sections are already handled by another teacher
+        for dept_id, letter in zip(dept_ids, letters):
+            department = Department.objects.get(id=dept_id)
+
+            # Find the actual Section row
+            section = Section.objects.get(department=department, letter=letter)
+
+            # Check if any teacher is already assigned to this section
+            if HandledSection.objects.filter(section=section).exists():
+                messages.error(request, f'The section {section.department.name}{section.year_level.year}{section.letter} is already assigned to another teacher.')
+                return redirect('create_teacher')
 
         try:
             # Hash the password
@@ -78,7 +94,7 @@ def create_teacher(request):
 
                 labels.append(f"{section.department.name}{section.year_level.year}{section.letter}")
 
-            messages.success(request, f'Teacher "{teacher_id}" assigned to: {", ".join(labels)}')
+            messages.success(request, 'Created a teacher successfully!')
 
         except IntegrityError as e:
             # Handle IntegrityError (like duplicate teacher_id)
@@ -99,6 +115,16 @@ def create_teacher(request):
         'role': Role.ADMIN,
         'teachers': teachers,  # Pass the teachers list to the template
     })
+
+
+
+
+
+
+
+
+
+
 
 
 # 1. View to render the teacher list
@@ -135,6 +161,12 @@ def get_teacher_details(request, teacher_id):
     return JsonResponse(data)
 
 
+
+
+
+
+
+
 def edit_teacher(request, teacher_id):
     if request.method == 'POST':
         # Get the teacher object based on the teacher_id
@@ -159,7 +191,6 @@ def edit_teacher(request, teacher_id):
         teacher.save()
 
         # Add new handled sections (department and section) if they don't already exist
-        # Check if 'departments' and 'letters' are not empty
         if departments and letters:
             for dept_id, letter in zip(departments, letters):
                 if dept_id and letter:  # Only process if both dept_id and letter are valid
@@ -167,15 +198,19 @@ def edit_teacher(request, teacher_id):
                         department = Department.objects.get(id=dept_id)
                         section = Section.objects.get(department=department, letter=letter)
 
-                        # Check if this teacher already has this section assigned
-                        if not HandledSection.objects.filter(teacher=teacher, section=section).exists():
-                            # Create new handled section for the teacher
-                            HandledSection.objects.create(
-                                teacher=teacher,
-                                section=section,
-                                department=department,
-                                year_level=section.year_level  # Assuming year_level is tied to the section
-                            )
+                        # Check if any teacher is already assigned to this section
+                        if HandledSection.objects.filter(section=section).exists():
+                            # If the section is already handled, show an error message
+                            messages.error(request, f"The section {section.department.name}{section.year_level.year}{section.letter} is already assigned to another teacher.")
+                            return redirect('edit_teacher', teacher_id=teacher.id)
+
+                        # Create a new handled section for the teacher
+                        HandledSection.objects.create(
+                            teacher=teacher,
+                            section=section,
+                            department=department,
+                            year_level=section.year_level
+                        )
                     except (Department.DoesNotExist, Section.DoesNotExist):
                         # Handle the case where a department or section doesn't exist
                         continue
@@ -185,23 +220,22 @@ def edit_teacher(request, teacher_id):
     return JsonResponse({'success': False}, status=400)  # Return error if it's not a POST request
 
 
-# def edit_section(request, section_id):
-#     if request.method == 'POST':
-#         # Get the section to be edited
-#         section = get_object_or_404(HandledSection, id=section_id)
-#
-#         # Get new data from the request
-#         department_id = request.POST.get('department')
-#         section_letter = request.POST.get('letter')
-#
-#         # Fetch the department and update the section
-#         department = get_object_or_404(Department, id=department_id)
-#         section.department = department
-#         section.letter = section_letter
-#         section.save()
-#
-#         return JsonResponse({'success': True})
-#     return JsonResponse({'success': False}, status=400)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 def remove_section(request, section_id):

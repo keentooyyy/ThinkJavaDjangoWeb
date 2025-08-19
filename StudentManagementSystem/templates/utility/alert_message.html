@@ -1,0 +1,22 @@
+<!-- alert_message.html -->
+{% if messages %}
+    {% for message in messages %}
+        <div class="my-5 alert alert-primary border-0 {% if message.tags == 'success' %}bg-success{% elif message.tags == 'error' %}bg-danger{% else %}bg-warning{% endif %} alert-dismissible fade show">
+            <div class="d-flex align-items-center">
+                <div class="font-35 text-white">
+                    {% if message.tags == 'success' %}
+                        <i class="bx bx-check-circle"></i>
+                    {% elif message.tags == 'error' %}
+                        <i class="bx bx-info-circle"></i>
+                    {% else %}
+                        <i class="bx bx-exclamation-circle"></i>
+                    {% endif %}
+                </div>
+                <div class="ms-3">
+                    <div class="text-white">{{ message }}</div>
+                </div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+{% endif %}

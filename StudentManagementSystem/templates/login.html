@@ -21,32 +21,18 @@
                     <div class="p-4 rounded">
                         <div class="text-center">
                             <h3 class="my-4">Sign in</h3>
+
+
                             {#                                        <p>Don't have an account yet? <a href="#">Sign up#}
                             {#                                            here</a>#}
                             {#                                        </p>#}
+
+
                         </div>
 
 
                         {% comment %}error messages here {% endcomment %}
-                        {% if messages %}
-                            {% for message in messages %}
-                                {% if message.tags == 'success' %}
-                                    <div class="my-5 alert alert-primary border-0 bg-success alert-dismissible fade show">
-                                {% elif message.tags == 'error' %}
-                                    <div class="my-5 alert alert-primary border-0 bg-danger alert-dismissible fade show">
-                                {% else %}
-                                    <div class="my-5 alert alert-primary border-0 bg-warning alert-dismissible fade show">
-                                {% endif %}
-                            <div class="d-flex align-items-center">
-                                <div class="font-35 text-white"><i class="bx bx-info-circle"></i></div>
-                                <div class="ms-3">
-                                    <div class="text-white">{{ message }}</div>
-                                </div>
-                            </div>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                            {% endfor %}
-                        {% endif %}
+                        {% include 'utility/alert_message.html' %}
 
 
 
