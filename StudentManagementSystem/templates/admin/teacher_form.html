@@ -12,6 +12,75 @@
 {% block content %}
     <div class="page-wrapper">
 
+        <div class="row p-5">
+            <div class="card">
+                <div class="card-body p-5">
+                    <h6 class="mb-0 text-uppercase">Create New Teacher</h6>
+                    <hr>
+
+
+                    <div class="row">
+                        <div class="col-4">
+                            <p class="font-16">Teacher ID:</p>
+                        </div>
+                        <div class="col-8">
+                            <div class="input-group mb-3">
+                                <input name="teacher_id" id="teacher_id" class="form-control" type="text"
+                                       placeholder="Teacher ID"
+                                       aria-label="Teacher ID">
+                                <button class="btn btn-outline-primary" type="button" id="button-addon2">Generate ID
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+
+
+                    <div class="row">
+                        <div class="col-4">
+                            <p class="font-16">Full Name:</p>
+                        </div>
+                        <div class="col-8">
+                            <div class="row">
+                                <div class="col">
+                                    <input name="first_name" id="first_name" class="form-control mb-3" type="text"
+                                           placeholder="First Name"
+                                           aria-label="default input example">
+
+                                </div>
+                                <div class="col">
+                                    <input name="last_name" id="last_name" class="form-control mb-3" type="text"
+                                           placeholder="Last Name"
+                                           aria-label="default input example">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="row">
+                        <div class="col-4">
+                            <p class="font-16">Password:</p>
+                        </div>
+                        <div class="col-8">
+                            <div class="input-group mb-3">
+                                <input name="password" id="password" class="form-control" type="password"
+                                       placeholder="Password"
+                                       aria-label="Password" value="123">
+                                <a href="javascript:;" class="input-group-text bg-transparent" id="togglePassword"><i
+                                        class="bx bx-hide"></i></a>
+                            </div>
+
+                        </div>
+                    </div>
+
+
+                </div>
+
+
+            </div>
+        </div>
+
 
         <h3>Create New Teacher</h3>
         <form method="post" action="{% url 'create_teacher' %}">
@@ -65,7 +134,16 @@
 
         {% include 'admin/teacher_list.html' %}
 
+
     </div>
+
+
+
+
+
+
+
+
 
 
 
@@ -103,6 +181,34 @@
 
             container.appendChild(newGroup);
         }
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            $('#togglePassword').click(function () {
+                var input = $('#password');
+                var type = input.attr('type') === 'password' ? 'text' : 'password';
+                input.attr('type', type);
+
+                // Toggle the icon
+                $(this).find('i').toggleClass('bx-hide bx-show');
+            });
+        });
+    </script>
+
+
+
+
+    <script>
+        $(document).ready(function () {
+            $('#button-addon2').click(function () {
+                var currentYear = new Date().getFullYear(); // Get the current year
+                var randomPart = Math.floor(Math.random() * 900000 + 100000); // Generate a random number between 100000 and 999999
+                var teacherId = currentYear.toString().slice(-2) + '-' + randomPart.toString().slice(0, 4) + '-' + randomPart.toString().slice(4);
+
+                $('#teacher_id').val(teacherId); // Set the generated ID into the input field
+            });
+        });
     </script>
 
 
