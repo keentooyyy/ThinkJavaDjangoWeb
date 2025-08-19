@@ -17,7 +17,7 @@
                 <div class="card-body p-5">
                     <h6 class="mb-0 text-uppercase">Create New Teacher</h6>
                     <hr>
-                    <form method="post" action="{% url 'create_teacher' %}">
+                    <form method="post" action="{% url 'create_teacher' %}" id="teacher_form">
                         {% csrf_token %}
 
 
@@ -127,7 +127,7 @@
                         <!-- Section Management Separator -->
 
 
-                        <button type="submit" class="btn btn-primary">
+                        <button type="button" class="btn btn-primary" id="submit_form">
                             <i class="bx bxs-user mr-1"></i>Create Teacher
                         </button>
 
@@ -190,6 +190,9 @@
 
 
 
+
+
+
 {% endblock %}
 
 
@@ -203,6 +206,41 @@
 
 
 {% block scripts %}
+    <script src="{% static 'plugins/notifications/js/lobibox.min.js' %}"></script>
+    <script src="{% static 'plugins/notifications/js/notifications.min.js' %}"></script>
+    {#    <script src="{% static 'plugins/notifications/js/notification-custom-script.js' %}"></script>#}
+
+
+    <script>
+        // Function to handle form submission with notification
+        function submitFormWithNotification() {
+            // Show the success notification
+            Lobibox.notify('success', {
+                pauseDelayOnHover: true,
+                size: 'mini',
+                rounded: true,
+                icon: 'bx bx-check-circle',
+                delayIndicator: false,
+                continueDelayOnInactiveTab: false,
+                position: 'top right',
+                msg: 'Created a teacher successfully!',
+                delay: 1200
+            });
+
+            // Optionally, you can add a delay before form submission to allow the notification to show up
+            setTimeout(function () {
+                $('#teacher_form').submit(); // Submit the form after the notification is shown
+            }, 1500); // Delay in milliseconds (e.g., 1.5 seconds)
+        }
+
+        // Bind the submitFormWithNotification function to your submit button
+        $('#submit_form').click(function (e) {
+            e.preventDefault(); // Prevent default form submission
+            submitFormWithNotification(); // Call the function to show notification and submit
+        });
+
+
+    </script>
     {#section groups#}
 
     <!-- JavaScript to add more section groups -->
@@ -270,5 +308,10 @@
     </script>
 
 
+
+
+
 {% endblock %}
+
+
 

@@ -10,6 +10,7 @@
 
     {#    <link rel="icon" href="{% static 'assets/images/favicon-32x32.png' %}" type="image/png"/>#}
     <!-- Plugins -->
+    <link href="{% static 'plugins/notifications/css/lobibox.min.css' %}" rel="stylesheet"/>
     <link href="{% static 'plugins/simplebar/css/simplebar.css' %}" rel="stylesheet"/>
     <link href="{% static 'plugins/perfect-scrollbar/css/perfect-scrollbar.css' %}" rel="stylesheet"/>
     <link href="{% static 'plugins/highcharts/css/highcharts.css' %}" rel="stylesheet"/>
@@ -61,9 +62,12 @@
 <script src="{% static 'js/app.js' %}"></script>
 
 
+
+
 {% block scripts %}
     <!-- Default content, can be overridden -->
 {% endblock %}
+
 
 {#<script>#}
 {#    //mobile toggle#}

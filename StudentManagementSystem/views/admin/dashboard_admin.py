@@ -47,7 +47,6 @@ def admin_dashboard(request):
 
 
     return render(request, 'admin/dashboard.html', {
-        'admin': admin,
         'username': admin.username,
         'role': Role.ADMIN,
         'sections_by_department': json.dumps(sections_by_department),
