@@ -21,6 +21,9 @@ def create_teacher(request):
     # Get all departments to display in the select box
     departments = Department.objects.all()
 
+    # Fetch all teachers
+    teachers = Teacher.objects.all()
+
     # If the request method is POST, process the form submission
     if request.method == 'POST':
         # Get form data from the POST request
@@ -87,13 +90,14 @@ def create_teacher(request):
             messages.error(request, f'Error creating teacher: {str(e)}')
             print(f"Exception: {str(e)}")
 
-        return redirect('admin_dashboard')  # Redirect after successful teacher creation
+        return redirect('create_teacher')  # Redirect after successful teacher creation
 
     # If the request method is GET, render the form
     return render(request, 'admin/teacher_form.html', {
         'departments': departments,
         'username': admin.username,
         'role': Role.ADMIN,
+        'teachers': teachers,  # Pass the teachers list to the template
     })
 
 

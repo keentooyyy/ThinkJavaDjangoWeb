@@ -17,8 +17,7 @@ def admin_dashboard(request):
     admin = SimpleAdmin.objects.get(id=admin_id)
     ranking_context = get_rankings_context(request)
 
-    # Fetch all teachers
-    teachers = Teacher.objects.all()
+
 
     # Build section list grouped by department
     sections_by_department = {}
@@ -51,7 +50,6 @@ def admin_dashboard(request):
         'admin': admin,
         'username': admin.username,
         'role': Role.ADMIN,
-        'teachers': teachers,  # Pass the teachers list to the template
         'sections_by_department': json.dumps(sections_by_department),
         **ranking_context,
         'student_count': student_count_total,
