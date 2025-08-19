@@ -3,7 +3,7 @@ from django.urls import path
 from StudentManagementSystem.views.admin.apis.helper_functions_admin import get_sections_by_department
 from StudentManagementSystem.views.admin.auth_admin import admin_register
 from StudentManagementSystem.views.admin.dashboard_admin import admin_dashboard
-from StudentManagementSystem.views.admin.manage_teachers import create_teacher, teacher_list, get_teacher_details, \
+from StudentManagementSystem.views.admin.manage_teachers import create_teacher, get_teacher_details, \
     edit_teacher, remove_section, delete_teacher
 from StudentManagementSystem.views.admin.proggress_addition_admin import add_achievement, add_level
 from StudentManagementSystem.views.auth_unified import unified_login, unified_logout
@@ -19,9 +19,9 @@ urlpatterns = [
 
     # Teacher Management Routes
     path('create-teacher/', create_teacher, name='create_teacher'),
-    path('admin_teacher/list/', teacher_list, name='teacher_list'),  # List of teachers
-    path('admin_teacher/<int:teacher_id>/get_details/', get_teacher_details, name='get_teacher_details'),  # Fetch details for the modal
-    path('admin_teacher/<int:teacher_id>/edit/', edit_teacher, name='edit_teacher'), # Edit teacher
+    path('admin_teacher/<int:teacher_id>/get_details/', get_teacher_details, name='get_teacher_details'),
+    # Fetch details for the modal
+    path('admin_teacher/<int:teacher_id>/edit/', edit_teacher, name='edit_teacher'),  # Edit teacher
     path('admin_teacher/remove_section/<int:section_id>/', remove_section, name='remove_section'),
     path('admin_teacher/delete/<int:teacher_id>/', delete_teacher, name='delete_teacher'),
 
