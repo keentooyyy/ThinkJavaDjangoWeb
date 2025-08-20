@@ -283,13 +283,18 @@
                     <td>{{ item.teacher.last_name }}</td>
                     <td>
                         <!-- Display sections as a list -->
-                        <ul>
+                        <div class="bootstrap-tagsinput">
                             {% for section_name in item.section_names %}
-                                <li>{{ section_name }}</li>  <!-- Display each section name -->
+                                <span class="badge bg-primary px-3 py-2">{{ section_name }}</span>
+                                {% if forloop.counter|divisibleby:3 %}
+                                    <br>
+                                    <div class="mt-1"></div><!-- Add a line break every 3 items -->
+                                {% endif %}
                             {% empty %}
-                                <li>No sections</li>  <!-- If no sections, display this -->
+                                <span class="badge bg-secondary">No sections</span>
+                                <!-- If no sections, display this -->
                             {% endfor %}
-                        </ul>
+                        </div>
                     </td>
                     <td>
                         <!-- Edit Button Triggering the Modal -->
