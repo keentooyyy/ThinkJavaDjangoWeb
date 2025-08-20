@@ -12,145 +12,147 @@
 {% block content %}
     <div class="page-wrapper">
 
-    <div class="row p-5">
-    <div class="card">
-        <div class="card-body p-5">
-            <h6 class="mb-0 text-uppercase">Create New Teacher</h6>
+        <div class="row p-5">
+            <div class="card">
+                <div class="card-body p-5">
+                    <h6 class="mb-0 text-uppercase">Create New Teacher</h6>
 
 
-
-            {% include 'utility/alert_message.html' %}
-
+                    {% include 'utility/alert_message.html' %}
 
 
-
-            <hr>
-            <form method="post" action="{% url 'create_teacher' %}" id="teacher_form">
-                {% csrf_token %}
-
-
-                <div class="row">
-
-                    <div class="col-4">
-                        <p class="font-16">Teacher ID:</p>
-                    </div>
-                    <div class="col-8">
-                        <div class="input-group mb-3">
-                            <input name="teacher_id" id="teacher_id" class="form-control" type="text"
-                                   placeholder="Teacher ID"
-                                   aria-label="Teacher ID" required>
-                            <button class="btn btn-outline-primary" type="button" id="button-addon2">Generate ID
-                            </button>
-                        </div>
-
-                    </div>
-                </div>
+                    <hr>
+                    <form method="post" action="{% url 'create_teacher' %}" id="teacher_form">
+                        {% csrf_token %}
 
 
-                <div class="row">
-                    <div class="col-4">
-                        <p class="font-16">Full Name:</p>
-                    </div>
-                    <div class="col-8">
                         <div class="row">
-                            <div class="col">
-                                <input name="first_name" id="first_name" class="form-control mb-3" type="text"
-                                       placeholder="First Name"
-                                       aria-label="default input example" required>
 
+                            <div class="col-4">
+                                <p class="font-16">Teacher ID:</p>
                             </div>
-                            <div class="col">
-                                <input name="last_name" id="last_name" class="form-control mb-3" type="text"
-                                       placeholder="Last Name"
-                                       aria-label="default input example" required>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-
-                <div class="row">
-                    <div class="col-4">
-                        <p class="font-16">Password:</p>
-                    </div>
-                    <div class="col-8">
-                        <div class="input-group mb-3">
-                            <input name="password" id="password" class="form-control" type="password"
-                                   placeholder="Password"
-                                   aria-label="Password" value="123">
-                            <a href="javascript:;" class="input-group-text bg-transparent"
-                               id="togglePassword"><i
-                                    class="bx bx-hide"></i></a>
-                        </div>
-
-                    </div>
-
-                    <input type="hidden" name="year_level" value="1" class="d-none">
-                </div>
-
-
-                <div class="row">
-                    <hr class="my-4">
-                    <h6 class="text-uppercase mb-3 font-weight-bold">Manage Sections</h6>
-
-                    <!-- SECTION GROUP START -->
-                    <div id="section-group-container">
-                        <div class="section-group mb-3">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <label for="department" class="font-16">Department:</label>
-                                    <select name="departments[]" class="form-select" required>
-                                        <option value="">-- Select Department --</option>
-                                        {% for dept in departments %}
-                                            <option value="{{ dept.id }}">{{ dept.name }}</option>
-                                        {% endfor %}
-                                    </select>
+                            <div class="col-8">
+                                <div class="input-group mb-3">
+                                    <input name="teacher_id" id="teacher_id" class="form-control" type="text"
+                                           placeholder="Teacher ID"
+                                           aria-label="Teacher ID" required>
+                                    <button class="btn btn-outline-primary" type="button" id="button-addon2">Generate ID
+                                    </button>
                                 </div>
-                                <div class="col-md-6">
-                                    <label for="section_letter" class="font-16">Section Letter:</label>
-                                    <select name="letters[]" class="form-select" required>
-                                        <option value="">-- Select Section Letter --</option>
-                                        {% for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" %}
-                                            <option value="{{ letter }}">{{ letter }}</option>
-                                        {% endfor %}
-                                    </select>
+
+                            </div>
+                        </div>
+
+
+                        <div class="row">
+                            <div class="col-4">
+                                <p class="font-16">Full Name:</p>
+                            </div>
+                            <div class="col-8">
+                                <div class="row">
+                                    <div class="col">
+                                        <input name="first_name" id="first_name" class="form-control mb-3" type="text"
+                                               placeholder="First Name"
+                                               aria-label="default input example" required>
+
+                                    </div>
+                                    <div class="col">
+                                        <input name="last_name" id="last_name" class="form-control mb-3" type="text"
+                                               placeholder="Last Name"
+                                               aria-label="default input example" required>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="col-12">
-                        <button type="button" class="btn btn-outline-success float-end btn-sm ms-2"
-                                onclick="addSectionGroup()">
-                            <i class="bx bx-plus mr-1"></i>Add More Sections
+
+                        <div class="row">
+                            <div class="col-4">
+                                <p class="font-16">Password:</p>
+                            </div>
+                            <div class="col-8">
+                                <div class="input-group mb-3">
+                                    <input name="password" id="password" class="form-control" type="password"
+                                           placeholder="Password"
+                                           aria-label="Password" value="123">
+                                    <a href="javascript:;" class="input-group-text bg-transparent"
+                                       id="togglePassword"><i
+                                            class="bx bx-hide"></i></a>
+                                </div>
+
+                            </div>
+
+                            <input type="hidden" name="year_level" value="1" class="d-none">
+                        </div>
+
+
+                        <div class="row">
+                            <hr class="my-4">
+                            <h6 class="text-uppercase mb-3 font-weight-bold">Manage Sections</h6>
+
+                            <!-- SECTION GROUP START -->
+                            <div id="section-group-container">
+                                <div class="section-group mb-3">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label for="department" class="font-16">Department:</label>
+                                            <select name="departments[]" class="form-select" required>
+                                                <option value="">-- Select Department --</option>
+                                                {% for dept in departments %}
+                                                    <option value="{{ dept.id }}">{{ dept.name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="section_letter" class="font-16">Section Letter:</label>
+                                            <select name="letters[]" class="form-select" required>
+                                                <option value="">-- Select Section Letter --</option>
+                                                {% for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" %}
+                                                    <option value="{{ letter }}">{{ letter }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <button type="button" class="btn btn-outline-success float-end btn-sm ms-2"
+                                        onclick="addSectionGroup()">
+                                    <i class="bx bx-plus mr-1"></i>Add More Sections
+                                </button>
+                                <button type="button" class="btn btn-outline-danger float-end btn-sm ms-2"
+                                        onclick="removeLastSection()">
+                                    <i class="bx bx-minus mr-1"></i>Remove Last Section
+                                </button>
+                            </div>
+
+
+                        </div>
+                        <!-- Section Management Separator -->
+
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bx bxs-user mr-1"></i>Create Teacher
                         </button>
-                        <button type="button" class="btn btn-outline-danger float-end btn-sm ms-2"
-                                onclick="removeLastSection()">
-                            <i class="bx bx-minus mr-1"></i>Remove Last Section
-                        </button>
-                    </div>
 
 
+                        <!-- SECTION GROUP END -->
+
+
+                    </form>
                 </div>
-                <!-- Section Management Separator -->
-
-
-                <button type="submit" class="btn btn-primary">
-                    <i class="bx bxs-user mr-1"></i>Create Teacher
-                </button>
-
-
-                <!-- SECTION GROUP END -->
-
-
-            </form>
-            </div>
 
 
             </div>
+
+            <div class="login-separater text-center mb-4"><span style="background-color: #f0f0f0">TEACHER DETAILS</span>
+                <hr>
+            </div>
+
+
+            {% include 'admin/teacher_list.html' %}
         </div>
-
-        {% include 'admin/teacher_list.html' %}
 
 
     </div>

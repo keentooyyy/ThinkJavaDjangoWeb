@@ -22,13 +22,9 @@ def create_teacher(request):
         return redirect('unified_login')
 
     admin = SimpleAdmin.objects.get(id=admin_id)
-    # Get all departments to display in the select box
     departments = Department.objects.all()
-
-    # Fetch all teachers
     teachers = Teacher.objects.all()
 
-    # If the request method is POST, process the form submission
     if request.method == 'POST':
         # Get form data from the POST request
         teacher_id = request.POST.get('teacher_id')
@@ -51,11 +47,8 @@ def create_teacher(request):
         # Check if the sections are already handled by another teacher
         for dept_id, letter in zip(dept_ids, letters):
             department = Department.objects.get(id=dept_id)
-
-            # Find the actual Section row
             section = Section.objects.get(department=department, letter=letter)
 
-            # Check if any teacher is already assigned to this section
             if HandledSection.objects.filter(section=section).exists():
                 messages.error(request, f'The section {section.department.name}{section.year_level.year}{section.letter} is already assigned to another teacher.')
                 return redirect('create_teacher')
@@ -75,13 +68,10 @@ def create_teacher(request):
 
             # Default to Year 1 (you can modify to be dynamic later)
             year_level = YearLevel.objects.get_or_create(year=1)[0]
-            labels = []
 
             # Add the teacher's sections
             for dept_id, letter in zip(dept_ids, letters):
                 department = Department.objects.get(id=dept_id)
-
-                # Find the actual Section row
                 section = Section.objects.get(department=department, year_level=year_level, letter=letter)
 
                 # Create a HandledSection object to link the teacher and section
@@ -92,29 +82,43 @@ def create_teacher(request):
                     year_level=section.year_level
                 )
 
-                labels.append(f"{section.department.name}{section.year_level.year}{section.letter}")
-
             messages.success(request, 'Created a teacher successfully!')
 
         except IntegrityError as e:
-            # Handle IntegrityError (like duplicate teacher_id)
             messages.error(request, 'Error: Teacher ID already exists in the database.')
             print(f"IntegrityError: {str(e)}")
 
         except Exception as e:
-            # Catch any other exceptions that occur during teacher creation
             messages.error(request, f'Error creating teacher: {str(e)}')
             print(f"Exception: {str(e)}")
 
         return redirect('create_teacher')  # Redirect after successful teacher creation
 
-    # If the request method is GET, render the form
+    # Fetch all teachers and pass the handled sections to the template
+    teachers_with_sections = []
+    for teacher in teachers:
+        handled_sections = teacher.handled_sections.all()
+
+        # Extract section names using __str__ from Section model
+        section_names = [str(handled_section.section) for handled_section in handled_sections]
+
+        teachers_with_sections.append({
+            'teacher': teacher,
+            'section_names': section_names  # Store section names instead of handled_sections
+        })
+
+        # Print section names for debugging
+        print(section_names)  # This will print something like ['CS1A', 'CS1B', 'IT1A', 'IT1B']
+
+
+    # print(teachers_with_sections)
     return render(request, 'admin/teacher_form.html', {
         'departments': departments,
         'username': admin.username,
         'role': Role.ADMIN,
-        'teachers': teachers,  # Pass the teachers list to the template
+        'teachers_with_sections': teachers_with_sections  # Pass teachers with their handled sections to the template
     })
+
 
 
 
@@ -143,6 +147,7 @@ def get_teacher_details(request, teacher_id):
         'last_name': teacher.last_name,
         'handled_sections': sections_data
     }
+
     return JsonResponse(data)
 
 
