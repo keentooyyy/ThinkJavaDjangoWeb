@@ -267,7 +267,7 @@
         <hr>
         <table class="table mb-0 table-hover">
             <thead>
-            <tr>
+            <tr class="text-center">
                 <th scope="col">Teacher ID</th>
                 <th scope="col">First Name</th>
                 <th scope="col">Last Name</th>
@@ -283,7 +283,7 @@
                     <td>{{ item.teacher.last_name }}</td>
                     <td>
                         <!-- Display sections as a list -->
-                        <div class="bootstrap-tagsinput">
+                        <div class="bootstrap-tagsinput inline">
                             {% for section_name in item.section_names %}
                                 <span class="badge bg-primary px-3 py-2">{{ section_name }}</span>
                                 {% if forloop.counter|divisibleby:3 %}
