@@ -474,25 +474,27 @@
     <!-- JavaScript to add more section groups -->
     <script>
         function addSectionGroupModal() {
-            // Clone the first section group
+            // Get the container and the first row inside the section group
             var $container = $('#section-group-container_modal');
-            var $firstGroup = $container.find('.section-group_modal').first();
+            var $firstGroup = $container.find('.section-group_modal .row').first();
+
+            // Clone the row, not the entire section group
             var $newGroup = $firstGroup.clone();
 
             // Clear values of cloned selects
             $newGroup.find('select[name="departments[]"]').prop('selectedIndex', 0);
             $newGroup.find('select[name="letters[]"]').prop('selectedIndex', 0);
 
-            // Insert the new section group before the button container
+            // Insert the new row before the button container
             $container.find('.row').first().before($newGroup);
         }
 
         function removeLastSectionModal() {
             var $container = $('#section-group-container_modal');
 
-            // Remove the last section group if there are multiple
-            if ($container.find('.section-group_modal').length > 1) {
-                $container.find('.section-group_modal').last().remove();
+            // Remove the last row inside the section group if there are multiple rows
+            if ($container.find('.section-group_modal .row').length > 1) {
+                $container.find('.section-group_modal .row').last().remove();
             } else {
                 alert("You must have at least one section.");
             }
