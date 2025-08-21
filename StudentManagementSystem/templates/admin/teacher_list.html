@@ -146,7 +146,7 @@
                     <h5>Add New Section</h5>
                     <div id="section-group-container_modal">
                         <div class="section-group_modal mb-3">
-                            <div class="row">
+                            <div class="row" id="section_group_modal_duplicate">
                                 <div class="col-6">
                                     <label for="departments" class="form-label">Department</label>
                                     <select name="departments[]" class="form-control dept-select">
@@ -213,32 +213,36 @@
 
     <!-- JavaScript to add more section groups -->
     <script>
+        // Function to add a new section group (duplicate the section_group_modal_duplicate)
         function addSectionGroupModal() {
-            // Get the container and the first row inside the section group
-            var $container = $('#section-group-container_modal');
-            var $firstGroup = $container.find('.section-group_modal .row').first();
+            // Get the container and the section to clone (target the section_group_modal_duplicate)
+            var $container = $('.section-group_modal.mb-3');
+            var $sectionGroup = $('#section_group_modal_duplicate');
 
-            // Clone the row, not the entire section group
-            var $newGroup = $firstGroup.clone();
+            // Clone the section
+            var $newGroup = $sectionGroup.clone();
 
-            // Clear values of cloned selects
+            // Clear the values of the cloned select inputs
             $newGroup.find('select[name="departments[]"]').prop('selectedIndex', 0);
             $newGroup.find('select[name="letters[]"]').prop('selectedIndex', 0);
 
-            // Insert the new row before the button container
-            $container.find('.row').first().before($newGroup);
+            // Append the cloned section under the .section-group_modal.mb-3 container
+            $container.append($newGroup);
         }
 
+        // Function to remove the last section group
         function removeLastSectionModal() {
-            var $container = $('#section-group-container_modal');
+            var $container = $('.section-group_modal.mb-3');
 
-            // Remove the last row inside the section group if there are multiple rows
-            if ($container.find('.section-group_modal .row').length > 1) {
-                $container.find('.section-group_modal .row').last().remove();
+            // Remove the last .section-group_modal (excluding the original one)
+            if ($container.find('.row').length > 1) {
+                $container.find('.row').last().remove();
             } else {
                 alert("You must have at least one section.");
             }
         }
+
+
     </script>
 
 
@@ -308,6 +312,33 @@
                     console.error('Error fetching teacher data:', error);
                 }
             });
+        }
+
+
+        function deleteTeacher(teacherId) {
+            if (confirm('Are you sure you want to delete this teacher?')) {
+                $.ajax({
+                    url: '/admin_teacher/delete/' + teacherId + '/',  // URL to delete teacher
+                    type: 'DELETE',  // HTTP method
+                    headers: {
+                        'X-CSRFToken': $('input[name="csrfmiddlewaretoken"]').val()  // Directly get CSRF token from the form
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            // Optionally, remove the teacher row from the table
+                            $('#teacher-row-' + teacherId).remove();
+
+                            // Reload the page to reflect the changes
+                            location.reload();
+                        } else {
+                            alert('Failed to delete teacher');
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        alert('An error occurred. Please try again.');
+                    }
+                });
+            }
         }
 
 
