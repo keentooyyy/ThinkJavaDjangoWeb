@@ -129,7 +129,8 @@ def get_teacher_details(request, teacher_id):
             'id': section.id,
             'department': section.department.name,
             'year_level': section.year_level.year,
-            'letter': section.section.letter
+            'letter': section.section.letter,
+            'section_name': f"{section.department.name} {section.year_level.year}{section.section.letter}"  # Combined section name
         }
         for section in handled_sections
     ]

@@ -339,8 +339,6 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Edit Teacher</h5>
-
-
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form method="POST" id="editTeacherForm">
@@ -349,26 +347,56 @@
                     <input type="hidden" name="teacher_id_edit_modal" id="teacher_id_edit_modal"
                            value="{{ teacher.id }}">
 
-                    <div class="mb-3">
-                        <label for="first_name_modal" class="form-label">First Name</label>
-                        <input type="text" class="form-control" id="first_name_modal" name="first_name_modal" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="last_name_modal" class="form-label">Last Name</label>
-                        <input type="text" class="form-control" id="last_name_modal" name="last_name_modal" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="password_modal" class="form-label">Password (Optional)</label>
-                        <input type="password" class="form-control" id="password_modal" name="password_modal">
+
+                    <div class="row mb-3">
+                        <div class="col-4">
+                            <label for="first_name_modal" class="form-label">Full Name: </label>
+                        </div>
+                        <div class="col-8">
+
+
+                            <div class="row">
+                                <div class="col-6">
+                                    <input type="text" class="form-control" id="first_name_modal"
+                                           name="first_name_modal"
+                                           required>
+                                </div>
+                                <div class="col-6">
+                                    <input type="text" class="form-control" id="last_name_modal" name="last_name_modal"
+                                           required>
+                                </div>
+                            </div>
+
+
+                        </div>
+
                     </div>
 
+                    <div class="row">
+
+                        <div class="col-4">
+                            <label for="password_modal" class="form-label">Password (Optional):</label>
+                        </div>
+                        <div class="col-8">
+                            <div class="input-group mb-3">
+                                <input type="password" class="form-control" id="password_modal" name="password_modal">
+                                <a href="javascript:;" class="input-group-text bg-transparent"
+                                   id="togglePassword"><i
+                                        class="bx bx-hide"></i></a>
+                                <button class="btn btn-outline-primary btn-sm" type="button" id="button-addon2">Generate
+                                    Password
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+
+
                     <h5>Handled Sections</h5>
-                    <table class="table" id="sections-table">
+                    <table class="table text-center" id="sections-table">
                         <thead>
                         <tr>
-                            <th>Department</th>
-                            <th>Year Level</th>
-                            <th>Section Letter</th>
+                            <th>Sections</th>
                             <th>Actions</th>
                         </tr>
                         </thead>
@@ -379,27 +407,45 @@
 
                     <h5>Add New Section</h5>
                     <div id="section-group-container_modal">
-                        <div class="section-group_modal">
-                            <label for="departments" class="form-label">Department</label>
-                            <select name="departments[]" class="form-control dept-select">
-                                <option value="">-- Select Department --</option>
-                                {% for dept in departments %}
-                                    <option value="{{ dept.id }}">{{ dept.name }}</option>
-                                {% endfor %}
-                            </select>
+                        <div class="section-group_modal mb-3">
+                            <div class="row">
+                                <div class="col-6">
+                                    <label for="departments" class="form-label">Department</label>
+                                    <select name="departments[]" class="form-control dept-select">
+                                        <option value="">-- Select Department --</option>
+                                        {% for dept in departments %}
+                                            <option value="{{ dept.id }}">{{ dept.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-6">
+                                    <label for="letters" class="form-label">Section Letter</label>
+                                    <select name="letters[]" class="form-control section-select">
+                                        <option value="">-- Select Section Letter --</option>
+                                        {% for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" %}
+                                            <option value="{{ letter }}">{{ letter }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
 
-                            <label for="letters" class="form-label">Section Letter</label>
-                            <select name="letters[]" class="form-control section-select">
-                                <option value="">-- Select Section Letter --</option>
-                                {% for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" %}
-                                    <option value="{{ letter }}">{{ letter }}</option>
-                                {% endfor %}
-                            </select>
 
-                            <button type="button" class="btn btn-danger btn-sm" onclick="removeSectionGroup(this)">
-                                Remove
-                            </button>
+                            </div>
+
+
                         </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <button type="button" class="btn btn-outline-success float-end btn-sm ms-2"
+                                        onclick="addSectionGroupModal()">
+                                    <i class="bx bx-plus mr-1"></i>Add More Sections
+                                </button>
+                                <button type="button" class="btn btn-outline-danger float-end btn-sm ms-2"
+                                        onclick="removeLastSectionModal()">
+                                    <i class="bx bx-minus mr-1"></i>Remove Last Section
+                                </button>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -423,8 +469,43 @@
 {% block scripts %}
 
 
+
+
+    <!-- JavaScript to add more section groups -->
+    <script>
+        function addSectionGroupModal() {
+            // Clone the first section group
+            var $container = $('#section-group-container_modal');
+            var $firstGroup = $container.find('.section-group_modal').first();
+            var $newGroup = $firstGroup.clone();
+
+            // Clear values of cloned selects
+            $newGroup.find('select[name="departments[]"]').prop('selectedIndex', 0);
+            $newGroup.find('select[name="letters[]"]').prop('selectedIndex', 0);
+
+            // Insert the new section group before the button container
+            $container.find('.row').first().before($newGroup);
+        }
+
+        function removeLastSectionModal() {
+            var $container = $('#section-group-container_modal');
+
+            // Remove the last section group if there are multiple
+            if ($container.find('.section-group_modal').length > 1) {
+                $container.find('.section-group_modal').last().remove();
+            } else {
+                alert("You must have at least one section.");
+            }
+        }
+    </script>
+
+
+
+
+
     <!-- jQuery for Modal Data Injection -->
     <script>
+
 
         function removeSectionRow(button, sectionId) {
             $.ajax({
@@ -446,7 +527,6 @@
 
 
         // Open the modal and pre-fill the data for a specific teacher
-        // Open the modal and pre-fill the data for a specific teacher
         function openEditModal(teacherId) {
             $.ajax({
                 url: `/admin_teacher/${teacherId}/get_details/`,  // Fetch the teacher's current details
@@ -467,18 +547,18 @@
                     // Handle existing sections dynamically
                     const sectionTableBody = $('#sections-table tbody');
                     sectionTableBody.empty();  // Clear existing rows
+
+                    // Dynamically add each section with a Remove button
                     data.handled_sections.forEach(function (section) {
                         const row = `
                     <tr>
-                        <td>${section.department}</td>
-                        <td>${section.year_level}</td>
-                        <td>${section.letter}</td>
+                        <td>${section.section_name}</td>  <!-- Display Section Name -->
                         <td>
-                            <button type="button" class="btn btn-danger btn-sm" onclick="removeSectionRow(this, ${section.id})">Remove</button>
+                            <button type="button" class="btn btn-danger btn-sm" onclick="removeSectionRow(this, ${section.id})">Delete Section</button>
                         </td>
                     </tr>
                 `;
-                        sectionTableBody.append(row);
+                        sectionTableBody.append(row);  // Append the new row to the table body
                     });
                 },
                 error: function (error) {
