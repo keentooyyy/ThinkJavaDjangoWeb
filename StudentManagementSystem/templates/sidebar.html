@@ -18,7 +18,7 @@
                         <!--navigation-->
                         <ul class="metismenu px-2 mm-show h-100" id="menu">
 
-                            <li class="">
+                            <li>
 
                                 {% if request.session.role == 'ADMIN' %}
                                     <a href="{% url 'admin_dashboard' %}">
@@ -57,7 +57,8 @@
                                         <li><a href="{% url 'create_teacher' %}"><i class="bx bx-right-arrow-alt"></i>Add
                                             New Teacher</a>
                                         </li>
-                                        <li><a href="{% url 'create_teacher' %}#teacher_table"><i class="bx bx-right-arrow-alt"></i>List of  Teachers</a>
+                                        <li><a href="{% url 'create_teacher' %}#teacher_table"><i
+                                                class="bx bx-right-arrow-alt"></i>List of Teachers</a>
                                         </li>
 
                                     </ul>
@@ -65,7 +66,13 @@
 
                             {% endif %}
 
-
+                            <li>
+                                <a href="{% url 'student_ranking' %}">
+                                    <div class="parent-icon"><i class="bx bx-bar-chart-square"></i>
+                                    </div>
+                                    <div class="menu-title">Student Ranks</div>
+                                </a>
+                            </li>
 
 
                             <li class="mt-auto">

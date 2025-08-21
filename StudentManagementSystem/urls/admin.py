@@ -6,6 +6,7 @@ from StudentManagementSystem.views.admin.dashboard_admin import admin_dashboard
 from StudentManagementSystem.views.admin.manage_teachers import create_teacher, get_teacher_details, \
     edit_teacher, remove_section, delete_teacher
 from StudentManagementSystem.views.admin.proggress_addition_admin import add_achievement, add_level
+from StudentManagementSystem.views.admin.ranking_students import student_ranking
 from StudentManagementSystem.views.auth_unified import unified_login, unified_logout
 
 urlpatterns = [
@@ -24,6 +25,9 @@ urlpatterns = [
     path('admin_teacher/<int:teacher_id>/edit/', edit_teacher, name='edit_teacher'),  # Edit teacher
     path('admin_teacher/remove_section/<int:section_id>/', remove_section, name='remove_section'),
     path('admin_teacher/delete/<int:teacher_id>/', delete_teacher, name='delete_teacher'),
+
+    # Student Ranking
+    path('student_rankings/', student_ranking, name='student_ranking'),
 
     # Other Routes
     path('get-sections-by-department/', get_sections_by_department, name='get_sections_by_department'),

@@ -6,7 +6,7 @@ from StudentManagementSystem.models import Teacher
 from StudentManagementSystem.models.department import Department
 from StudentManagementSystem.models.section import Section
 from StudentManagementSystem.models.student import Student
-from StudentManagementSystem.views.admin.ranking_students import get_rankings_context
+from StudentManagementSystem.views.admin.ranking_students import student_ranking
 
 
 def get_teacher_dashboard_context(teacher):
@@ -68,7 +68,7 @@ def teacher_dashboard(request):
     context = get_teacher_dashboard_context(teacher)
 
     # Get dynamic ranking data
-    ranking_context = get_rankings_context(request, teacher=teacher)
+    ranking_context = student_ranking(request, teacher=teacher)
 
     # Merge both
     context.update(ranking_context)

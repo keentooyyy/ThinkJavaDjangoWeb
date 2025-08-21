@@ -6,7 +6,7 @@ from GameProgress.services.ranking import get_section_rankings
 from StudentManagementSystem.models import SimpleAdmin, Teacher, Student
 from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.models.section import Section
-from StudentManagementSystem.views.admin.ranking_students import get_rankings_context
+from StudentManagementSystem.views.admin.ranking_students import student_ranking
 
 
 def admin_dashboard(request):
@@ -15,7 +15,7 @@ def admin_dashboard(request):
         return redirect('unified_login')
 
     admin = SimpleAdmin.objects.get(id=admin_id)
-    ranking_context = get_rankings_context(request)
+    ranking_context = student_ranking(request)
 
 
 
