@@ -12,10 +12,6 @@ from StudentManagementSystem.models.teachers import HandledSection
 from StudentManagementSystem.models.year_level import YearLevel
 
 
-
-
-
-
 def create_teacher(request):
     admin_id = request.session.get('user_id')
     if not admin_id:
@@ -50,7 +46,8 @@ def create_teacher(request):
             section = Section.objects.get(department=department, letter=letter)
 
             if HandledSection.objects.filter(section=section).exists():
-                messages.error(request, f'The section {section.department.name}{section.year_level.year}{section.letter} is already assigned to another teacher.')
+                messages.error(request,
+                               f'The section {section.department.name}{section.year_level.year}{section.letter} is already assigned to another teacher.')
                 return redirect('create_teacher')
 
         try:
@@ -108,20 +105,16 @@ def create_teacher(request):
         })
 
         # Print section names for debugging
-        print(section_names)  # This will print something like ['CS1A', 'CS1B', 'IT1A', 'IT1B']
-
+        # print(section_names)  # This will print something like ['CS1A', 'CS1B', 'IT1A', 'IT1B']
 
     # print(teachers_with_sections)
     return render(request, 'admin/teacher_form.html', {
         'departments': departments,
         'username': admin.username,
         'role': Role.ADMIN,
-        'teachers_with_sections': teachers_with_sections  # Pass teachers with their handled sections to the template
+        'teachers_with_sections': teachers_with_sections,  # Pass teachers with their handled sections to the template
+        'show_in_table': True,
     })
-
-
-
-
 
 
 # 2. View to fetch teacher details for the modal
@@ -151,16 +144,11 @@ def get_teacher_details(request, teacher_id):
     return JsonResponse(data)
 
 
-
-
-
-
-
-
 def edit_teacher(request, teacher_id):
     if request.method == 'POST':
         # Get the teacher object based on the teacher_id
         teacher = get_object_or_404(Teacher, id=teacher_id)
+
 
         # Get the data from the POST request
         first_name = request.POST.get('first_name_modal')
@@ -191,8 +179,9 @@ def edit_teacher(request, teacher_id):
                         # Check if any teacher is already assigned to this section
                         if HandledSection.objects.filter(section=section).exists():
                             # If the section is already handled, show an error message
-                            messages.error(request, f"The section {section.department.name}{section.year_level.year}{section.letter} is already assigned to another teacher.")
-                            return redirect('edit_teacher', teacher_id=teacher.id)
+                            messages.error(request,
+                                           f"The section {section.department.name}{section.year_level.year}{section.letter} is already assigned to another teacher.")
+                            return redirect('create_teacher')  # Redirect to dashboard with error message
 
                         # Create a new handled section for the teacher
                         HandledSection.objects.create(
@@ -203,29 +192,23 @@ def edit_teacher(request, teacher_id):
                         )
                     except (Department.DoesNotExist, Section.DoesNotExist):
                         # Handle the case where a department or section doesn't exist
-                        continue
-
-        return JsonResponse({'success': True})  # Send a success response
-
-    return JsonResponse({'success': False}, status=400)  # Return error if it's not a POST request
+                        messages.error(request, "One or more sections/departments do not exist. Please try again.")
+                        return redirect('create_teacher')
 
 
+        # On successful update, show a success message and redirect to the dashboard
+        messages.success(request, 'Teacher details updated successfully!')
+        # return render(request, 'admin/teacher_form.html', {
+        #     'show_in_table': show_in_table,
+        #     # Pass teachers with their handled sections to the template
+        # })
+
+        return redirect('create_teacher')  # Redirect to the dashboard with success message
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    # Return error if it's not a POST request
+    messages.error(request, 'Invalid request method. Please try again.')
+    return redirect('create_teacher')
 
 
 def remove_section(request, section_id):

@@ -18,7 +18,15 @@
                     <h6 class="mb-0 text-uppercase">Create New Teacher</h6>
 
 
-                    {% include 'utility/alert_message.html' %}
+                    {% if not show_in_table %}
+                        <div class="d-block">
+                            {% include 'utility/alert_message.html' %}
+                        </div>
+                    {% else %}
+                        <div class="d-none">
+                            {% include 'utility/alert_message.html' %}
+                        </div>
+                    {% endif %}
 
 
                     <hr>

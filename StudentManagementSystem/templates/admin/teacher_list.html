@@ -264,6 +264,19 @@
 <div class="card" id="teacher_table">
     <div class="card-body p-5">
         <h6 class="mb-0 text-uppercase">Teacher List</h6>
+
+
+        <!-- Display messages for the form -->
+        {% if show_in_table %}
+            <div class="d-block">
+                {% include 'utility/alert_message.html' %}
+            </div>
+        {% else %}
+            <div class="d-none">
+                {% include 'utility/alert_message.html' %}
+            </div>
+        {% endif %}
+
         <hr>
         <table class="table mb-0 table-hover">
             <thead>
@@ -322,16 +335,19 @@
 
 <!-- Custom Modal for Editing Teacher's Information -->
 <div class="modal fade" id="exampleVerticallycenteredModal" tabindex="-1" style="display: none;" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered" style="--bs-modal-width: 800px">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Edit Teacher</h5>
+
+
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form method="POST" id="editTeacherForm">
                 {% csrf_token %}
                 <div class="modal-body">
-                    <input type="hidden" name="teacher_id_edit_modal" id="teacher_id_edit_modal">
+                    <input type="hidden" name="teacher_id_edit_modal" id="teacher_id_edit_modal"
+                           value="{{ teacher.id }}">
 
                     <div class="mb-3">
                         <label for="first_name_modal" class="form-label">First Name</label>
@@ -409,71 +425,94 @@
 
     <!-- jQuery for Modal Data Injection -->
     <script>
+
+        function removeSectionRow(button, sectionId) {
+            $.ajax({
+                url: `/admin_teacher/remove_section/${sectionId}/`,
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': $('input[name=csrfmiddlewaretoken]').val()  // Get the CSRF token using jQuery
+                },
+                success: function (data) {
+                    if (data.success) {
+                        $(button).closest('tr').remove();  // Remove the row from the table if deletion is successful
+                    }
+                },
+                error: function (error) {
+                    console.error('Error removing section:', error);
+                }
+            });
+        }
+
+
+        // Open the modal and pre-fill the data for a specific teacher
         // Open the modal and pre-fill the data for a specific teacher
         function openEditModal(teacherId) {
-            fetch(`/admin_teacher/${teacherId}/get_details/`)  // Fetch the teacher's current details
-                .then(response => response.json())
-                .then(data => {
+            $.ajax({
+                url: `/admin_teacher/${teacherId}/get_details/`,  // Fetch the teacher's current details
+                method: 'GET',
+                success: function (data) {
                     // Pre-fill the form fields with teacher's data
-                    document.getElementById('teacher_id_edit_modal').value = data.teacher_id;
-                    document.getElementById('first_name_modal').value = data.first_name;
-                    document.getElementById('last_name_modal').value = data.last_name;
-                    document.getElementById('password_modal').value = '';  // Optional: clear previous password field
+                    $('#teacher_id_edit_modal').val(data.teacher_id);
+                    $('#first_name_modal').val(data.first_name);
+                    $('#last_name_modal').val(data.last_name);
+                    $('#password_modal').val('');  // Optional: clear previous password field
+
+                    // Dynamically set the form action to the correct edit URL
+                    $('#editTeacherForm').attr('action', `/admin_teacher/${teacherId}/edit/`);
 
                     // Show the modal
                     $('#exampleVerticallycenteredModal').modal('show'); // Use Bootstrap modal to show the modal
 
                     // Handle existing sections dynamically
-                    const sectionTableBody = document.querySelector('#sections-table tbody');
-                    sectionTableBody.innerHTML = '';  // Clear existing rows
-                    data.handled_sections.forEach((section) => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
+                    const sectionTableBody = $('#sections-table tbody');
+                    sectionTableBody.empty();  // Clear existing rows
+                    data.handled_sections.forEach(function (section) {
+                        const row = `
+                    <tr>
                         <td>${section.department}</td>
                         <td>${section.year_level}</td>
                         <td>${section.letter}</td>
                         <td>
-                            <button type="button" class="btn btn-danger btn-sm" onclick="removeSectionRow(this)">Remove</button>
+                            <button type="button" class="btn btn-danger btn-sm" onclick="removeSectionRow(this, ${section.id})">Remove</button>
                         </td>
-                    `;
-                        sectionTableBody.appendChild(row);
+                    </tr>
+                `;
+                        sectionTableBody.append(row);
                     });
-                })
-                .catch(error => console.error('Error fetching teacher data:', error));
+                },
+                error: function (error) {
+                    console.error('Error fetching teacher data:', error);
+                }
+            });
         }
 
-        // Remove a section group (department and section)
-        function removeSectionGroup(button) {
-            $(button).closest('.section-group_modal').remove();
-        }
 
-        // Handle form submission with AJAX
-        $('#editTeacherForm').submit(function (e) {
-            e.preventDefault(); // Prevent the default form submission
+        $('#editTeacherForm').submit(function (event) {
+            event.preventDefault();  // Prevent the default form submission
 
-            var form = $(this);
+            var formData = new FormData(this);  // Create a FormData object from the form
+            var teacherId = $('#teacher_id_edit_modal').val();  // Get teacher ID from the modal
+
             $.ajax({
-                url: form.attr('action'), // The URL where the form data will be sent
+                url: '/admin_teacher/' + teacherId + '/edit/',  // Use the correct URL for editing the teacher
                 method: 'POST',
-                data: form.serialize(), // Serialize the form data
-                success: function (response) {
-                    if (response.success) {
-                        alert('Teacher details updated successfully!');
-                        location.reload(); // Reload the page to reflect changes
+                data: formData,  // Send the form data with the request
+                contentType: false,  // Needed to send FormData
+                processData: false,  // Needed to send FormData
+                success: function (data) {
+                    if (data.success) {
+                        location.reload();  // Optionally reload the page to reflect the changes
                     } else {
-                        alert('Error updating teacher details.');
+                        console.error('Error updating teacher.');
                     }
                 },
-                error: function () {
-                    alert('Error processing the request.');
+                error: function (error) {
+                    console.error('Error updating teacher:', error);
                 }
             });
         });
 
-        // Remove a section row (handled sections)
-        function removeSectionRow(button) {
-            $(button).closest('tr').remove();
-        }
     </script>
 
 

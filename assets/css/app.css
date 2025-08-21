@@ -32,7 +32,9 @@ File: app.css
 
 /* General */
 
-
+html{
+    scroll-behavior: smooth;
+}
 body {
 
 	
