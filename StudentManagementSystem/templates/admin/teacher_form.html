@@ -17,21 +17,19 @@
                 <div class="card-body p-5">
                     <h6 class="mb-0 text-uppercase">Create New Teacher</h6>
 
-
-                    {% if not show_in_table %}
-                        <div class="d-block">
+                    <!-- For the create form -->
+                    <div id="create_message">
+                        {% if message_container_id == 'create_message' %}
                             {% include 'utility/alert_message.html' %}
-                        </div>
-                    {% else %}
-                        <div class="d-none">
-                            {% include 'utility/alert_message.html' %}
-                        </div>
-                    {% endif %}
+                        {% endif %}
+                    </div>
 
 
                     <hr>
                     <form method="post" action="{% url 'create_teacher' %}" id="teacher_form">
                         {% csrf_token %}
+
+                        <input type="hidden" name="show_in_table" id="show_in_table" value="false">
 
 
                         <div class="row">
@@ -257,6 +255,46 @@
                 $('#teacher_id').val(teacherId); // Set the generated ID into the input field
             });
         });
+
+    </script>
+
+
+    <script>
+        // Toggle password visibility
+        $('#togglePasswordModal').click(function () {
+            var passwordField = $('#password_modal');
+            var icon = $(this).find('i');
+
+            // Toggle password visibility
+            if (passwordField.attr('type') === 'password') {
+                passwordField.attr('type', 'text');
+                icon.removeClass('bx-hide').addClass('bx-show');
+            } else {
+                passwordField.attr('type', 'password');
+                icon.removeClass('bx-show').addClass('bx-hide');
+            }
+        });
+
+        {% comment %}        {#// Generate password#}
+                {#$('#button-addon3').click(function () {#}
+                {#    $('#password_modal').val('Welcome1'); // Set password to "Welcome1"#}
+                {#});#}{% endcomment %}
+
+
+        // Generate a random password
+        $('#button-addon3').click(function () {
+            var charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
+            var passwordLength = 16;
+            var password = "";
+
+            for (var i = 0; i < passwordLength; i++) {
+                var randomIndex = Math.floor(Math.random() * charset.length); // Get a random index from charset
+                password += charset[randomIndex]; // Append the random character to the password
+            }
+
+            $('#password_modal').val(password); // Set the generated password in the password field
+        });
+
 
     </script>
 

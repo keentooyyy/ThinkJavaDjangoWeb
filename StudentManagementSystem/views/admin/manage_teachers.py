@@ -12,14 +12,41 @@ from StudentManagementSystem.models.teachers import HandledSection
 from StudentManagementSystem.models.year_level import YearLevel
 
 
+
+def get_teacher_context(admin_id, message_container_id='create_message'):
+    # Get admin and departments
+    admin = SimpleAdmin.objects.get(id=admin_id)
+    departments = Department.objects.all()
+    teachers = Teacher.objects.all()
+
+    # Prepare list of teachers with their handled sections
+    teachers_with_sections = []
+    for teacher in teachers:
+        handled_sections = teacher.handled_sections.all()
+
+        # Extract section names using __str__ from Section model
+        section_names = [str(handled_section.section) for handled_section in handled_sections]
+
+        teachers_with_sections.append({
+            'teacher': teacher,
+            'section_names': section_names
+        })
+
+    context = {
+        'departments': departments,
+        'username': admin.username,
+        'role': Role.ADMIN,
+        'teachers_with_sections': teachers_with_sections,
+        'message_container_id': message_container_id,
+    }
+    return context
+
+
+
 def create_teacher(request):
     admin_id = request.session.get('user_id')
     if not admin_id:
         return redirect('unified_login')
-
-    admin = SimpleAdmin.objects.get(id=admin_id)
-    departments = Department.objects.all()
-    teachers = Teacher.objects.all()
 
     if request.method == 'POST':
         # Get form data from the POST request
@@ -91,30 +118,10 @@ def create_teacher(request):
 
         return redirect('create_teacher')  # Redirect after successful teacher creation
 
-    # Fetch all teachers and pass the handled sections to the template
-    teachers_with_sections = []
-    for teacher in teachers:
-        handled_sections = teacher.handled_sections.all()
+    # Fetch context using the helper function
+    context = get_teacher_context(admin_id)
+    return render(request, 'admin/teacher_form.html', context)
 
-        # Extract section names using __str__ from Section model
-        section_names = [str(handled_section.section) for handled_section in handled_sections]
-
-        teachers_with_sections.append({
-            'teacher': teacher,
-            'section_names': section_names  # Store section names instead of handled_sections
-        })
-
-        # Print section names for debugging
-        # print(section_names)  # This will print something like ['CS1A', 'CS1B', 'IT1A', 'IT1B']
-
-    # print(teachers_with_sections)
-    return render(request, 'admin/teacher_form.html', {
-        'departments': departments,
-        'username': admin.username,
-        'role': Role.ADMIN,
-        'teachers_with_sections': teachers_with_sections,  # Pass teachers with their handled sections to the template
-        'show_in_table': True,
-    })
 
 
 # 2. View to fetch teacher details for the modal
@@ -130,7 +137,8 @@ def get_teacher_details(request, teacher_id):
             'department': section.department.name,
             'year_level': section.year_level.year,
             'letter': section.section.letter,
-            'section_name': f"{section.department.name} {section.year_level.year}{section.section.letter}"  # Combined section name
+            'section_name': f"{section.department.name} {section.year_level.year}{section.section.letter}"
+            # Combined section name
         }
         for section in handled_sections
     ]
@@ -146,10 +154,14 @@ def get_teacher_details(request, teacher_id):
 
 
 def edit_teacher(request, teacher_id):
+    admin_id = request.session.get('user_id')
+    if not admin_id:
+        return redirect('unified_login')
+
     if request.method == 'POST':
         # Get the teacher object based on the teacher_id
         teacher = get_object_or_404(Teacher, id=teacher_id)
-
+        message_container_id = 'list_message'
 
         # Get the data from the POST request
         first_name = request.POST.get('first_name_modal')
@@ -196,20 +208,19 @@ def edit_teacher(request, teacher_id):
                         messages.error(request, "One or more sections/departments do not exist. Please try again.")
                         return redirect('create_teacher')
 
-
         # On successful update, show a success message and redirect to the dashboard
         messages.success(request, 'Teacher details updated successfully!')
-        # return render(request, 'admin/teacher_form.html', {
-        #     'show_in_table': show_in_table,
-        #     # Pass teachers with their handled sections to the template
-        # })
 
-        return redirect('create_teacher')  # Redirect to the dashboard with success message
+        # Fetch context using the helper function for the edit case
+        context = get_teacher_context(admin_id, message_container_id)
+        context['teacher'] = teacher
 
+        return render(request, 'admin/teacher_form.html', context)
 
     # Return error if it's not a POST request
     messages.error(request, 'Invalid request method. Please try again.')
     return redirect('create_teacher')
+
 
 
 def remove_section(request, section_id):
