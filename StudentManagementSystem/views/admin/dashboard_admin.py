@@ -6,7 +6,7 @@ from GameProgress.services.ranking import get_section_rankings
 from StudentManagementSystem.models import SimpleAdmin, Teacher, Student
 from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.models.section import Section
-from StudentManagementSystem.views.admin.ranking_students import student_ranking
+
 
 
 def admin_dashboard(request):
@@ -15,7 +15,6 @@ def admin_dashboard(request):
         return redirect('unified_login')
 
     admin = SimpleAdmin.objects.get(id=admin_id)
-    ranking_context = student_ranking(request)
 
 
 
@@ -49,8 +48,6 @@ def admin_dashboard(request):
     return render(request, 'admin/dashboard.html', {
         'username': admin.username,
         'role': Role.ADMIN,
-        'sections_by_department': json.dumps(sections_by_department),
-        **ranking_context,
         'student_count': student_count_total,
         'student_count_CS': student_count_CS,
         'student_count_IT': student_count_IT,
