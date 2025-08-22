@@ -1,33 +1,81 @@
-<!-- Add Level Form -->
-    <h3>Add Level</h3>
-    <form method="POST" action="{% url 'add_level' %}">
-        {% csrf_token %}
-        <label for="level_name">Level Name:</label>
-        <input type="text" id="level_name" name="level_name" required><br>
+<div class="col-12">
+    <div class="row">
 
-        <label for="level_unlocked">Unlocked:</label>
-        <input type="checkbox" id="level_unlocked" name="level_unlocked"><br><br>
 
-        <button type="submit">Add Level</button>
-    </form>
+        <div class="col-6">
+            <div class="card">
 
-    <hr>
+                <div class="card-body p-5">
+                    <h6 class="mb-0 text-uppercase">Add Level</h6>
 
-    <!-- Add Achievement Form -->
-    <h3>Add Achievement</h3>
-    <form method="POST" action="{% url 'add_achievement' %}">
-        {% csrf_token %}
-        <label for="achievement_code">Achievement Code:</label>
-        <input type="text" id="achievement_code" name="achievement_code" required><br>
 
-        <label for="achievement_title">Title:</label>
-        <input type="text" id="achievement_title" name="achievement_title" required><br>
+                    {% if message_container_id == 'list_message' %}
+                        {% include 'utility/alert_message.html' %}
+                    {% endif %}
+                    <!-- For the edit form -->
 
-        <label for="achievement_description">Description:</label>
-        <textarea id="achievement_description" name="achievement_description" required></textarea><br>
 
-        <label for="achievement_is_active">Active:</label>
-        <input type="checkbox" id="achievement_is_active" name="achievement_is_active"><br><br>
+                    <hr>
 
-        <button type="submit">Add Achievement</button>
-    </form>
+                    <form method="POST" action="{% url 'add_level' %}">
+                        {% csrf_token %}
+                        <label for="level_name">Level Name:</label>
+                        <input type="text" id="level_name" name="level_name" required><br>
+
+                        <label for="level_unlocked">Unlocked:</label>
+                        <input type="checkbox" id="level_unlocked" name="level_unlocked"><br><br>
+
+                        <button type="submit">Add Level</button>
+                    </form>
+
+
+                </div>
+
+            </div>
+
+
+        </div>
+        <div class="col-6">
+            <div class="card">
+
+                <div class="card-body p-5">
+                    <h6 class="mb-0 text-uppercase">Add Achievement</h6>
+
+
+                    {% if message_container_id == 'list_message' %}
+                        {% include 'utility/alert_message.html' %}
+                    {% endif %}
+                    <!-- For the edit form -->
+
+
+                    <hr>
+
+                    <form method="POST" action="{% url 'add_achievement' %}">
+                        {% csrf_token %}
+                        <label for="achievement_code">Achievement Code:</label>
+                        <input type="text" id="achievement_code" name="achievement_code" required><br>
+
+                        <label for="achievement_title">Title:</label>
+                        <input type="text" id="achievement_title" name="achievement_title" required><br>
+
+                        <label for="achievement_description">Description:</label>
+                        <textarea id="achievement_description" name="achievement_description" required></textarea><br>
+
+                        <label for="achievement_is_active">Active:</label>
+                        <input type="checkbox" id="achievement_is_active" name="achievement_is_active"><br><br>
+
+                        <button type="submit">Add Achievement</button>
+                    </form>
+
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+</div>
+
