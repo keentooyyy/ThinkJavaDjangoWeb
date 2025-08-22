@@ -42,8 +42,8 @@ def student_ranking(request, teacher=None):
     # Get parameters from GET request
     department_name = request.GET.get("department")
     section_filter = request.GET.get("filter_by")
-    sort_by = request.GET.get("sort_by", "score")
-    sort_order = request.GET.get("sort_order", "desc")
+    sort_by = request.GET.get("sort_by", "")
+    sort_order = request.GET.get("sort_order", "")
     page_number = request.GET.get("page", 1)
     per_page = int(request.GET.get("per_page", 25))
     teacher_mode = request.GET.get("teacher_mode") == "1" or teacher is not None

@@ -14,133 +14,210 @@
 
 {% block content %}
     <div class="page-wrapper">
-
-        <h3>Student Performance Rankings</h3>
-        <input type="hidden" name="teacher_mode" value="{{ teacher_mode|default:'0' }}">
-        <form method="get" class="filter-form">
-            <label for="department">Department:</label>
-            <select name="department" id="department">
-                <option value="">-- All Departments --</option>
-                {% for dept in departments %}
-                    <option value="{{ dept.name }}" {% if dept.name == selected_department %}selected{% endif %}>
-                        {{ dept.name }}
-                    </option>
-                {% endfor %}
-            </select>
-
-            <label for="filter_by">Section:</label>
-            <select name="filter_by" id="filter_by">
-                <option value="">-- All Sections --</option>
-                {% for section in sections %}
-                    {% with section_key=section.year_level.year|stringformat:"s"|add:section.letter %}
-                        <option value="{{ section_key }}" {% if section_key == selected_section %}selected{% endif %}>
-                            {{ section.year_level.year }}{{ section.letter }}
-                        </option>
-                    {% endwith %}
-                {% endfor %}
-            </select>
-
-            <label for="sort_by">Sort by:</label>
-            <select name="sort_by" id="sort_by">
-                <option value="score" {% if sort_by == "score" %}selected{% endif %}>Score</option>
-                <option value="time_remaining" {% if sort_by == "time_remaining" %}selected{% endif %}>Time Remaining
-                </option>
-                <option value="achievements" {% if sort_by == "achievements" %}selected{% endif %}>Achievements</option>
-                <option value="name" {% if sort_by == "name" %}selected{% endif %}>Name</option>
-                <option value="section" {% if sort_by == "section" %}selected{% endif %}>Section</option>
-            </select>
-
-            <label for="sort_order">Order:</label>
-            <select name="sort_order" id="sort_order">
-                <option value="desc" {% if sort_order == "desc" %}selected{% endif %}>Descending</option>
-                <option value="asc" {% if sort_order == "asc" %}selected{% endif %}>Ascending</option>
-            </select>
-
-            <label for="per_page">Show:</label>
-            <select name="per_page" onchange="this.form.submit()">
-                <option value="10" {% if per_page == 10 %}selected{% endif %}>10</option>
-                <option value="25" {% if per_page == 25 %}selected{% endif %}>25</option>
-                <option value="50" {% if per_page == 50 %}selected{% endif %}>50</option>
-            </select>
-
-            <button type="submit">Apply</button>
+        <div class="row p-5">
+            <div class="card">
 
 
-        </form>
+                <div class="card-body p-5">
+                    <h6 class="mb-0 text-uppercase">Student Performance Rankings</h6>
 
-
-        <table>
-            <thead>
-            <tr>
-                <th>#</th>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>Section</th>
-                <th>Department</th>
-                <th>Year</th>
-                <th>Time Remaining</th>
-                <th>Achievements</th>
-                <th>Score</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for student in rankings %}
-                <tr>
-                    <td>{{ forloop.counter }}</td>
-                    <td>{{ student.first_name }}</td>
-                    <td>{{ student.last_name }}</td>
-                    <td>{{ student.section }}</td>
-                    <td>{{ student.department }}</td>
-                    <td>{{ student.year_level }}</td>
-                    <td>{{ student.total_time_remaining }}</td>
-                    <td>{{ student.achievements_unlocked }}</td>
-                    <td>{{ student.score }}</td>
-                </tr>
-            {% empty %}
-                <tr>
-                    <td colspan="8">No student data available.</td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-
-        {% if page_obj.has_other_pages %}
-            <div class="pagination">
-                <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
-                <div class="page-links">
-                    {% if page_obj.has_previous %}
-                        <a href="?{% if selected_department %}department={{ selected_department }}{% endif %}{% if selected_section %}&filter_by={{ selected_section }}{% endif %}{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if sort_order %}&sort_order={{ sort_order }}{% endif %}{% if per_page %}&per_page={{ per_page }}{% endif %}&page={{ page_obj.previous_page_number }}">
-                            &laquo; Prev
-                        </a>
-                    {% endif %}
-
-                    {% for num in page_obj.paginator.page_range %}
-                        {% if page_obj.number == num %}
-                            <strong>{{ num }}</strong>
-                        {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %}
-                            <a href="?{% if selected_department %}department={{ selected_department }}{% endif %}{% if selected_section %}&filter_by={{ selected_section }}{% endif %}{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if sort_order %}&sort_order={{ sort_order }}{% endif %}{% if per_page %}&per_page={{ per_page }}{% endif %}&page={{ num }}">
-                                {{ num }}
-                            </a>
+                    <div id="create_message">
+                        {% if message_container_id == 'create_message' %}
+                            {% include 'utility/alert_message.html' %}
                         {% endif %}
-                    {% endfor %}
+                    </div>
 
-                    {% if page_obj.has_next %}
-                        <a href="?{% if selected_department %}department={{ selected_department }}{% endif %}{% if selected_section %}&filter_by={{ selected_section }}{% endif %}{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if sort_order %}&sort_order={{ sort_order }}{% endif %}{% if per_page %}&per_page={{ per_page }}{% endif %}&page={{ page_obj.next_page_number }}">
-                            Next &raquo;
-                        </a>
-                    {% endif %}
+
+                    <hr>
+                    <div class="row">
+                        <div class="fw-bold mb-3">FILTERS</div>
+                        <form method="get" class="filter-form">
+                            <div class="row g-3">
+                                <div class="col-2">
+                                    <select name="department" id="department" class="form-select">
+                                        <option value="">DEPARTMENTS</option>
+                                        {% for dept in departments %}
+                                            <option value="{{ dept.name }}"
+                                                    {% if dept.name == selected_department %}selected{% endif %}>
+                                                {{ dept.name }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-2">
+                                    <select name="filter_by" id="filter_by" class="form-select">
+                                        <option value="">SECTIONS</option>
+                                        {% for section in sections %}
+                                            {% with section_key=section.year_level.year|stringformat:"s"|add:section.letter %}
+                                                <option value="{{ section_key }}"
+                                                        {% if section_key == selected_section %}selected{% endif %}>
+                                                    {{ section.year_level.year }}{{ section.letter }}
+                                                </option>
+                                            {% endwith %}
+                                        {% endfor %}
+                                    </select>
+
+                                </div>
+                                <div class="col-2">
+                                    <select name="sort_by" id="sort_by" class="form-select text-uppercase">
+                                        <option value="" {% if not sort_order %}selected{% endif %}>SORT BY</option>
+                                        <option value="score" {% if sort_by == "score" %}selected{% endif %}>SCORE
+                                        </option>
+                                        <option value="time_remaining"
+                                                {% if sort_by == "time_remaining" %}selected{% endif %}>
+                                            Time Remaining
+                                        </option>
+                                        <option value="achievements"
+                                                {% if sort_by == "achievements" %}selected{% endif %}>
+                                            Achievements
+                                        </option>
+                                        <option value="name" {% if sort_by == "name" %}selected{% endif %}>Name</option>
+                                        <option value="section" {% if sort_by == "section" %}selected{% endif %}>Section
+                                        </option>
+                                    </select>
+
+                                </div>
+                                <div class="col-2">
+                                    <select name="sort_order" id="sort_order" class="form-select text-uppercase">
+                                        <option value="" {% if not sort_order %}selected{% endif %}>ORDER BY</option>
+                                        <option value="desc" {% if sort_order == "desc" %}selected{% endif %}>Descending
+                                        </option>
+                                        <option value="asc" {% if sort_order == "asc" %}selected{% endif %}>Ascending
+                                        </option>
+                                    </select>
+
+
+                                </div>
+                                <div class="col-2">
+                                    <select name="per_page" onchange="this.form.submit()" class="form-select">
+                                        <option value="0" {% if not sort_order %}selected{% endif %}>ITEMS PER PAGE
+                                        </option>
+                                        <option value="10" {% if per_page == 10 %}selected{% endif %}>10</option>
+                                        <option value="25" {% if per_page == 25 %}selected{% endif %}>25</option>
+                                        <option value="50" {% if per_page == 50 %}selected{% endif %}>50</option>
+                                    </select>
+                                </div>
+                                <div class="col-2">
+                                    <button type="submit" class="btn btn-primary w-100"><i
+                                            class="bx bx-filter"></i>Apply
+                                    </button>
+                                </div>
+
+
+                            </div>
+
+                        </form>
+                        <div class="row mt-3">
+                            <table class="table mb-0 table-hover">
+                                <thead>
+                                <tr>
+                                    <th scope="col">Student ID</th>
+                                    <th scope="col">First Name</th>
+                                    <th scope="col">Last Name</th>
+                                    <th scope="col">Department & Section</th>
+                                    <th scope="col">Time Remaining</th>
+                                    <th scope="col">Achievements</th>
+                                    <th scope="col">Score</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for student in rankings %}
+                                    <tr>
+                                        <td>{{ student.student_id }}</td>
+                                        <td>{{ student.first_name }}</td>
+                                        <td>{{ student.last_name }}</td>
+                                        <td>{{ student.section }}</td>
+                                        <td>{{ student.total_time_remaining }}</td>
+                                        <td>{{ student.achievements_unlocked }}</td>
+                                        <td>{{ student.score }}</td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="9" class="text-center">No student data available.</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                            <div class="mt-3">
+                                {% if page_obj.has_other_pages %}
+                                    <div class="d-flex justify-content-center">
+                                        <ul class="pagination">
+                                            <!-- Previous Page Link -->
+                                            {% if page_obj.has_previous %}
+                                                <li class="page-item">
+                                                    <a class="page-link"
+                                                       href="?{% if selected_department %}department={{ selected_department }}{% endif %}{% if selected_section %}&filter_by={{ selected_section }}{% endif %}{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if sort_order %}&sort_order={{ sort_order }}{% endif %}{% if per_page %}&per_page={{ per_page }}{% endif %}&page={{ page_obj.previous_page_number }}"
+                                                       aria-label="Previous">
+                                                        <span aria-hidden="true">«</span>
+                                                    </a>
+                                                </li>
+                                            {% else %}
+                                                <li class="page-item disabled">
+                                                    <span class="page-link"><span aria-hidden="true">«</span></span>
+                                                </li>
+                                            {% endif %}
+
+                                            <!-- Page Numbers -->
+                                            {% for num in page_obj.paginator.page_range %}
+                                                {% if page_obj.number == num %}
+                                                    <!-- Current Page -->
+                                                    <li class="page-item active">
+                                                        <span class="page-link">{{ num }}</span>
+                                                    </li>
+                                                {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %}
+                                                    <!-- Other Pages -->
+                                                    <li class="page-item">
+                                                        <a class="page-link"
+                                                           href="?{% if selected_department %}department={{ selected_department }}{% endif %}{% if selected_section %}&filter_by={{ selected_section }}{% endif %}{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if sort_order %}&sort_order={{ sort_order }}{% endif %}{% if per_page %}&per_page={{ per_page }}{% endif %}&page={{ num }}">
+                                                            {{ num }}
+                                                        </a>
+                                                    </li>
+                                                {% endif %}
+                                            {% endfor %}
+
+                                            <!-- Next Page Link -->
+                                            {% if page_obj.has_next %}
+                                                <li class="page-item">
+                                                    <a class="page-link"
+                                                       href="?{% if selected_department %}department={{ selected_department }}{% endif %}{% if selected_section %}&filter_by={{ selected_section }}{% endif %}{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if sort_order %}&sort_order={{ sort_order }}{% endif %}{% if per_page %}&per_page={{ per_page }}{% endif %}&page={{ page_obj.next_page_number }}"
+                                                       aria-label="Next">
+                                                        <span aria-hidden="true">»</span>
+                                                    </a>
+                                                </li>
+                                            {% else %}
+                                                <li class="page-item disabled">
+                                                    <span class="page-link"><span aria-hidden="true">»</span></span>
+                                                </li>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
+                                    <!-- Page X of Y Information -->
+                                    <div class="text-center mt-2">
+                                        <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                        </div>
+
+                        <!-- Table with "table-hover" style and your specified columns -->
+
+
+                    </div>
+
                 </div>
+
+
             </div>
-        {% endif %}
+
+
+        </div>
+        <input type="hidden" name="teacher_mode" value="{{ teacher_mode|default:'0' }}">
 
 
     </div>
 
 
-
-    <div class="d-none">
-        {% include 'admin/add_progress.html' %}
-    </div>
 
 
 

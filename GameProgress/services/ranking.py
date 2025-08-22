@@ -35,7 +35,7 @@ def get_student_performance(student):
     total_score += achievement_bonus
 
     return {
-        "student_id": student.id,
+        "student_id": student.student_id,
         "first_name": student.first_name,
         "last_name": student.last_name,
         "section": getattr(student, "full_section", "N/A"),
