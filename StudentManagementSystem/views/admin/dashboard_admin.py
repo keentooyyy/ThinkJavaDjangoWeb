@@ -44,6 +44,10 @@ def generate_dashboard_context(admin_id, message_container_id):
     achievements_count = AchievementDefinition.objects.count()
     levels_count = LevelDefinition.objects.count()
 
+    achievements_details = AchievementDefinition.objects.values('code','title', 'is_active')
+    levels_details = LevelDefinition.objects.values('name', 'unlocked')
+
+
     # Prepare context
     context = {
         'username': admin.username,
@@ -54,9 +58,12 @@ def generate_dashboard_context(admin_id, message_container_id):
         'teacher_count': teacher_count,
         'section_count': section_count,
         'ranking_by_section': json.dumps(ranking_by_section),
-        'achievements': achievements_count,
-        'levels': levels_count,
+        'achievements_count': achievements_count,
+        'levels_count': levels_count,
         'message_container_id': message_container_id,
+        'achievements': list(achievements_details),
+        'levels': list(levels_details),
+
     }
 
     return context
@@ -90,13 +97,4 @@ def count_students(department_id=None):
     # If no department_id is provided, count all students
     return Student.objects.count()
 
-def all_achievements_and_levels():
-    # Get counts of achievements and levels
-    achievements_count = AchievementDefinition.objects.count()
-    levels_count = LevelDefinition.objects.count()
 
-    # Return the data as a dictionary (not JsonResponse)
-    return {
-        'achievements_count': achievements_count,
-        'levels_count': levels_count
-    }

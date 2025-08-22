@@ -1,3 +1,5 @@
+from concurrent.futures import ThreadPoolExecutor
+
 from django.shortcuts import get_object_or_404
 
 from GameProgress.models import (
@@ -14,11 +16,22 @@ def sync_all_students_with_all_progress():
     levels = LevelDefinition.objects.all()
     achievements = AchievementDefinition.objects.all()
 
-    for student in students:
+    # Function to sync levels and achievements for a single student
+    def sync_student_progress(student):
+        # Sync progress for all levels
         for level in levels:
             LevelProgress.objects.get_or_create(student=student, level=level)
-        for ach in achievements:
-            AchievementProgress.objects.get_or_create(student=student, achievement=ach)
+
+        # Sync progress for all achievements
+        for achievement in achievements:
+            AchievementProgress.objects.get_or_create(student=student, achievement=achievement)
+
+    # Use ThreadPoolExecutor to handle multiple students at once
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        # Submit tasks for each student
+        executor.map(sync_student_progress, students)
+
+    print("Sync completed!")
 
 
 def unlock_level(level_name):
