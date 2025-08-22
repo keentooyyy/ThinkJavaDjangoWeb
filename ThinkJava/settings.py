@@ -134,18 +134,18 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = '/'
 
 
-# #HTTPS TEST
-# # Security settings for HTTPS
-# SECURE_SSL_REDIRECT = True  # Redirect HTTP to HTTPS
-# SESSION_COOKIE_SECURE = True  # Only send cookies over HTTPS
-# CSRF_COOKIE_SECURE = True  # CSRF cookie only sent over HTTPS
-# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')  # Trust Caddy proxy headers
-#
-# # HSTS for enforced HTTPS
-# SECURE_HSTS_SECONDS = 31536000  # 1 year
-# SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-# SECURE_HSTS_PRELOAD = True
-#
-# ALLOWED_HOSTS = ['localhost', '127.0.0.1']  # Allow local development domains
+#HTTPS TEST
+# Security settings for HTTPS
+SECURE_SSL_REDIRECT = True  # Redirect HTTP to HTTPS
+SESSION_COOKIE_SECURE = True  # Only send cookies over HTTPS
+CSRF_COOKIE_SECURE = True  # CSRF cookie only sent over HTTPS
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')  # Trust Caddy proxy headers
+
+# HSTS for enforced HTTPS
+SECURE_HSTS_SECONDS = 31536000  # 1 year
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+
+ALLOWED_HOSTS = ['*']  # Allow local development domains
 #
 

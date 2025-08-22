@@ -1,81 +1,119 @@
-<div class="col-12">
+
+
+
+<div class="col-6">
     <div class="row">
-
-
-        <div class="col-6">
-            <div class="card">
-
+        <div class="col-12">
+            <div class="card radius-10">
                 <div class="card-body p-5">
-                    <h6 class="mb-0 text-uppercase">Add Level</h6>
 
+                    <h6 class="card-title text-uppercase">Add Level</h6>
 
-                    {% if message_container_id == 'list_message' %}
+                    {% if message_container_id == 'level_message' %}
                         {% include 'utility/alert_message.html' %}
                     {% endif %}
-                    <!-- For the edit form -->
-
 
                     <hr>
 
                     <form method="POST" action="{% url 'add_level' %}">
                         {% csrf_token %}
-                        <label for="level_name">Level Name:</label>
-                        <input type="text" id="level_name" name="level_name" required><br>
+                        <div class="mb-3">
+                            <label for="level_name" class="form-label">Level Name:</label>
+                            <input type="text" class="form-control" id="level_name" name="level_name" required>
+                        </div>
 
-                        <label for="level_unlocked">Unlocked:</label>
-                        <input type="checkbox" id="level_unlocked" name="level_unlocked"><br><br>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="level_unlocked"
+                                   name="level_unlocked">
+                            <label class="form-check-label" for="level_unlocked">Unlocked</label>
+                        </div>
 
-                        <button type="submit">Add Level</button>
+                        <button type="submit" class="btn btn-primary"><i class="bx bx-archive-in"></i>Add Level
+                        </button>
                     </form>
-
-
                 </div>
-
             </div>
-
-
         </div>
-        <div class="col-6">
-            <div class="card">
-
-                <div class="card-body p-5">
-                    <h6 class="mb-0 text-uppercase">Add Achievement</h6>
 
 
-                    {% if message_container_id == 'list_message' %}
-                        {% include 'utility/alert_message.html' %}
-                    {% endif %}
-                    <!-- For the edit form -->
-
-
-                    <hr>
-
-                    <form method="POST" action="{% url 'add_achievement' %}">
-                        {% csrf_token %}
-                        <label for="achievement_code">Achievement Code:</label>
-                        <input type="text" id="achievement_code" name="achievement_code" required><br>
-
-                        <label for="achievement_title">Title:</label>
-                        <input type="text" id="achievement_title" name="achievement_title" required><br>
-
-                        <label for="achievement_description">Description:</label>
-                        <textarea id="achievement_description" name="achievement_description" required></textarea><br>
-
-                        <label for="achievement_is_active">Active:</label>
-                        <input type="checkbox" id="achievement_is_active" name="achievement_is_active"><br><br>
-
-                        <button type="submit">Add Achievement</button>
-                    </form>
-
-
+        <div class="col-12">
+            <div class="card radius-10">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div>
+                            <p class="mb-0 text-secondary">Total Levels</p>
+                            <h4 class="my-1">{{ levels }}</h4>
+                        </div>
+                        <div class="text-primary ms-auto font-35"><i class="bx bx-terminal"></i>
+                        </div>
+                    </div>
                 </div>
-
             </div>
+        </div>
 
 
+        <div class="col-12">
+            <div class="card radius-10">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div>
+                            <p class="mb-0 text-secondary">Total Achievements</p>
+                            <h4 class="my-1">{{ achievements }}</h4>
+                        </div>
+                        <div class="text-primary ms-auto font-35"><i class="bx bx-trophy"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
     </div>
 
 </div>
 
+<div class="col-6">
+    <div class="card radius-10">
+        <div class="card-body p-5">
+
+
+            <h6 class="card-title text-uppercase">Add Achievement</h6>
+
+            {% if message_container_id == 'achievement_message' %}
+                {% include 'utility/alert_message.html' %}
+            {% endif %}
+            <hr>
+
+            <form method="POST" action="{% url 'add_achievement' %}">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="achievement_code" class="form-label">Achievement Code:</label>
+                    <input type="text" class="form-control" id="achievement_code" name="achievement_code"
+                           required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="achievement_title" class="form-label">Title:</label>
+                    <input type="text" class="form-control" id="achievement_title" name="achievement_title"
+                           required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="achievement_description" class="form-label">Description:</label>
+                    <textarea class="form-control" id="achievement_description" name="achievement_description"
+                              required></textarea>
+                </div>
+
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="achievement_is_active"
+                           name="achievement_is_active">
+                    <label class="form-check-label" for="achievement_is_active">Active</label>
+                </div>
+
+                <button type="submit" class="btn btn-primary"><i class="bx bx-trophy"></i>Add Achievement
+                </button>
+            </form>
+
+
+        </div>
+    </div>
+</div>

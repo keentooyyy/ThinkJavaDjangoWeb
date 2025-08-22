@@ -1,6 +1,5 @@
 from django.urls import path
 
-from StudentManagementSystem.views.admin.apis.helper_functions_admin import get_sections_by_department
 from StudentManagementSystem.views.admin.auth_admin import admin_register
 from StudentManagementSystem.views.admin.dashboard_admin import admin_dashboard
 from StudentManagementSystem.views.admin.manage_teachers import create_teacher, get_teacher_details, \
@@ -29,8 +28,7 @@ urlpatterns = [
     # Student Ranking
     path('student_rankings/', student_ranking, name='student_ranking'),
 
-    # Other Routes
-    path('get-sections-by-department/', get_sections_by_department, name='get_sections_by_department'),
+    # Other Routes,
     path('add-level/', add_level, name='add_level'),
     path('add-achievement/', add_achievement, name='add_achievement'),
 ]

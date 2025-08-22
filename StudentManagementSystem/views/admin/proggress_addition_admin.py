@@ -1,10 +1,12 @@
 from django.contrib import messages
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 
 from GameProgress.models import LevelDefinition, AchievementDefinition
 from GameProgress.services.progress import sync_all_students_with_all_progress
+from StudentManagementSystem.views.admin.dashboard_admin import generate_dashboard_context
 
 
+# Add Level View
 def add_level(request):
     if request.method == 'POST':
         # Add Level
@@ -19,16 +21,21 @@ def add_level(request):
             if created:
                 messages.success(request, f"Level '{level_name}' has been created successfully.")
                 sync_all_students_with_all_progress()  # Sync progress after adding a level
+                message_container_id = 'level_message'  # Set message container id for level
             else:
-                messages.info(request, f"Level '{level_name}' already exists.")
+                messages.error(request, f"Level '{level_name}' already exists.")
+                message_container_id = 'level_message'  # Set message container id for level
 
-                # Redirect to the admin dashboard after successful creation
-        return redirect('admin_dashboard')
+            # Use the context and re-render the admin dashboard
+            context = generate_dashboard_context(request.session.get('user_id'), message_container_id)
+            return render(request, 'admin/dashboard.html', context)
 
-            # If not POST, just redirect back to admin dashboard
-    return redirect('admin_dashboard')
+    # If not POST, just re-render the dashboard without changes
+    context = generate_dashboard_context(request.session.get('user_id'), None)
+    return render(request, 'admin/dashboard.html', context)
 
 
+# Add Achievement View
 def add_achievement(request):
     if request.method == 'POST':
         # Add Achievement
@@ -45,10 +52,23 @@ def add_achievement(request):
             if created:
                 messages.success(request, f"Achievement '{ach_title}' has been created successfully.")
                 sync_all_students_with_all_progress()  # Sync progress after adding an achievement
+                message_container_id = 'achievement_message'  # Set message container id for achievement
             else:
-                messages.info(request, f"Achievement '{ach_title}' already exists.")
+                messages.error(request, f"Achievement '{ach_title}' already exists.")
+                message_container_id = 'achievement_message'  # Set message container id for achievement
 
-        return redirect('admin_dashboard')
+            # Use the context and re-render the admin dashboard
+            context = generate_dashboard_context(request.session.get('user_id'), message_container_id)
+            return render(request, 'admin/dashboard.html', context)
 
-            # If not POST, just redirect back to admin dashboard
-    return redirect('admin_dashboard')
+    # If not POST, just re-render the dashboard without changes
+    context = generate_dashboard_context(request.session.get('user_id'), None)
+    return render(request, 'admin/dashboard.html', context)
+
+
+
+
+
+
+
+
