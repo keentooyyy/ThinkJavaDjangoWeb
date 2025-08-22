@@ -43,6 +43,7 @@ def get_teacher_context(admin_id, message_container_id='create_message'):
 
 
 
+
 def create_teacher(request):
     admin_id = request.session.get('user_id')
     if not admin_id:
@@ -67,15 +68,28 @@ def create_teacher(request):
             messages.error(request, 'Teacher ID already exists. Please choose a different ID.')
             return redirect('create_teacher')
 
-        # Check if the sections are already handled by another teacher
+        # Collect duplicate sections that are already assigned to other teachers
+        duplicate_sections = []  # List to collect duplicate sections
         for dept_id, letter in zip(dept_ids, letters):
-            department = Department.objects.get(id=dept_id)
-            section = Section.objects.get(department=department, letter=letter)
+            if dept_id and letter:  # Only process if both dept_id and letter are valid
+                try:
+                    department = Department.objects.get(id=dept_id)
+                    section = Section.objects.get(department=department, letter=letter)
 
-            if HandledSection.objects.filter(section=section).exists():
-                messages.error(request,
-                               f'The section {section.department.name}{section.year_level.year}{section.letter} is already assigned to another teacher.')
-                return redirect('create_teacher')
+                    # Check if the section is already handled by another teacher
+                    if HandledSection.objects.filter(section=section).exists():
+                        # If the section is already handled, add it to the duplicate sections list
+                        duplicate_sections.append(f"{section.department.name}{section.year_level.year}{section.letter}")
+                except (Department.DoesNotExist, Section.DoesNotExist):
+                    # Handle the case where a department or section doesn't exist
+                    messages.error(request, "One or more sections/departments do not exist. Please try again.")
+                    return redirect('create_teacher')
+
+        # If there are any duplicate sections, show an error message with all the duplicates
+        if duplicate_sections:
+            sections_str = ', '.join(duplicate_sections)
+            messages.error(request, f"The section(s) {sections_str} are already assigned to another teacher.")
+            return redirect('create_teacher')
 
         try:
             # Hash the password
@@ -124,6 +138,95 @@ def create_teacher(request):
 
 
 
+
+
+
+
+def edit_teacher(request, teacher_id):
+    admin_id = request.session.get('user_id')
+    if not admin_id:
+        return redirect('unified_login')
+
+    if request.method == 'POST':
+        # Get the teacher object based on the teacher_id
+        teacher = get_object_or_404(Teacher, id=teacher_id)
+        message_container_id = 'list_message'
+        context = get_teacher_context(admin_id, message_container_id)
+
+        # Get the data from the POST request
+        first_name = request.POST.get('first_name_modal')
+        last_name = request.POST.get('last_name_modal')
+        raw_password = request.POST.get('password_modal')  # Optional password field
+        departments = request.POST.getlist('departments[]')  # New departments added
+        letters = request.POST.getlist('letters[]')  # New section letters added
+
+        # Update teacher data (first name, last name, and password)
+        teacher.first_name = first_name
+        teacher.last_name = last_name
+
+        # If password is provided, hash and update it
+        if raw_password:
+            teacher.password = make_password(raw_password)
+
+        # Save the updated teacher object
+        teacher.save()
+
+        # Add new handled sections (department and section) if they don't already exist
+        if departments and letters:
+            duplicate_sections = []  # List to collect duplicate sections
+            sections_to_create = []  # List to store sections to create later
+
+            # First, check if the sections are already handled by another teacher
+            for dept_id, letter in zip(departments, letters):
+                if dept_id and letter:  # Only process if both dept_id and letter are valid
+                    try:
+                        department = Department.objects.get(id=dept_id)
+                        section = Section.objects.get(department=department, letter=letter)
+
+                        # Check if the section is already handled by another teacher
+                        if HandledSection.objects.filter(section=section).exists():
+                            # If the section is already handled, add it to the duplicate sections list
+                            duplicate_sections.append(f"{section.department.name}{section.year_level.year}{section.letter}")
+                        else:
+                            # If no duplicate, prepare the section for creation
+                            sections_to_create.append(section)
+
+                    except (Department.DoesNotExist, Section.DoesNotExist):
+                        # Handle the case where a department or section doesn't exist
+                        messages.error(request, "One or more sections/departments do not exist. Please try again.")
+                        return render(request, 'admin/teacher_form.html', context)
+
+            # If there are any duplicate sections, show an error message with all the duplicates
+            if duplicate_sections:
+                sections_str = ', '.join(duplicate_sections)
+                messages.error(request, f"The section(s) {sections_str} are already assigned to another teacher.")
+                return render(request, 'admin/teacher_form.html', context)
+
+            # Now, create all the new handled sections
+            for section in sections_to_create:
+                HandledSection.objects.create(
+                    teacher=teacher,
+                    section=section,
+                    department=section.department,
+                    year_level=section.year_level
+                )
+
+        # Fetch updated context with the latest teacher data
+        context = get_teacher_context(admin_id, message_container_id)
+        context['teacher'] = teacher
+
+        # On successful update, show a success message and redirect to the dashboard
+        messages.success(request, 'Teacher details updated successfully!')
+
+        return render(request, 'admin/teacher_form.html', context)
+
+    # Return error if it's not a POST request
+    messages.error(request, 'Invalid request method. Please try again.')
+    return redirect('create_teacher')
+
+
+
+
 # 2. View to fetch teacher details for the modal
 def get_teacher_details(request, teacher_id):
     teacher = get_object_or_404(Teacher, id=teacher_id)
@@ -153,73 +256,7 @@ def get_teacher_details(request, teacher_id):
     return JsonResponse(data)
 
 
-def edit_teacher(request, teacher_id):
-    admin_id = request.session.get('user_id')
-    if not admin_id:
-        return redirect('unified_login')
 
-    if request.method == 'POST':
-        # Get the teacher object based on the teacher_id
-        teacher = get_object_or_404(Teacher, id=teacher_id)
-        message_container_id = 'list_message'
-
-        # Get the data from the POST request
-        first_name = request.POST.get('first_name_modal')
-        last_name = request.POST.get('last_name_modal')
-        raw_password = request.POST.get('password_modal')  # Optional password field
-        departments = request.POST.getlist('departments[]')  # New departments added
-        letters = request.POST.getlist('letters[]')  # New section letters added
-
-        # Update teacher data (first name, last name, and password)
-        teacher.first_name = first_name
-        teacher.last_name = last_name
-
-        # If password is provided, hash and update it
-        if raw_password:
-            teacher.password = make_password(raw_password)
-
-        # Save the updated teacher object
-        teacher.save()
-
-        # Add new handled sections (department and section) if they don't already exist
-        if departments and letters:
-            for dept_id, letter in zip(departments, letters):
-                if dept_id and letter:  # Only process if both dept_id and letter are valid
-                    try:
-                        department = Department.objects.get(id=dept_id)
-                        section = Section.objects.get(department=department, letter=letter)
-
-                        # Check if any teacher is already assigned to this section
-                        if HandledSection.objects.filter(section=section).exists():
-                            # If the section is already handled, show an error message
-                            messages.error(request,
-                                           f"The section {section.department.name}{section.year_level.year}{section.letter} is already assigned to another teacher.")
-                            return redirect('create_teacher')  # Redirect to dashboard with error message
-
-                        # Create a new handled section for the teacher
-                        HandledSection.objects.create(
-                            teacher=teacher,
-                            section=section,
-                            department=department,
-                            year_level=section.year_level
-                        )
-                    except (Department.DoesNotExist, Section.DoesNotExist):
-                        # Handle the case where a department or section doesn't exist
-                        messages.error(request, "One or more sections/departments do not exist. Please try again.")
-                        return redirect('create_teacher')
-
-        # On successful update, show a success message and redirect to the dashboard
-        messages.success(request, 'Teacher details updated successfully!')
-
-        # Fetch context using the helper function for the edit case
-        context = get_teacher_context(admin_id, message_container_id)
-        context['teacher'] = teacher
-
-        return render(request, 'admin/teacher_form.html', context)
-
-    # Return error if it's not a POST request
-    messages.error(request, 'Invalid request method. Please try again.')
-    return redirect('create_teacher')
 
 
 

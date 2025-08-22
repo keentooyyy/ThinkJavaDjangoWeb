@@ -27,22 +27,19 @@
                     <td>{{ item.teacher.teacher_id }}</td>
                     <td>{{ item.teacher.first_name }}</td>
                     <td>{{ item.teacher.last_name }}</td>
-                    <td>
+                    <td style="width: 250px">
                         <!-- Display sections as a list -->
-                        <div class="bootstrap-tagsinput inline">
+                        <div class="row row-cols-3 g-1">
                             {% for section_name in item.section_names %}
-                                <span class="badge bg-primary px-3 py-2">{{ section_name }}</span>
-                                {% if forloop.counter|divisibleby:3 %}
-                                    <br>
-                                    <div class="mt-1"></div><!-- Add a line break every 3 items -->
-                                {% endif %}
+                                <div class="col">
+                                    <span class="badge bg-primary px-3 py-2 text-center w-100">{{ section_name }}</span>
+                                </div>
                             {% empty %}
-                                <span class="">No section(s) assgined.</span>
-                                <!-- If no sections, display this -->
+                                <span class="text-muted">No section(s) assigned.</span>
                             {% endfor %}
                         </div>
                     </td>
-                    <td>
+                    <td class="text-center">
                         <!-- Edit Button Triggering the Modal -->
                         <button type="button" class="btn btn-primary btn-sm"
                                 onclick="openEditModal({{ item.teacher.id }})">
@@ -56,7 +53,7 @@
                 </tr>
             {% empty %}
                 <tr>
-                    <td colspan="5">No teachers found.</td>
+                    <td colspan="5" class="text-center font-22">No teachers found.</td>
                 </tr>
             {% endfor %}
             </tbody>
@@ -188,7 +185,9 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Save changes</button>
+                    <button type="submit" class="btn btn-primary" id="save_button">
+                        Save changes
+                    </button>
                 </div>
             </form>
         </div>
@@ -341,31 +340,6 @@
             }
         }
 
-
-        $('#editTeacherForm').submit(function (event) {
-            event.preventDefault();  // Prevent the default form submission
-
-            var formData = new FormData(this);  // Create a FormData object from the form
-            var teacherId = $('#teacher_id_edit_modal').val();  // Get teacher ID from the modal
-
-            $.ajax({
-                url: '/admin_teacher/' + teacherId + '/edit/',  // Use the correct URL for editing the teacher
-                method: 'POST',
-                data: formData,  // Send the form data with the request
-                contentType: false,  // Needed to send FormData
-                processData: false,  // Needed to send FormData
-                success: function (data) {
-                    if (data.success) {
-                        location.reload();  // Optionally reload the page to reflect the changes
-                    } else {
-                        console.error('Error updating teacher.');
-                    }
-                },
-                error: function (error) {
-                    console.error('Error updating teacher:', error);
-                }
-            });
-        });
 
     </script>
 
