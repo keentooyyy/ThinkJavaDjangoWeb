@@ -13,7 +13,7 @@ from StudentManagementSystem.models.section import Section
 
 
 # Function to generate the context
-def generate_dashboard_context(admin_id, message_container_id):
+def generate_dashboard_context(admin_id):
     # Get admin details
     admin = SimpleAdmin.objects.get(id=admin_id)
 
@@ -44,8 +44,8 @@ def generate_dashboard_context(admin_id, message_container_id):
     achievements_count = AchievementDefinition.objects.count()
     levels_count = LevelDefinition.objects.count()
 
-    achievements_details = AchievementDefinition.objects.values('code','title', 'is_active')
-    levels_details = LevelDefinition.objects.values('name', 'unlocked')
+    achievements_details = AchievementDefinition.objects.values('id','code','title', 'is_active')
+    levels_details = LevelDefinition.objects.values('id','name', 'unlocked')
 
 
     # Prepare context
@@ -60,7 +60,6 @@ def generate_dashboard_context(admin_id, message_container_id):
         'ranking_by_section': json.dumps(ranking_by_section),
         'achievements_count': achievements_count,
         'levels_count': levels_count,
-        'message_container_id': message_container_id,
         'achievements': list(achievements_details),
         'levels': list(levels_details),
 
@@ -85,7 +84,7 @@ def admin_dashboard(request):
             'id': section.id,
             'letter': section.letter
         })
-    context = generate_dashboard_context(admin_id, '')
+    context = generate_dashboard_context(admin_id)
 
 
     return render(request, 'admin/dashboard.html', context)

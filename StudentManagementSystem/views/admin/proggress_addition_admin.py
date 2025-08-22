@@ -1,5 +1,6 @@
 from django.contrib import messages
-from django.shortcuts import redirect, render
+from django.http.response import JsonResponse
+from django.shortcuts import redirect, render, get_object_or_404
 
 from GameProgress.models import LevelDefinition, AchievementDefinition
 from GameProgress.services.progress import sync_all_students_with_all_progress
@@ -20,19 +21,36 @@ def add_level(request):
             )
             if created:
                 messages.success(request, f"Level '{level_name}' has been created successfully.")
-                sync_all_students_with_all_progress()  # Sync progress after adding a level
+                # sync_all_students_with_all_progress()  # Sync progress after adding a level
                 message_container_id = 'level_message'  # Set message container id for level
             else:
                 messages.error(request, f"Level '{level_name}' already exists.")
                 message_container_id = 'level_message'  # Set message container id for level
 
             # Use the context and re-render the admin dashboard
-            context = generate_dashboard_context(request.session.get('user_id'), message_container_id)
-            return render(request, 'admin/dashboard.html', context)
+            return redirect('admin_dashboard')
 
     # If not POST, just re-render the dashboard without changes
     context = generate_dashboard_context(request.session.get('user_id'), None)
     return render(request, 'admin/dashboard.html', context)
+
+
+
+
+def delete_level(request, level_id):
+    if request.method == 'POST':
+        level = get_object_or_404(LevelDefinition, id=level_id)
+
+        # Delete the level
+        level_name = level.name
+        level.delete()
+
+        # Sync progress after deleting a level
+        # sync_all_students_with_all_progress()
+
+        # Return a JsonResponse to confirm the delete operation
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False})
 
 
 # Add Achievement View
@@ -51,19 +69,36 @@ def add_achievement(request):
             )
             if created:
                 messages.success(request, f"Achievement '{ach_title}' has been created successfully.")
-                sync_all_students_with_all_progress()  # Sync progress after adding an achievement
+                # sync_all_students_with_all_progress()  # Sync progress after adding an achievement
                 message_container_id = 'achievement_message'  # Set message container id for achievement
             else:
                 messages.error(request, f"Achievement '{ach_title}' already exists.")
                 message_container_id = 'achievement_message'  # Set message container id for achievement
 
             # Use the context and re-render the admin dashboard
-            context = generate_dashboard_context(request.session.get('user_id'), message_container_id)
-            return render(request, 'admin/dashboard.html', context)
+            return redirect('admin_dashboard')
 
     # If not POST, just re-render the dashboard without changes
     context = generate_dashboard_context(request.session.get('user_id'), None)
     return render(request, 'admin/dashboard.html', context)
+
+
+
+def delete_achievement(request, achievement_id):
+    if request.method == 'POST':
+        achievement = get_object_or_404(AchievementDefinition, id=achievement_id)
+
+        # Delete the achievement
+        ach_title = achievement.title
+        achievement.delete()
+
+        # Sync progress after deleting an achievement
+        # sync_all_students_with_all_progress()
+
+        # Return a JsonResponse to confirm the delete operation
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False})
+
 
 
 

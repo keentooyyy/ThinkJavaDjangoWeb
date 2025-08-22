@@ -28,7 +28,35 @@
             </form>
         </div>
     </div>
+
+
+    <div class="card radius-10">
+        <div class="card-body p-5">
+
+            <div class="row ">
+                <h6 class="card-title text-center">FORCE EVERYONE SYNC</h6>
+
+
+                <div class="col">
+
+                    <form method="POST" action="">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary w-100"><i class="bx bx-sync"></i>Start Syncing
+                        </button>
+                    </form>
+
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+    </div>
 </div>
+
+
 <div class="col-6">
     <div class="card radius-10">
         <div class="card-body p-5">
@@ -120,33 +148,29 @@
                 <thead>
                 <tr>
                     <th scope="col">Level Name</th>
-                    <th scope="col">Unlocked</th>
+                    <th scope="col">Level Status</th>
                     <th scope="col">Actions</th> <!-- Added an Actions column -->
                 </tr>
                 </thead>
                 <tbody>
                 {% for level in levels %}
-                    <tr>
+                    <tr id="level_{{ level.id }}">
                         <td>{{ level.name }}</td>
                         <td>
-                    <span class="badge {% if level.unlocked %} bg-success bg-opacity-50 {% else %} bg-danger bg-opacity-50 {% endif %} px-3 py-2 text-white">
-                        {% if level.unlocked %}
-                            Yes
-                        {% else %}
-                            No
-                        {% endif %}
-                    </span>
+        <span class="badge {% if level.unlocked %} bg-success bg-opacity-50 {% else %} bg-dark bg-opacity-50 {% endif %} text-white">
+            {% if level.unlocked %}
+                Unlocked
+            {% else %}
+                Locked
+            {% endif %}
+        </span>
                         </td>
                         <td>
-                            <!-- Edit Button -->
-                            <button class="btn btn-warning btn-sm">Edit</button>
-
-                            <!-- Delete Button -->
-                            <button class="btn btn-danger btn-sm"
-                                    onclick="return confirm('Are you sure you want to delete this level?')">Delete
-                            </button>
+                            <!-- Delete Button for Level -->
+                            <button class="btn btn-danger btn-sm" onclick="deleteLevel({{ level.id }})">Delete</button>
                         </td>
                     </tr>
+
                 {% endfor %}
                 </tbody>
             </table>
@@ -176,28 +200,26 @@
                 </thead>
                 <tbody>
                 {% for achievement in achievements %}
-                    <tr>
+                    <tr id="achievement_{{ achievement.id }}">
                         <td>{{ achievement.code }}</td>
                         <td>{{ achievement.title }}</td>
                         <td>
-                    <span class="badge {% if achievement.is_active %} bg-success bg-opacity-50 {% else %} bg-danger bg-opacity-50{% endif %} px-3 py-2 text-white">
-                        {% if achievement.is_active %}
-                            Obtainable
-                        {% else %}
-                            Unobtainable
-                        {% endif %}
-                    </span>
+        <span class="badge {% if achievement.is_active %} bg-success bg-opacity-50 {% else %} bg-dark bg-opacity-50 {% endif %} text-white">
+            {% if achievement.is_active %}
+                Obtainable
+            {% else %}
+                Unobtainable
+            {% endif %}
+        </span>
                         </td>
                         <td>
-                            <!-- Edit Button -->
-                            <button class="btn btn-warning btn-sm">Edit</button>
-
-                            <!-- Delete Button -->
-                            <button class="btn btn-danger btn-sm"
-                                    onclick="return confirm('Are you sure you want to delete this achievement?')">Delete
+                            <!-- Delete Button for Achievement -->
+                            <button class="btn btn-danger btn-sm" onclick="deleteAchievement({{ achievement.id }})">
+                                Delete
                             </button>
                         </td>
                     </tr>
+
                 {% endfor %}
                 </tbody>
             </table>
@@ -206,3 +228,61 @@
         </div>
     </div>
 </div>
+
+
+
+
+{% block script %}
+
+    <script>
+        function deleteLevel(level_id) {
+            if (confirm('Are you sure you want to delete this level?')) {
+                $.ajax({
+                    url: '/delete_level/' + level_id + '/',  // Delete level URL
+                    type: 'POST',
+                    data: {
+                        'csrfmiddlewaretoken': '{{ csrf_token }}',  // CSRF token
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            $('#level_' + level_id).remove();  // Remove the row from the table
+                            location.reload()
+                        } else {
+                            alert('There was an error deleting the level.');
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        alert('There was an error deleting the level.');
+                    }
+                });
+            }
+        }
+
+        function deleteAchievement(achievement_id) {
+            if (confirm('Are you sure you want to delete this achievement?')) {
+                $.ajax({
+                    url: '/delete_achievement/' + achievement_id + '/',  // Delete achievement URL
+                    type: 'POST',
+                    data: {
+                        'csrfmiddlewaretoken': '{{ csrf_token }}',  // CSRF token
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            $('#achievement_' + achievement_id).remove();  // Remove the row from the table
+                            location.reload()
+                        } else {
+                            alert('There was an error deleting the achievement.');
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        alert('There was an error deleting the achievement.');
+                    }
+                });
+            }
+        }
+
+    </script>
+
+
+
+{% endblock %}

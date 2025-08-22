@@ -50,8 +50,8 @@ def lock_level(level_name):
 
 def add_level(name, unlocked=False):
     level, created = LevelDefinition.objects.get_or_create(name=name, defaults={"unlocked": unlocked})
-    if created:
-        sync_all_students_with_all_progress()
+    # if created:
+    #     sync_all_students_with_all_progress()
     return level
 
 
@@ -60,9 +60,9 @@ def add_achievement(code, title, description):
         code=code,
         defaults={"title": title, "description": description, "is_active": True}
     )
-    if created:
-        sync_all_students_with_all_progress()
-    return achievement
+    # if created:
+    #     sync_all_students_with_all_progress()
+    # return achievement
 
 
 def lock_all_levels():
