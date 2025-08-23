@@ -4,8 +4,12 @@
 
             <h6 class="card-title text-uppercase">Add Level</h6>
 
-            {% if message_container_id == 'level_message' %}
-                {% include 'utility/alert_message.html' %}
+            {% if messages %}
+                {% for message in messages %}
+                    {% if 'level_message' in message.tags %}
+                        {% include 'utility/alert_message.html' %}
+                    {% endif %}
+                {% endfor %}
             {% endif %}
 
             <hr>
@@ -37,9 +41,17 @@
                 <h6 class="card-title text-center">FORCE EVERYONE SYNC</h6>
 
 
+                {% if messages %}
+                    {% for message in messages %}
+                        {% if 'sync_message' in message.tags %}
+                            {% include 'utility/alert_message.html' %}
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+
                 <div class="col">
 
-                    <form method="POST" action="">
+                    <form method="POST" action="{% url 'force_sync' %}">
                         {% csrf_token %}
                         <button type="submit" class="btn btn-primary w-100"><i class="bx bx-sync"></i>Start Syncing
                         </button>
@@ -64,8 +76,12 @@
 
             <h6 class="card-title text-uppercase">Add Achievement</h6>
 
-            {% if message_container_id == 'achievement_message' %}
-                {% include 'utility/alert_message.html' %}
+            {% if messages %}
+                {% for message in messages %}
+                    {% if 'achievement_message' in message.tags %}
+                        {% include 'utility/alert_message.html' %}
+                    {% endif %}
+                {% endfor %}
             {% endif %}
             <hr>
 

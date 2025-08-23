@@ -1,3 +1,5 @@
+from tkinter.font import names
+
 from django.urls import path
 
 from StudentManagementSystem.views.admin.auth_admin import admin_register
@@ -5,7 +7,7 @@ from StudentManagementSystem.views.admin.dashboard_admin import admin_dashboard
 from StudentManagementSystem.views.admin.manage_teachers import create_teacher, get_teacher_details, \
     edit_teacher, remove_section, delete_teacher
 from StudentManagementSystem.views.admin.proggress_addition_admin import add_achievement, add_level, delete_achievement, \
-    delete_level
+    delete_level, force_sync_everyone
 from StudentManagementSystem.views.admin.ranking_students import student_ranking
 from StudentManagementSystem.views.auth_unified import unified_login, unified_logout
 
@@ -32,7 +34,7 @@ urlpatterns = [
     # Game Progression Routes,
     path('add-level/', add_level, name='add_level'),
     path('add-achievement/', add_achievement, name='add_achievement'),
-
-    path('delete_level/<int:level_id>/',    delete_level, name='delete_level'),
+    path('delete_level/<int:level_id>/', delete_level, name='delete_level'),
     path('delete_achievement/<int:achievement_id>/', delete_achievement, name='delete_achievement'),
+    path('force_sync/', force_sync_everyone, name='force_sync'),
 ]

@@ -1,3 +1,4 @@
+from django.http.response import JsonResponse
 from django.shortcuts import render
 from django.core.paginator import Paginator
 from django.http import HttpResponseForbidden
@@ -31,8 +32,7 @@ def get_user_context(request):
             return {}  # If the user is neither an admin nor a teacher, return an empty dictionary
 
 
-
-def student_ranking(request, teacher=None):
+def student_ranking(request):
     # Check for admin or teacher roles
     user_context = get_user_context(request)
     role = user_context.get('role')
@@ -46,17 +46,18 @@ def student_ranking(request, teacher=None):
     sort_order = request.GET.get("sort_order", "")
     page_number = request.GET.get("page", 1)
     per_page = int(request.GET.get("per_page", 25))
-    teacher_mode = request.GET.get("teacher_mode") == "1" or teacher is not None
 
     departments = Department.objects.all().order_by("name")
     limit_to_students = None
 
-    # Handle teacher mode logic
-    if teacher_mode and teacher:
-        handled_sections = teacher.handled_sections.select_related("year_level", "section", "department")
+    # Handle teacher-specific logic or show all sections for admin
+    if role == Role.TEACHER:
+        # Get the sections handled by the teacher
+        handled_sections = user_context.get('teacher').handled_sections.select_related("year_level", "section", "department")
 
         all_handled_section_ids = [hs.section.id for hs in handled_sections]
 
+        # Filter the sections based on the department if a department is specified
         if department_name and department_name.lower() != "all":
             filtered_section_ids = [
                 hs.section.id for hs in handled_sections if hs.department.name == department_name
@@ -64,10 +65,17 @@ def student_ranking(request, teacher=None):
         else:
             filtered_section_ids = all_handled_section_ids
 
+        # Query the sections for the teacher's handled sections only
         sections = Section.objects.filter(id__in=filtered_section_ids).select_related('year_level') \
             .order_by('year_level__year', 'letter')
 
+        # Limit the students to those in the handled sections
+        limit_to_students = Student.objects.filter(
+            section__id__in=filtered_section_ids
+        ).values_list('id', flat=True)
+
     else:
+        # For admin role, show all sections
         if department_name and department_name.lower() != "all":
             sections = Section.objects.filter(department__name=department_name) \
                 .select_related("year_level").order_by("year_level__year", "letter")
@@ -84,11 +92,7 @@ def student_ranking(request, teacher=None):
 
     sections = unique_sections
 
-    if teacher_mode and teacher:
-        limit_to_students = Student.objects.filter(
-            section__id__in=filtered_section_ids
-        ).values_list('id', flat=True)
-
+    # Get the rankings based on the filtering
     rankings = get_all_student_rankings(
         sort_by=sort_by,
         sort_order=sort_order,
@@ -111,9 +115,10 @@ def student_ranking(request, teacher=None):
         'sort_by': sort_by,
         'sort_order': sort_order,
         'per_page': per_page,
-        'teacher_mode': teacher_mode,
         'username': user_context['username'],
         'role': user_context['role'],
     }
 
     return render(request, 'admin/student_ranking.html', context)
+
+
