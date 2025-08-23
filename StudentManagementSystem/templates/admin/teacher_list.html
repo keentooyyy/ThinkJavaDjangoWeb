@@ -4,8 +4,12 @@
 
         <!-- For the edit form -->
         <div id="list_message">
-            {% if message_container_id == 'list_message' %}
-                {% include 'utility/alert_message.html' %}
+            {% if messages %}
+                {% for message in messages %}
+                    {% if 'list_message' in message.tags %}
+                        {% include 'utility/alert_message.html' %}
+                    {% endif %}
+                {% endfor %}
             {% endif %}
         </div>
 

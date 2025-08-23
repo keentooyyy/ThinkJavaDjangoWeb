@@ -1,12 +1,12 @@
 <!-- alert_message.html -->
 {% if messages %}
     {% for message in messages %}
-        <div class="my-5 alert alert-primary border-0 {% if message.tags == 'success' %}bg-success{% elif message.tags == 'error' %}bg-danger{% else %}bg-warning{% endif %} alert-dismissible fade show">
+        <div class="my-5 alert alert-primary border-0 {% if 'success' in message.tags %}bg-success{% elif 'error' in message.tags %}bg-danger{% else %}bg-warning{% endif %} alert-dismissible fade show">
             <div class="d-flex align-items-center">
                 <div class="font-35 text-white">
-                    {% if message.tags == 'success' %}
+                    {% if 'success' in message.tags %}
                         <i class="bx bx-check-circle"></i>
-                    {% elif message.tags == 'error' %}
+                    {% elif 'error' in message.tags %}
                         <i class="bx bx-info-circle"></i>
                     {% else %}
                         <i class="bx bx-exclamation-circle"></i>
@@ -20,3 +20,4 @@
         </div>
     {% endfor %}
 {% endif %}
+
