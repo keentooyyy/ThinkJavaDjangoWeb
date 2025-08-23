@@ -74,10 +74,21 @@ WSGI_APPLICATION = 'ThinkJava.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'thinkjava',
+        'USER': 'postgres',
+        'PASSWORD': '123',
+        'HOST': 'localhost',  # Or your PostgreSQL host
+        'PORT': '5432',       # Default PostgreSQL port
     }
 }
 
