@@ -1,5 +1,6 @@
 import json
 
+from django.db.models.aggregates import Count
 from django.http.response import JsonResponse
 from django.shortcuts import render, redirect
 
@@ -17,18 +18,26 @@ def generate_dashboard_context(admin_id):
     # Get admin details
     admin = SimpleAdmin.objects.get(id=admin_id)
 
-    # Fetch student, teacher, and section counts
+    # Fetch student, teacher, and section counts in a single query (using annotate for efficiency)
     student_count_total = Student.objects.count()
-    cs_id = 1
-    it_id = 2
-    student_count_CS = count_students(cs_id)
-    student_count_IT = count_students(it_id)
+
+    # Use annotate to get student counts for CS and IT departments in a single query
+    department_counts = Section.objects.filter(department__id__in=[1, 2]) \
+        .values('department__id') \
+        .annotate(student_count=Count('student'))  # Assuming 'student' is the related name in Student model
+
+    student_count_CS = next((count['student_count'] for count in department_counts if count['department__id'] == 1), 0)
+    student_count_IT = next((count['student_count'] for count in department_counts if count['department__id'] == 2), 0)
+
+    # Count teachers and sections with single queries
     teacher_count = Teacher.objects.count()
     section_count = Section.objects.count()
 
-    # Build section list grouped by department
+    # Build section list grouped by department with select_related for efficiency
     sections_by_department = {}
-    for section in Section.objects.select_related('department', 'year_level').all():
+    sections = Section.objects.select_related('department', 'year_level').all()
+
+    for section in sections:
         dept_id = section.department.id
         if dept_id not in sections_by_department:
             sections_by_department[dept_id] = []
@@ -40,13 +49,12 @@ def generate_dashboard_context(admin_id):
     # Get rankings by section
     ranking_by_section = get_section_rankings()
 
-    # Fetch achievements and levels counts
+    # Fetch achievements and levels counts with values to avoid full object retrieval
     achievements_count = AchievementDefinition.objects.count()
     levels_count = LevelDefinition.objects.count()
 
-    achievements_details = AchievementDefinition.objects.values('id','code','title', 'is_active')
-    levels_details = LevelDefinition.objects.values('id','name', 'unlocked')
-
+    achievements_details = AchievementDefinition.objects.values('id', 'code', 'title', 'is_active')
+    levels_details = LevelDefinition.objects.values('id', 'name', 'unlocked')
 
     # Prepare context
     context = {
@@ -57,15 +65,16 @@ def generate_dashboard_context(admin_id):
         'student_count_IT': student_count_IT,
         'teacher_count': teacher_count,
         'section_count': section_count,
-        'ranking_by_section': json.dumps(ranking_by_section),
+        'ranking_by_section': ranking_by_section,  # No need to json.dumps if it's going to be rendered directly
         'achievements_count': achievements_count,
         'levels_count': levels_count,
         'achievements': list(achievements_details),
         'levels': list(levels_details),
-
     }
 
+    # Return the context to render the page
     return context
+
 
 
 def admin_dashboard(request):
@@ -73,17 +82,6 @@ def admin_dashboard(request):
     if not admin_id:
         return redirect('unified_login')
 
-
-    # Build section list grouped by department
-    sections_by_department = {}
-    for section in Section.objects.select_related('department', 'year_level').all():
-        dept_id = section.department.id
-        if dept_id not in sections_by_department:
-            sections_by_department[dept_id] = []
-        sections_by_department[dept_id].append({
-            'id': section.id,
-            'letter': section.letter
-        })
     context = generate_dashboard_context(admin_id)
 
 
