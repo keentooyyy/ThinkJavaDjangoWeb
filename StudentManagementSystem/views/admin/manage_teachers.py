@@ -224,7 +224,7 @@ def edit_teacher(request, teacher_id):
 
 
 # 2. View to fetch teacher details for the modal
-def get_teacher_details(teacher_id):
+def get_teacher_details(request,teacher_id):
     teacher = get_object_or_404(Teacher, id=teacher_id)
 
     handled_sections = teacher.handled_sections.all()  # Fetch the handled sections for this teacher

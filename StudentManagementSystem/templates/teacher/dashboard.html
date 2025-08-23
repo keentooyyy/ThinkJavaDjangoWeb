@@ -4,17 +4,24 @@
 
 
 {% block content %}
-    <p><a href="{% url 'unified_logout' %}">Logout</a></p>
-    {% include 'teacher/teacher_info.html' %}
+    <div class="page-wrapper">
 
-    {% if messages %}
-        {% for message in messages %}
-            <p class="message {{ message.tags }}">{{ message }}</p>
-        {% endfor %}
-    {% endif %}
-    {% include 'teacher/handled_sections.html' %}
-    {% include 'admin/student_ranking.html' %}
-    {% include 'teacher/register_student.html' %}
-    {% include 'teacher/generate_section_code.html' %}
-    {% include 'teacher/progress_control.html' %}
+
+        <p><a href="{% url 'unified_logout' %}">Logout</a></p>
+        {% include 'teacher/teacher_info.html' %}
+
+        {% if messages %}
+            {% for message in messages %}
+                <p class="message {{ message.tags }}">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+        {% include 'teacher/handled_sections.html' %}
+        {% include 'admin/student_ranking.html' %}
+        {% include 'teacher/register_student.html' %}
+        {% include 'teacher/generate_section_code.html' %}
+        {% include 'teacher/progress_control.html' %}
+
+
+    </div>
+
 {% endblock %}
