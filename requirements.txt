@@ -5,6 +5,7 @@ shellingham~=1.5.4
 Django~=5.2.5
 asgiref~=3.9.1
 sqlparse~=0.5.3
+psycopg2~=2.9.10
 colorama~=0.4.6
 requests~=2.32.4
 semver~=3.0.4
