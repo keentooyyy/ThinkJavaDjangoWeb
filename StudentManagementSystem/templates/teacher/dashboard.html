@@ -64,3 +64,64 @@
 {% endblock %}
 
 
+{% block scripts %}
+
+
+    <script>
+        {#Highcharts.chart('chart1', {#}
+        {#    chart: {#}
+        {#        type: 'pie',#}
+        {#        height: 230#}
+        {#    },#}
+        {#    title: {#}
+        {#        text: 'Sample Pie Chart Later'#}
+        {#    },#}
+        {#    series: [{#}
+        {#        name: 'Market Share',#}
+        {#        data: [#}
+        {#            {name: 'Chrome', y: 61.4},#}
+        {#            {name: 'Internet Explorer', y: 11.8},#}
+        {#            {name: 'Firefox', y: 10.9},#}
+        {#            {name: 'Edge', y: 4.7},#}
+        {#            {name: 'Safari', y: 4.2},#}
+        {#            {name: 'Sogou Explorer', y: 1.6},#}
+        {#            {name: 'Opera', y: 1.6},#}
+        {#            {name: 'QQ', y: 1.2},#}
+        {#            {name: 'Other', y: 2.6}#}
+        {#        ]#}
+        {#    }]#}
+        {#        });#}
+
+        Highcharts.chart('chart1', {
+            chart: {
+                type: 'pie',
+                height: 230,
+            },
+            title: {
+                text: 'Temporary Pie Chart'
+            },
+            plotOptions: {
+                pie: {
+                    dataLabels: {
+                        enabled: false // Disable all data labels
+                    }
+                }
+            },
+
+            series: [{
+                name: 'Market Share',
+                data: [
+                    {name: 'Chrome', y: 61.4},
+                    {name: 'Internet Explorer', y: 11.8},
+                    {name: 'Firefox', y: 10.9},
+                    {name: 'Edge', y: 4.7},
+                    {name: 'Safari', y: 4.2},
+                    {name: 'Other', y: 7.05}
+                ]
+            }]
+        });
+    </script>
+
+{% endblock %}
+
+

@@ -5,46 +5,87 @@
 {#</h2>#}
 {#<p>This is your dashboard. Below are the top student performances.</p>#}
 
-{#<div class="row p-5">#}
-{##}
-{#    <div class="col">#}
-{#        <div class="card">#}
-{#            <div class="card-body">#}
-{##}
-{##}
-{#            </div>#}
-{#        </div>#}
-{##}
-{##}
-{#    </div>#}
-{##}
-{#</div>#}
 
 <div class="row p-5">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body p-5">
+                <h3>Welcome, <span class="text-primary">{{ teacher.first_name }} {{ teacher.last_name }}</span></h3>
+                <hr>
 
-    <div class="card">
-        <div class="card-body">
-            <h3>Welcome, <span class="text-primary">{{ teacher.first_name }} {{ teacher.last_name }}</span></h3>
-            <hr>
+
+                <div class="row">
+                    <div class="col d-flex justify-content-between align-items-center">
+                        <span class="font-24">Handled Sections</span>
+                        <ul class="">
+                            {% for hs in handled_sections %}
+                                <span class="badge bg-primary px-3 py-2 text-center">{{ hs.department.name }}{{ hs.year_level.year }}{{ hs.section.letter }}</span>
+                            {% empty %}
+                                <li>No sections assigned.</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
 
 
-            <div class="row">
-                <div class="col d-flex justify-content-between align-items-center">
-                    <span class="font-24">Handled Sections</span>
-                    <ul class="">
-                        {% for hs in handled_sections %}
-                            <span class="badge bg-primary px-3 py-2 text-center">{{ hs.department.name }}{{ hs.year_level.year }}{{ hs.section.letter }}</span>
-                        {% empty %}
-                            <li>No sections assigned.</li>
-                        {% endfor %}
-                    </ul>
                 </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="col-6 ">
+        <div class="card radius-10" style="">
+            <div class="card-body ">
+                <div id="chart1"></div>
 
 
             </div>
         </div>
+    </div>
+    <div class="col-6">
+        <div class="row">
+            <div class="col-12 ">
+
+                <div class="card radius-10">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div>
+                                <p class="mb-0 text-secondary">Total IT Sections Handled</p>
+                                <h4 class="my-1">29 TEMP</h4>
+                            </div>
+                            <div class="text-primary ms-auto font-35"><i class="lni lni-users"></i>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-12">
+
+                <div class="card radius-10">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div>
+                                <p class="mb-0 text-secondary">Total CS Sections Handled</p>
+                                <h4 class="my-1">29 TEMP</h4>
+                            </div>
+                            <div class="text-primary ms-auto font-35"><i class="lni lni-users"></i>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
 
     </div>
 
-
 </div>
+
+
+
+
+
+
+
