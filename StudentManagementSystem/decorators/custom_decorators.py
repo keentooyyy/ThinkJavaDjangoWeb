@@ -11,7 +11,7 @@ def session_login_required(role=None):
             user_role = request.session.get('role')
 
             if not user_id or (role and user_role != role):
-                return redirect('unified_login')
+                return redirect('unified_logout')
 
             return view_func(request, *args, **kwargs)
         return _wrapped_view

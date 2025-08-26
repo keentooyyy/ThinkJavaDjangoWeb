@@ -66,13 +66,40 @@
 
                             {% endif %}
 
-                            <li>
-                                <a href="{% url 'student_ranking' %}">
-                                    <div class="parent-icon"><i class="bx bx-bar-chart-square"></i>
-                                    </div>
-                                    <div class="menu-title">Student Ranks</div>
-                                </a>
-                            </li>
+
+
+
+                            {% if request.session.role == 'TEACHER' %}
+
+                                <li>
+                                    <a href="javascript:;" class="has-arrow">
+                                        <div class="parent-icon"><i class="bx bx-edit"></i>
+                                        </div>
+                                        <div class="menu-title">Manage Students</div>
+                                    </a>
+                                    <ul class="mm-collapse">
+                                        <li><a href="{% url 'register_student' %}"><i class="bx bx-right-arrow-alt"></i>Add
+                                            New Student</a>
+                                        </li>
+                                        <li><a href="#"><i
+                                                class="bx bx-right-arrow-alt"></i>List of Students</a>
+                                        </li>
+
+                                    </ul>
+                                </li>
+
+                            {% endif %}
+
+
+                            {% if request.session.role == 'ADMIN' %}
+                                <li>
+                                    <a href="{% url 'student_ranking' %}">
+                                        <div class="parent-icon"><i class="bx bx-bar-chart-square"></i>
+                                        </div>
+                                        <div class="menu-title">Student Ranks</div>
+                                    </a>
+                                </li>
+                            {% endif %}
 
 
                             <li class="mt-auto">

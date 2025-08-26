@@ -1,52 +1,87 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block title %}Admin Dashboard{% endblock %}
+
+
+{% block sidebar %}{% include 'sidebar.html' %} {% endblock %}
+
+
+{% block header %} {% include 'header.html' %} {% endblock %}
+
+
+
+{% block content %}
+    <div class="page-wrapper">
+        <h3>Register New Student</h3>
+
+
+        <form method="post" action="{% url 'register_student' %}">
+            {% csrf_token %}
+            <div>
+                <label for="student_id">Student ID:</label>
+                <input type="text" name="student_id" id="student_id" required>
+            </div>
+
+            <div>
+                <label for="first_name">First Name:</label>
+                <input type="text" name="first_name" id="first_name" required>
+            </div>
+
+            <div>
+                <label for="last_name">Last Name</label>
+                <input type="text" name="last_name" id="last_name" required>
+            </div>
+
+            {#        <div>#}
+            {#            <label for="password">Password:</label>#}
+            {#            <input type="password" name="password" id="password" required>#}
+            {#        </div>#}
+
+
+            {#<p>{{ handled_sections }}</p>#}
+
+            <div>
+                <label for="section_id">Assign to Section:</label>
+                <select name="section_id" id="section_id" required>
+                    {% for hs in handled_sections %}
+                        <option value="{{ hs.section.id }}">
+                            {{ hs.department.name }}{{ hs.year_level.year }}{{ hs.section.letter }}
+                        </option>
+                    {% empty %}
+                        <option disabled>No sections available</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <button type="submit">Register Student</button>
+        </form>
+    </div>
+
+
+
+
+
+
+{% endblock %}
+
+
+
+
+{% block footer %}
+    {% include 'footer.html' %}
+{% endblock %}
+
+
+
+
 
 
 
 
 {% block register_student %}
-    <h3>Register New Student</h3>
 
-
-
-    <form method="post" action="{% url 'register_student_teacher' %}">
-        {% csrf_token %}
-        <div>
-            <label for="student_id">Student ID:</label>
-            <input type="text" name="student_id" id="student_id" required>
-        </div>
-
-        <div>
-            <label for="student_id">First Name:</label>
-            <input type="text" name="student_id" id="student_id" required>
-        </div>
-
-        <div>
-            <label for="student_id">Last Name</label>
-            <input type="text" name="student_id" id="student_id" required>
-        </div>
-
-        {#        <div>#}
-        {#            <label for="password">Password:</label>#}
-        {#            <input type="password" name="password" id="password" required>#}
-        {#        </div>#}
-
-
-        {#<p>{{ handled_sections }}</p>#}
-
-        <div>
-            <label for="section_id">Assign to Section:</label>
-            <select name="section_id" id="section_id" required>
-                {% for hs in handled_sections %}
-                    <option value="{{ hs.section.id }}">
-                        {{ hs.department.name }}{{ hs.year_level.year }}{{ hs.section.letter }}
-                    </option>
-                {% empty %}
-                    <option disabled>No sections available</option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <button type="submit">Register Student</button>
-    </form>
 {% endblock %}
 
 
