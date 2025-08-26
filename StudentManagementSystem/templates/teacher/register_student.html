@@ -14,49 +14,126 @@
 
 {% block content %}
     <div class="page-wrapper">
-        <h3>Register New Student</h3>
+        <div class="row p-5">
+            <div class="col-12">
 
 
-        <form method="post" action="{% url 'register_student' %}">
-            {% csrf_token %}
-            <div>
-                <label for="student_id">Student ID:</label>
-                <input type="text" name="student_id" id="student_id" required>
+                <div class="card radius-10">
+
+                    <div class="card-body p-5">
+                        <h4>Register New Student</h4>
+                        <hr>
+
+                        <div id="create_message">
+                            {% if messages %}
+                                {% for message in messages %}
+                                    {% if 'create_message' in message.tags %}
+                                        {% include 'utility/alert_message.html' %}
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+
+                        <form method="post" action="{% url 'register_student' %}">
+                            {% csrf_token %}
+
+
+                            <div class="row">
+
+                                <div class="col-4">
+                                    <p class="font-16">Student ID:</p>
+                                </div>
+                                <div class="col-8">
+                                    <div class="input-group mb-3">
+                                        <input name="student_id" id="student_id" class="form-control" type="text"
+                                               placeholder="Student ID"
+                                               aria-label="Student ID" required>
+                                        <button class="btn btn-outline-primary" type="button" id="button-addon2">
+                                            Generate ID
+                                        </button>
+                                    </div>
+
+                                </div>
+                            </div>
+
+
+                            <div class="row">
+                                <div class="col-4">
+                                    <p class="font-16">Full Name:</p>
+                                </div>
+                                <div class="col-8">
+                                    <div class="row">
+                                        <div class="col">
+                                            <input name="first_name" id="first_name" class="form-control mb-3"
+                                                   type="text"
+                                                   placeholder="First Name"
+                                                   aria-label="default input example" required>
+
+                                        </div>
+                                        <div class="col">
+                                            <input name="last_name" id="last_name" class="form-control mb-3" type="text"
+                                                   placeholder="Last Name"
+                                                   aria-label="default input example" required>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="row">
+                                <div class="col-4">
+                                    <p class="font-16">Password:</p>
+                                </div>
+                                <div class="col-8">
+                                    <div class="input-group mb-3">
+                                        <input name="password" id="password" class="form-control" type="password"
+                                               placeholder="Password"
+                                               aria-label="Password" value="123">
+                                        <a href="javascript:;" class="input-group-text bg-transparent"
+                                           id="togglePassword"><i
+                                                class="bx bx-hide"></i></a>
+                                    </div>
+
+                                </div>
+
+                                <input type="hidden" name="year_level" value="1" class="d-none">
+                            </div>
+
+
+                            <div class="row">
+
+                                <div class="col-4">
+                                    <label for="section_id">Assign to Section:</label>
+                                </div>
+                                <div class="col-8"><select name="section_id" id="section_id" class="form-select"
+                                                           required>
+                                    {% for hs in handled_sections %}
+                                        <option value="{{ hs.section.id }}">
+                                            {{ hs.department.name }}{{ hs.year_level.year }}{{ hs.section.letter }}
+                                        </option>
+                                    {% empty %}
+                                        <option disabled>No sections available</option>
+                                    {% endfor %}
+                                </select></div>
+
+
+                            </div>
+
+                            <button type="submit" class="btn btn-primary float-end mt-3"><i class="bx bxs-user mr-1"></i>Register Student</button>
+                        </form>
+
+
+                    </div>
+                </div>
+
+
             </div>
 
-            <div>
-                <label for="first_name">First Name:</label>
-                <input type="text" name="first_name" id="first_name" required>
-            </div>
 
-            <div>
-                <label for="last_name">Last Name</label>
-                <input type="text" name="last_name" id="last_name" required>
-            </div>
-
-            {#        <div>#}
-            {#            <label for="password">Password:</label>#}
-            {#            <input type="password" name="password" id="password" required>#}
-            {#        </div>#}
+        </div>
 
 
-            {#<p>{{ handled_sections }}</p>#}
-
-            <div>
-                <label for="section_id">Assign to Section:</label>
-                <select name="section_id" id="section_id" required>
-                    {% for hs in handled_sections %}
-                        <option value="{{ hs.section.id }}">
-                            {{ hs.department.name }}{{ hs.year_level.year }}{{ hs.section.letter }}
-                        </option>
-                    {% empty %}
-                        <option disabled>No sections available</option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <button type="submit">Register Student</button>
-        </form>
     </div>
 
 
@@ -82,6 +159,41 @@
 
 {% block register_student %}
 
+{% endblock %}
+
+{% block scripts %}
+
+
+
+    <script>
+        $(document).ready(function () {
+            $('#togglePassword').click(function () {
+                var input = $('#password');
+                var type = input.attr('type') === 'password' ? 'text' : 'password';
+                input.attr('type', type);
+
+                // Toggle the icon
+                $(this).find('i').toggleClass('bx-hide bx-show');
+            });
+        });
+    </script>
+
+
+
+
+    <script>
+        $(document).ready(function () {
+            $('#button-addon2').click(function () {
+                var currentYear = new Date().getFullYear(); // Get the current year
+                var randomPart1 = Math.floor(Math.random() * 9000 + 1000); // Generate a 4-digit random number between 1000 and 9999
+                var randomPart2 = Math.floor(Math.random() * 900 + 100); // Generate a 3-digit random number between 100 and 999
+                var teacherId = currentYear.toString().slice(-2) + '-' + randomPart1 + '-' + randomPart2; // Format as xx-xxxx-xxx
+
+                $('#student_id').val(teacherId); // Set the generated ID into the input field
+            });
+        });
+
+    </script>
 {% endblock %}
 
 
