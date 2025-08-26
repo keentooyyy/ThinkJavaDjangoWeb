@@ -4,6 +4,7 @@ from GameProgress.models import LevelDefinition, AchievementDefinition
 from GameProgress.services.ranking import get_all_student_rankings
 from StudentManagementSystem.models import Teacher
 from StudentManagementSystem.models.department import Department
+from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.models.section import Section
 from StudentManagementSystem.models.student import Student
 from StudentManagementSystem.views.admin.ranking_students import student_ranking
@@ -29,6 +30,7 @@ def get_teacher_dashboard_context(request, teacher):
         }
         for hs in handled_sections
     ]
+    full_name = teacher.first_name + " " + teacher.last_name
 
     # Combine everything into the context
     return {
@@ -53,6 +55,8 @@ def get_teacher_dashboard_context(request, teacher):
         'departments': Department.objects.all(),
         'sections_for_department': sections_for_department,  # Only sections relevant to the selected department
         'sections': Section.objects.all(),
+        'username': full_name,
+        'role': Role.TEACHER
     }
 
 
