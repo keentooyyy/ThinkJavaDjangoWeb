@@ -16,6 +16,9 @@ class SectionJoinCode(models.Model):
 
     class Meta:
         unique_together = ('section', 'department', 'year_level')
+        indexes = [
+            models.Index(fields=['section', 'department', 'year_level']),  # Composite index for the fields in join code
+        ]
 
     def __str__(self):
         return f"{self.department.name}{self.year_level.year}{self.section.letter} → {self.code}"

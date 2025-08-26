@@ -21,6 +21,13 @@ class Student(models.Model):
         default=Role.STUDENT  # Default to 'Student' role
     )
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['student_id']),  # Adding index for student_id
+            models.Index(fields=['last_name', 'first_name']),  # Composite index for sorting/searching by name
+            models.Index(fields=['year_level', 'section']),  # Index on year_level and section for common queries
+        ]
+
     def __str__(self):
         return f"{self.name} ({self.student_id})"
 

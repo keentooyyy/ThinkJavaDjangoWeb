@@ -8,7 +8,6 @@ from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.models.section import Section
 from StudentManagementSystem.models.year_level import YearLevel
 
-
 class Teacher(models.Model):
     teacher_id = models.CharField(max_length=50, unique=True)
     first_name = models.CharField(max_length=150)
@@ -20,6 +19,12 @@ class Teacher(models.Model):
         choices=Role.choices,
         default=Role.TEACHER  # Default to 'Teacher' role
     )
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['teacher_id']),  # Index for teacher_id
+            models.Index(fields=['last_name', 'first_name']),  # Index for sorting by name
+        ]
 
     def __str__(self):
         return self.teacher_id
@@ -41,7 +46,9 @@ class HandledSection(models.Model):
 
     class Meta:
         unique_together = ('teacher', 'department', 'year_level', 'section')
+        indexes = [
+            models.Index(fields=['teacher', 'department', 'year_level', 'section']),  # Composite index for teacher + section
+        ]
 
     def __str__(self):
         return f"{self.teacher.teacher_id}: {self.department.name}{self.year_level.year}{self.section.letter}"
-

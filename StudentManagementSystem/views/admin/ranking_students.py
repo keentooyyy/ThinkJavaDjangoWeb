@@ -4,6 +4,7 @@ from django.core.paginator import Paginator
 from django.http import HttpResponseForbidden
 
 from GameProgress.services.ranking import get_all_student_rankings
+from StudentManagementSystem.decorators.custom_decorators import session_login_required
 from StudentManagementSystem.models import SimpleAdmin, Student, Teacher
 from StudentManagementSystem.models.department import Department
 from StudentManagementSystem.models.roles import Role
@@ -31,7 +32,7 @@ def get_user_context(request):
         except Teacher.DoesNotExist:
             return {}  # If the user is neither an admin nor a teacher, return an empty dictionary
 
-
+@session_login_required(Role.ADMIN)
 def student_ranking(request):
     # Check for admin or teacher roles
     user_context = get_user_context(request)
