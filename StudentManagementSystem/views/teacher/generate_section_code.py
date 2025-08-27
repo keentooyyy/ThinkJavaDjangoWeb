@@ -4,6 +4,7 @@ import string
 from django.contrib import messages
 from django.shortcuts import redirect
 
+from StudentManagementSystem.decorators.custom_decorators import session_login_required
 # from StudentManagementSystem.decorators.custom_decorators import session_login_required
 from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.models.section_code import SectionJoinCode
@@ -20,7 +21,7 @@ def generate_code(section, department, year_level):
     )
     return join_code.code
 
-# @session_login_required(Role.TEACHER)
+@session_login_required(role=Role.TEACHER)
 def generate_section_code_view(request):
     teacher_id = request.session.get('teacher_id')
 

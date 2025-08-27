@@ -4,13 +4,14 @@ from django.core.paginator import Paginator
 from django.http import HttpResponseForbidden
 
 from GameProgress.services.ranking import get_all_student_rankings
+from StudentManagementSystem.decorators.custom_decorators import session_login_required
 # from StudentManagementSystem.decorators.custom_decorators import session_login_required
 from StudentManagementSystem.models import SimpleAdmin, Student
 from StudentManagementSystem.models.department import Department
 from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.models.section import Section
 
-# @session_login_required(Role.ADMIN)
+@session_login_required(role=Role.ADMIN)
 def get_user_context(request):
     """Helper function to get the role and username of the current user."""
     user_id = request.session.get('user_id')  # Fetch the user ID from the session
@@ -25,7 +26,7 @@ def get_user_context(request):
         return {}  # If the user is neither an admin nor a teacher, return an empty dictionary
 
 
-# @session_login_required(Role.ADMIN)
+@session_login_required(role=Role.ADMIN)
 def student_ranking(request):
     # Check for admin role
     user_context = get_user_context(request)

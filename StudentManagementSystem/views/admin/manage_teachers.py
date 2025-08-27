@@ -12,7 +12,7 @@ from StudentManagementSystem.models.section import Section
 from StudentManagementSystem.models.teachers import HandledSection
 from StudentManagementSystem.models.year_level import YearLevel
 
-# @session_login_required(Role.ADMIN)
+# @session_login_required(role=Role.ADMIN)
 def get_teacher_context(admin_id):
     # Get admin and departments
     admin = SimpleAdmin.objects.get(id=admin_id)
@@ -43,7 +43,7 @@ def get_teacher_context(admin_id):
 
 from django.contrib import messages
 
-# @session_login_required(Role.ADMIN)
+@session_login_required(role=Role.ADMIN)
 def create_teacher(request):
     # Define the extra_tags variable at the top for easy modification
     message_tag = 'create_message'
@@ -141,7 +141,7 @@ def create_teacher(request):
     context = get_teacher_context(admin_id)
     return render(request, 'admin/teacher_form.html', context)
 
-# @session_login_required(Role.ADMIN)
+@session_login_required(role=Role.ADMIN)
 def edit_teacher(request, teacher_id):
     # Define the extra_tags variable at the top
     message_tag = 'list_message'
@@ -225,6 +225,7 @@ def edit_teacher(request, teacher_id):
 
 
 # 2. View to fetch teacher details for the modal
+@session_login_required(role=Role.ADMIN)
 def get_teacher_details(request,teacher_id):
     teacher = get_object_or_404(Teacher, id=teacher_id)
 
@@ -252,7 +253,7 @@ def get_teacher_details(request,teacher_id):
 
     return JsonResponse(data)
 
-
+@session_login_required(role=Role.ADMIN)
 def remove_section(request, section_id):
     if request.method == 'POST':
         # Get the section to be removed
@@ -264,7 +265,7 @@ def remove_section(request, section_id):
         return JsonResponse({'success': True})
     return JsonResponse({'success': False}, status=400)
 
-
+@session_login_required(role=Role.ADMIN)
 def delete_teacher(request, teacher_id):
     if request.method == 'DELETE':
         # Get the teacher object based on teacher_id

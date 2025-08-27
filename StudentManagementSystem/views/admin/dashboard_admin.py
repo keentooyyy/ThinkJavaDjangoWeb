@@ -76,7 +76,7 @@ def generate_dashboard_context(admin_id):
     return context
 
 
-# @session_login_required(Role.ADMIN)
+@session_login_required(Role.ADMIN)
 def admin_dashboard(request):
     admin_id = request.session.get('user_id')
     if not admin_id:
@@ -88,7 +88,7 @@ def admin_dashboard(request):
     return render(request, 'admin/dashboard.html', context)
 
 
-# @session_login_required(Role.ADMIN)
+@session_login_required(Role.ADMIN)
 def count_students(department_id=None):
     if department_id:
         # If department_id is provided, count students within that department

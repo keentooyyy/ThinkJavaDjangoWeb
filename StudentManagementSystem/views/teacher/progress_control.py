@@ -11,12 +11,13 @@ from GameProgress.services.progress import (
     lock_level, unlock_level,
     set_achievement_active
 )
+from StudentManagementSystem.decorators.custom_decorators import session_login_required
 # from StudentManagementSystem.decorators.custom_decorators import session_login_required
 from StudentManagementSystem.models import Teacher
 from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.views.teacher.dashboard_teacher import get_teacher_dashboard_context
 
-# @session_login_required(Role.TEACHER)
+@session_login_required(role=Role.TEACHER)
 def progress_control_teacher(request):
     teacher_id = request.session.get('user_id')
     if not teacher_id:
