@@ -199,6 +199,58 @@
         });
 
     </script>
+
+
+    <script>
+        function openEditStudentModal(studentId) {
+            // Fetch student details first
+            $.ajax({
+                url: `/teacher/students/${studentId}/edit/`,
+                method: 'GET',
+                success: function (data) {
+                    if (!data.success) {
+                        alert("Failed to fetch student details.");
+                        return;
+                    }
+
+                    // Fill modal fields
+                    $('#student_id_edit_modal').val(data.student.id);
+                    $('#student_first_name_modal').val(data.student.first_name);
+                    $('#student_last_name_modal').val(data.student.last_name);
+                    $('#student_section_modal').val(data.student.full_section);
+
+                    // Show modal
+                    $('#editStudentModal').modal('show');
+
+                    // Bind form submit (unbind first to avoid duplicates)
+                    $('#editStudentForm').off('submit').on('submit', function (e) {
+                        e.preventDefault();
+                        let formData = $(this).serialize();
+
+                        $.ajax({
+                            url: `/teacher/students/${studentId}/edit/`,
+                            method: 'POST',
+                            data: formData,
+                            success: function (response) {
+                                if (response.success) {
+                                    $('#editStudentModal').modal('hide');
+                                    location.reload(); // reload to see updated list + messages
+                                } else {
+                                    alert("Failed to update student.");
+                                }
+                            },
+                            error: function () {
+                                alert("Something went wrong while saving.");
+                            }
+                        });
+                    });
+                },
+                error: function () {
+                    alert("Error fetching student data.");
+                }
+            });
+        }
+    </script>
 {% endblock %}
 
 

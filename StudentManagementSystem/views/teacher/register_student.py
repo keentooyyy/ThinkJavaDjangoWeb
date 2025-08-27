@@ -2,7 +2,8 @@
 
 from django.contrib import messages
 from django.core.paginator import Paginator
-from django.shortcuts import redirect, render
+from django.http.response import JsonResponse
+from django.shortcuts import redirect, render, get_object_or_404
 
 from StudentManagementSystem.decorators.custom_decorators import session_login_required
 
@@ -98,3 +99,71 @@ def register_student(request):
         'per_page': per_page, 'selected_department': department, 'selected_section': section_filter, }
 
     return render(request, 'teacher/register_student.html', context)
+
+
+@session_login_required(role=Role.TEACHER)
+def edit_student(request, student_id):
+    teacher_id = request.session.get("user_id")
+
+    if not teacher_id:
+        messages.error(request, "Unauthorized access. Please log in again.", extra_tags="edit_message")
+        return JsonResponse({"success": False})
+
+    teacher = get_object_or_404(Teacher, id=teacher_id)
+    student = get_object_or_404(Student, id=student_id)
+
+    # Make sure the student belongs to this teacher
+    handled_sections = HandledSection.objects.filter(teacher=teacher).values_list("section_id", flat=True)
+    if student.section_id not in handled_sections:
+        messages.error(request, "You are not authorized to edit this student.", extra_tags="edit_message")
+        return JsonResponse({"success": False})
+
+    # ✅ GET request → return student details
+    if request.method == "GET":
+        return JsonResponse({
+            "success": True,
+            "student": {
+                "id": student.id,
+                "student_id": student.student_id,
+                "first_name": student.first_name,
+                "last_name": student.last_name,
+                "full_section": f"{student.section.year_level.year}{student.section.letter}",
+            }
+        })
+
+    # ✅ POST request → update student
+    if request.method == "POST":
+        first_name = request.POST.get("student_first_name_modal")
+        last_name = request.POST.get("student_last_name_modal")
+        section_key = request.POST.get("student_section_modal")
+
+        if not first_name or not last_name or not section_key:
+            messages.error(request, "All fields are required.", extra_tags="edit_message")
+            return JsonResponse({"success": False})
+
+        year, letter = section_key[0], section_key[1:]
+
+        try:
+            new_section = student.section.__class__.objects.get(
+                year_level__year=year,
+                letter=letter,
+                department=student.section.department,
+            )
+        except Exception:
+            messages.error(request, "Invalid section selected.", extra_tags="edit_message")
+            return JsonResponse({"success": False})
+
+        student.first_name = first_name
+        student.last_name = last_name
+        student.section = new_section
+        student.save()
+
+        messages.success(
+            request,
+            f"Student {student.first_name} {student.last_name} updated successfully!",
+            extra_tags="edit_message"
+        )
+        return JsonResponse({"success": True})
+
+    # ✅ Fallback if method not allowed
+    return JsonResponse({"success": False, "message": "Invalid request method."}, status=405)

@@ -52,7 +52,9 @@
                         </select>
                     </div>
                     <div class="col-6">
-                        <button type="submit" class="btn btn-primary float-end" style="width: 40%"><i class="bx bx-filter"></i>Apply</button>
+                        <button type="submit" class="btn btn-primary float-end" style="width: 40%"><i
+                                class="bx bx-filter"></i>Apply
+                        </button>
                     </div>
                 </div>
             </form>
@@ -77,7 +79,10 @@
                         <td>{{ student.full_section }}</td>
                         <td class="text-center">
                             <!-- Edit and Delete buttons (non-functional for now) -->
-                            <button type="button" class="btn btn-primary btn-sm" disabled>Edit</button>
+                            <button type="button" class="btn btn-primary btn-sm"
+                                    onclick="openEditStudentModal({{ student.id }})">
+                                Edit
+                            </button>
                             <button type="button" class="btn btn-danger btn-sm" disabled>Delete</button>
                         </td>
                     </tr>
@@ -153,3 +158,71 @@
         </div>
     </div>
 </div>
+
+
+<!-- Edit Student Modal -->
+<div class="modal fade" id="editStudentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="--bs-modal-width: 700px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Student</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <form method="POST" id="editStudentForm">
+                {% csrf_token %}
+                <input type="hidden" name="student_id_edit_modal" id="student_id_edit_modal" value="">
+
+                <div class="modal-body p-5">
+                    <div class="row mb-3">
+                        <div class="col-4">
+                            <label for="student_first_name_modal" class="form-label">First Name:</label>
+                        </div>
+                        <div class="col-8">
+                            <input type="text" class="form-control" id="student_first_name_modal"
+                                   name="student_first_name_modal" required>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-4">
+                            <label for="student_last_name_modal" class="form-label">Last Name:</label>
+                        </div>
+                        <div class="col-8">
+                            <input type="text" class="form-control" id="student_last_name_modal"
+                                   name="student_last_name_modal" required>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-4">
+                            <label for="student_section_modal" class="form-label">Section:</label>
+                        </div>
+                        <div class="col-8">
+                            <select id="student_section_modal" name="student_section_modal" class="form-select"
+                                    required>
+                                <option value="">-- Select Section --</option>
+                                {% for section in sections %}
+                                    {% with section_key=section.year_level.year|stringformat:"s"|add:section.letter %}
+                                        <option value="{{ section_key }}">
+                                            {{ section.year_level.year }}{{ section.letter }}
+                                        </option>
+                                    {% endwith %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary" id="saveStudentButton">Save changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+
