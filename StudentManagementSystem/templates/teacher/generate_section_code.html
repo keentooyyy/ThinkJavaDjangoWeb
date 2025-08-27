@@ -1,4 +1,4 @@
-<div class="col-6">
+<div class="col-5">
 
 
     <div class="card radius-10">
@@ -54,6 +54,33 @@
             </form>
             <hr>
             <h6>Existing Section Join Codes</h6>
+            {% if section_codes %}
+                <table class="table table-bordered table-hover mt-3 text-center">
+                    <thead>
+                    <tr>
+                        <th>Section</th>
+                        <th>Join Code</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for code in section_codes %}
+                        <tr>
+                            <td>{{ code.department.name }}{{ code.year_level.year }}{{ code.section.letter }}</td>
+                            <td><span id="code-{{ code.id }}">{{ code.code }}</span></td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-outline-secondary"
+                                        onclick="copyCode('{{ code.id }}')">
+                                    Copy
+                                </button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="text-muted mt-2">No join codes generated yet.</p>
+            {% endif %}
 
 
         </div>
@@ -63,3 +90,33 @@
 
 
 </div>
+
+
+{% block scripts %}
+    <script>
+
+        function copyCode(id) {
+            let codeText = $("#code-" + id).text().trim();
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                // Modern clipboard API
+                navigator.clipboard.writeText(codeText).then(function () {
+                    alert("Copied: " + codeText);
+                }).catch(function (err) {
+                    console.error("Clipboard copy failed: ", err);
+                    alert("Failed to copy code!");
+                });
+            } else {
+                // Fallback for older browsers
+                let $temp = $("<input>");
+                $("body").append($temp);
+                $temp.val(codeText).select();
+                document.execCommand("copy");
+                $temp.remove();
+                alert("Copied: " + codeText);
+            }
+        }
+
+
+    </script>
+{% endblock %}

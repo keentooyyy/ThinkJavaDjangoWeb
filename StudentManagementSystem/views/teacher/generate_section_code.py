@@ -2,6 +2,7 @@ import random
 import string
 
 from django.shortcuts import redirect
+from django.contrib import messages
 
 from StudentManagementSystem.decorators.custom_decorators import session_login_required
 from StudentManagementSystem.models.roles import Role
@@ -19,28 +20,29 @@ def generate_code(section, department, year_level):
 
 @session_login_required(role=Role.TEACHER)
 def generate_section_code_view(request):
-    teacher_id = request.session.get('teacher_id')
+    teacher_id = request.session.get('user_id')
 
     if not teacher_id or request.method != 'POST':
         return redirect('register_student')
 
-    raw = request.POST.get('section_id')  # Format: sectionID_deptID_yearID
+    raw = request.POST.get('section_id')
 
     try:
         section_id, dept_id, year_id = map(int, raw.split('_'))
     except (ValueError, AttributeError):
-        # messages.error(request, "Invalid section format.")
+        messages.error(request, "Invalid section format.")
         return redirect('register_student')
 
     handled = HandledSection.objects.filter(teacher_id=teacher_id, section_id=section_id, department_id=dept_id,
         year_level_id=year_id).first()
 
     if not handled:
-        # messages.error(request, "You are not assigned to this section.")
+        messages.error(request, "You are not assigned to this section.")
         return redirect('register_student')
 
     code = generate_code(handled.section, handled.department, handled.year_level)
+    print(f"code: {code}")
 
-    # messages.success(request,
-    #                  f"✅ Code for {handled.department.name}{handled.year_level.year}{handled.section.letter}: <strong>{code}</strong>")
+    messages.success(request,
+                     f"✅ Code for {handled.department.name}{handled.year_level.year}{handled.section.letter}: <strong>{code}</strong>")
     return redirect('register_student')

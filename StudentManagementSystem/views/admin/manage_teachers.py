@@ -34,7 +34,7 @@ def get_teacher_context(admin_id):
     return context
 
 
-from django.contrib import messages
+
 
 
 @session_login_required(role=Role.ADMIN)

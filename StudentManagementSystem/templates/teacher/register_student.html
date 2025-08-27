@@ -15,7 +15,7 @@
 {% block content %}
     <div class="page-wrapper">
         <div class="row p-5">
-            <div class="col-6">
+            <div class="col-7">
 
 
                 <div class="card radius-10">
@@ -90,7 +90,7 @@
                                         <input name="password" id="password" class="form-control" type="password"
                                                placeholder="Password"
                                                aria-label="Password" value="123">
-                                        <a href="javascript:;" class="input-group-text bg-transparent"
+                                        <a href="javascript:" class="input-group-text bg-transparent"
                                            id="togglePassword"><i
                                                 class="bx bx-hide"></i></a>
                                     </div>
@@ -202,51 +202,96 @@
 
 
     <script>
-        function openEditStudentModal(studentId) {
-            // Fetch student details first
-            $.ajax({
-                url: `/teacher/students/${studentId}/edit/`,
-                method: 'GET',
-                success: function (data) {
-                    if (!data.success) {
-                        alert("Failed to fetch student details.");
-                        return;
+let lastStudentEditBtn = null;
+
+function openEditStudentModal(studentId, btn) {
+    // Remember which button opened the modal
+    lastStudentEditBtn = btn;
+
+    // Fetch student details first
+    $.ajax({
+        url: `/teacher/students/${studentId}/edit/`,
+        method: 'GET',
+        success: function (data) {
+            if (!data.success) {
+                alert("Failed to fetch student details.");
+                return;
+            }
+
+            // Fill modal fields
+            $('#student_id_edit_modal').val(data.student.id);
+            $('#student_first_name_modal').val(data.student.first_name);
+            $('#student_last_name_modal').val(data.student.last_name);
+            $('#student_section_modal').val(data.student.full_section);
+
+            // Show modal
+            $('#editStudentModal').modal('show');
+
+            // Bind form submit (unbind first to avoid duplicates)
+            $('#editStudentForm').off('submit').on('submit', function (e) {
+                e.preventDefault();
+                let formData = $(this).serialize();
+
+                $.ajax({
+                    url: `/teacher/students/${studentId}/edit/`,
+                    method: 'POST',
+                    data: formData,
+                    success: function (response) {
+                        if (response.success) {
+                            $('#editStudentModal').modal('hide');
+                            location.reload();
+                        } else {
+                            alert("Failed to update student.");
+                        }
+                    },
+                    error: function () {
+                        alert("Something went wrong while saving.");
                     }
+                });
+            });
+        },
+        error: function () {
+            alert("Error fetching student data.");
+        }
+    });
+}
 
-                    // Fill modal fields
-                    $('#student_id_edit_modal').val(data.student.id);
-                    $('#student_first_name_modal').val(data.student.first_name);
-                    $('#student_last_name_modal').val(data.student.last_name);
-                    $('#student_section_modal').val(data.student.full_section);
+// ✅ When modal closes (X, Close button, or backdrop click), return focus to the opener
+$(document).ready(function () {
+    $('#editStudentModal').on('hidden.bs.modal', function () {
+        if (lastStudentEditBtn) {
+            $(lastStudentEditBtn).focus();
+            lastStudentEditBtn = null; // reset
+        }
+    });
+});
 
-                    // Show modal
-                    $('#editStudentModal').modal('show');
 
-                    // Bind form submit (unbind first to avoid duplicates)
-                    $('#editStudentForm').off('submit').on('submit', function (e) {
-                        e.preventDefault();
-                        let formData = $(this).serialize();
 
-                        $.ajax({
-                            url: `/teacher/students/${studentId}/edit/`,
-                            method: 'POST',
-                            data: formData,
-                            success: function (response) {
-                                if (response.success) {
-                                    $('#editStudentModal').modal('hide');
-                                    location.reload(); // reload to see updated list + messages
-                                } else {
-                                    alert("Failed to update student.");
-                                }
-                            },
-                            error: function () {
-                                alert("Something went wrong while saving.");
-                            }
-                        });
-                    });
+        function deleteStudent(studentId) {
+            if (!confirm("Are you sure you want to delete this student?")) {
+                return;
+            }
+
+            $.ajax({
+                url: `/teacher/students/${studentId}/delete/`,
+                method: "POST",   // easier to use POST for CSRF than DELETE
+                headers: {
+                    "X-CSRFToken": $("input[name=csrfmiddlewaretoken]").val()
+                },
+                success: function (response) {
+                    if (response.success) {
+                        // remove row without reload
+                        $(`#student-row-${studentId}`).remove();
+
+                        // OR just reload to also see messages
+                        location.reload();
+                    } else {
+                        alert("Failed to delete student.");
+                    }
                 },
                 error: function () {
-                    alert("Error fetching student data.");
+                    alert("Error deleting student.");
                 }
             });
         }

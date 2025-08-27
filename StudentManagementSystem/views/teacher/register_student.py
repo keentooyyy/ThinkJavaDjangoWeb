@@ -7,7 +7,7 @@ from django.shortcuts import redirect, render, get_object_or_404
 
 from StudentManagementSystem.decorators.custom_decorators import session_login_required
 
-from StudentManagementSystem.models import Student
+from StudentManagementSystem.models import Student, SectionJoinCode
 from StudentManagementSystem.models.department import Department
 from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.models.teachers import HandledSection, Teacher
@@ -91,12 +91,15 @@ def register_student(request):
 
     # Fetch departments for the filter dropdowns
     departments = Department.objects.all()  # Adjust based on your models
+    section_codes = SectionJoinCode.objects.filter(section__in=[hs.section for hs in handled_sections])
+    print(f"section_codes {section_codes}")
+
 
     # Context for rendering the page
     context = {'handled_sections': handled_sections, 'username': full_name, 'role': role, 'page_obj': page_obj,
         'departments': departments, 'sections': sections,  # Only show unique sections handled by the teacher
         'department': department, 'section': section_filter, 'sort_by': sort_by, 'sort_order': sort_order,
-        'per_page': per_page, 'selected_department': department, 'selected_section': section_filter, }
+        'per_page': per_page, 'selected_department': department, 'selected_section': section_filter, 'section_codes': section_codes,}
 
     return render(request, 'teacher/register_student.html', context)
 
@@ -166,4 +169,31 @@ def edit_student(request, student_id):
         return JsonResponse({"success": True})
 
     # ✅ Fallback if method not allowed
+    return JsonResponse({"success": False, "message": "Invalid request method."}, status=405)
+
+
+
+@session_login_required(role=Role.TEACHER)
+def delete_student(request, student_id):
+    teacher_id = request.session.get("user_id")
+
+    if not teacher_id:
+        messages.error(request, "Unauthorized access. Please log in again.", extra_tags="edit_message")
+        return JsonResponse({"success": False}, status=401)
+
+    teacher = get_object_or_404(Teacher, id=teacher_id)
+    student = get_object_or_404(Student, id=student_id)
+
+    # Check authorization
+    handled_sections = HandledSection.objects.filter(teacher=teacher).values_list("section_id", flat=True)
+    if student.section_id not in handled_sections:
+        messages.error(request, "You are not authorized to delete this student.", extra_tags="edit_message")
+        return JsonResponse({"success": False}, status=403)
+
+    if request.method == "DELETE" or request.method == "POST":
+        student_name = f"{student.first_name} {student.last_name}"
+        student.delete()
+        messages.success(request, f"Student {student_name} deleted successfully.", extra_tags="edit_message")
+        return JsonResponse({"success": True})
+
     return JsonResponse({"success": False, "message": "Invalid request method."}, status=405)
