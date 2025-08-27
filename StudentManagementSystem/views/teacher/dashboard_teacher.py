@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 
 from GameProgress.models import LevelDefinition, AchievementDefinition
 from GameProgress.services.ranking import get_all_student_rankings
+# from StudentManagementSystem.decorators.custom_decorators import session_login_required
 from StudentManagementSystem.models import Teacher
 from StudentManagementSystem.models.department import Department
 from StudentManagementSystem.models.roles import Role
@@ -9,7 +10,7 @@ from StudentManagementSystem.models.section import Section
 from StudentManagementSystem.models.student import Student
 from StudentManagementSystem.views.admin.ranking_students import student_ranking
 
-@session_login_required(Role.TEACHER)
+# @session_login_required(Role.TEACHER)
 def get_teacher_dashboard_context(request, teacher):
     # teacher = Teacher.objects.get(id=request.session.get('user_id'))
     handled_sections = teacher.handled_sections.all()
@@ -59,7 +60,7 @@ def get_teacher_dashboard_context(request, teacher):
         'role': Role.TEACHER
     }
 
-@session_login_required(Role.TEACHER)
+# @session_login_required(Role.TEACHER)
 def teacher_dashboard(request):
     teacher_id = request.session.get('user_id')
     if not teacher_id:

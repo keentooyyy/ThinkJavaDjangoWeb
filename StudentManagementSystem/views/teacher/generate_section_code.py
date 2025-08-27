@@ -4,12 +4,12 @@ import string
 from django.contrib import messages
 from django.shortcuts import redirect
 
-from StudentManagementSystem.decorators.custom_decorators import session_login_required
+# from StudentManagementSystem.decorators.custom_decorators import session_login_required
 from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.models.section_code import SectionJoinCode
 from StudentManagementSystem.models.teachers import HandledSection
 
-@session_login_required(Role.TEACHER)
+# @session_login_required(Role.TEACHER)
 def generate_code(section, department, year_level):
     code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
     join_code, _ = SectionJoinCode.objects.update_or_create(
@@ -20,7 +20,7 @@ def generate_code(section, department, year_level):
     )
     return join_code.code
 
-@session_login_required(Role.TEACHER)
+# @session_login_required(Role.TEACHER)
 def generate_section_code_view(request):
     teacher_id = request.session.get('teacher_id')
 

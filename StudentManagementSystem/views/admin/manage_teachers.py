@@ -12,7 +12,7 @@ from StudentManagementSystem.models.section import Section
 from StudentManagementSystem.models.teachers import HandledSection
 from StudentManagementSystem.models.year_level import YearLevel
 
-@session_login_required(Role.ADMIN)
+# @session_login_required(Role.ADMIN)
 def get_teacher_context(admin_id):
     # Get admin and departments
     admin = SimpleAdmin.objects.get(id=admin_id)
@@ -43,7 +43,7 @@ def get_teacher_context(admin_id):
 
 from django.contrib import messages
 
-@session_login_required(Role.ADMIN)
+# @session_login_required(Role.ADMIN)
 def create_teacher(request):
     # Define the extra_tags variable at the top for easy modification
     message_tag = 'create_message'
@@ -141,7 +141,7 @@ def create_teacher(request):
     context = get_teacher_context(admin_id)
     return render(request, 'admin/teacher_form.html', context)
 
-@session_login_required(Role.ADMIN)
+# @session_login_required(Role.ADMIN)
 def edit_teacher(request, teacher_id):
     # Define the extra_tags variable at the top
     message_tag = 'list_message'
