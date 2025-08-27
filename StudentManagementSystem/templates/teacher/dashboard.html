@@ -1,32 +1,8 @@
-{#{% extends 'base.html' %}#}
-{##}
-{#{% block title %}Teacher Dashboard{% endblock %}#}
-{##}
-{##}
-{#{% block content %}#}
-{#    <div class="page-wrapper">#}
-{##}
-{##}
-{#        {% include 'teacher/teacher_info.html' %}#}
-{##}
-{#        {% if messages %}#}
-{#            {% for message in messages %}#}
-{#                <p class="message {{ message.tags }}">{{ message }}</p>#}
-{#            {% endfor %}#}
-{#        {% endif %}#}
-
-{##}
-{##}
-{#    </div>#}
-{##}
-{#{% endblock %}#}
-
-
 {% extends 'base.html' %}
 {% load static %}
 
 
-{% block title %}Admin Dashboard{% endblock %}
+{% block title %}Teacher Dashboard{% endblock %}
 
 
 {% block sidebar %}{% include 'sidebar.html' %} {% endblock %}
@@ -42,11 +18,11 @@
 
         {% include 'teacher/teacher_info.html' %}
 
-        <div class="d-none">
-            {% include 'teacher/register_student.html' %}
-        {% include 'teacher/generate_section_code.html' %}
-        {% include 'teacher/progress_control.html' %}
-        </div>
+{#        <div class="d-none">#}
+{#            {% include 'teacher/register_student.html' %}#}
+{#        {% include 'teacher/generate_section_code.html' %}#}
+{#        {% include 'teacher/progress_control.html' %}#}
+{#        </div>#}
 
 
     </div>
