@@ -5,12 +5,16 @@ from django.contrib.auth.hashers import make_password
 from django.shortcuts import redirect, render
 from django.core.paginator import Paginator
 
+from StudentManagementSystem.decorators.custom_decorators import session_login_required
 from StudentManagementSystem.models import Student
 from StudentManagementSystem.models.department import Department
 from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.models.section import Section
 from StudentManagementSystem.models.teachers import HandledSection, Teacher
 
+
+
+@session_login_required(Role.TEACHER)
 def get_students_for_teacher(teacher_id, department=None, section=None, sort_by=None, sort_order=None, per_page=25):
     # Fetch all sections handled by the teacher
     handled_sections = HandledSection.objects.filter(teacher_id=teacher_id)
@@ -45,7 +49,7 @@ def get_students_for_teacher(teacher_id, department=None, section=None, sort_by=
     paginator = Paginator(students, per_page)  # Show 'per_page' students per page
     return paginator
 
-
+@session_login_required(Role.TEACHER)
 def register_student(request):
     extra_tags = 'create_message'  # This can be added to the message for additional styling or handling
     teacher_id = request.session.get('user_id')

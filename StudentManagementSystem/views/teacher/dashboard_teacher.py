@@ -9,7 +9,7 @@ from StudentManagementSystem.models.section import Section
 from StudentManagementSystem.models.student import Student
 from StudentManagementSystem.views.admin.ranking_students import student_ranking
 
-
+@session_login_required(Role.TEACHER)
 def get_teacher_dashboard_context(request, teacher):
     # teacher = Teacher.objects.get(id=request.session.get('user_id'))
     handled_sections = teacher.handled_sections.all()
@@ -59,7 +59,7 @@ def get_teacher_dashboard_context(request, teacher):
         'role': Role.TEACHER
     }
 
-
+@session_login_required(Role.TEACHER)
 def teacher_dashboard(request):
     teacher_id = request.session.get('user_id')
     if not teacher_id:
