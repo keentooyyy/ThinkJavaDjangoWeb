@@ -1,16 +1,65 @@
-{% block generate_section_code %}
-    <h3>Generate Section Join Code</h3>
-    <form method="post" action="{% url 'generate_section_code' %}">
-        {% csrf_token %}
-        <label for="generate_section_id">Select Section:</label>
-        <select name="section_id" id="generate_section_id" required>
-            {% for hs in handled_sections %}
-                <option value="{{ hs.section.id }}_{{ hs.department.id }}_{{ hs.year_level.id }}">
-                    {{ hs.department.name }}{{ hs.year_level.year }}{{ hs.section.letter }}
-                </option>
-            {% endfor %}
-        </select>
+<div class="col-6">
 
-        <button type="submit">Generate Code</button>
-    </form>
-{% endblock %}
+
+    <div class="card radius-10">
+
+        <div class="card-body p-5">
+            <h6>Generate Section Join Codes</h6>
+            <hr>
+
+            <div id="section_codes">
+                {% if messages %}
+                    {% for message in messages %}
+                        {% if 'section_codes' in message.tags %}
+                            {% include 'utility/alert_message.html' %}
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+
+            <form method="post" action="{% url 'generate_section_code' %}">
+                {% csrf_token %}
+
+                <div class="row ">
+
+                    <div class="col-4 d-flex align-items-center">
+                        <p class="font-16 mb-0">Select Section</p>
+                    </div>
+
+                    <div class="col-8">
+                        <select name="section_id" id="generate_section_id" required class="form-select">
+                            {% for hs in handled_sections %}
+                                <option value="{{ hs.section.id }}_{{ hs.department.id }}_{{ hs.year_level.id }}">
+                                    {{ hs.department.name }}{{ hs.year_level.year }}{{ hs.section.letter }}
+                                </option>
+                            {% endfor %}
+                        </select>
+
+                    </div>
+
+                    <div class="col-12 mt-3">
+
+                        <button type="submit" class="btn btn-primary float-end"><i
+                                class="bx bx-refresh"></i>Generate Code
+                        </button>
+
+
+                    </div>
+
+
+                </div>
+
+
+            </form>
+            <hr>
+            <h6>Existing Section Join Codes</h6>
+
+
+        </div>
+
+
+    </div>
+
+
+</div>

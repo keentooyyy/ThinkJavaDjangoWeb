@@ -4,6 +4,7 @@ from django.db import IntegrityError  # Import IntegrityError for handling datab
 from django.http.response import JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
 
+from StudentManagementSystem.decorators.custom_decorators import session_login_required
 from StudentManagementSystem.models import Teacher, SimpleAdmin
 from StudentManagementSystem.models.department import Department
 from StudentManagementSystem.models.roles import Role
@@ -11,7 +12,7 @@ from StudentManagementSystem.models.section import Section
 from StudentManagementSystem.models.teachers import HandledSection
 from StudentManagementSystem.models.year_level import YearLevel
 
-
+@session_login_required(Role.ADMIN)
 def get_teacher_context(admin_id):
     # Get admin and departments
     admin = SimpleAdmin.objects.get(id=admin_id)
@@ -42,7 +43,7 @@ def get_teacher_context(admin_id):
 
 from django.contrib import messages
 
-
+@session_login_required(Role.ADMIN)
 def create_teacher(request):
     # Define the extra_tags variable at the top for easy modification
     message_tag = 'create_message'
@@ -140,7 +141,7 @@ def create_teacher(request):
     context = get_teacher_context(admin_id)
     return render(request, 'admin/teacher_form.html', context)
 
-
+@session_login_required(Role.ADMIN)
 def edit_teacher(request, teacher_id):
     # Define the extra_tags variable at the top
     message_tag = 'list_message'

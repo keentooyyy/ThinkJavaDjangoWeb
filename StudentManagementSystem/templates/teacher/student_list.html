@@ -1,14 +1,14 @@
 <div class="col-12">
     <div class="card radius-10" id="list_of_students">
         <div class="card-body p-5">
-            <h4>List of Your Students</h4>
+            <h6>List of your Students</h6>
             <hr>
 
             <!-- Displaying any messages -->
             <div id="list_message">
                 {% if messages %}
                     {% for message in messages %}
-                        {% if 'create_message' in message.tags %}
+                        {% if 'list_message' in message.tags %}
                             {% include 'utility/alert_message.html' %}
                         {% endif %}
                     {% endfor %}

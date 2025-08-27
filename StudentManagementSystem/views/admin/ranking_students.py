@@ -10,7 +10,7 @@ from StudentManagementSystem.models.department import Department
 from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.models.section import Section
 
-
+@session_login_required(Role.ADMIN)
 def get_user_context(request):
     """Helper function to get the role and username of the current user."""
     user_id = request.session.get('user_id')  # Fetch the user ID from the session

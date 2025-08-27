@@ -6,14 +6,14 @@ from django.shortcuts import render, redirect
 
 from GameProgress.models import AchievementDefinition, LevelDefinition
 from GameProgress.services.ranking import get_section_rankings
+from StudentManagementSystem.decorators.custom_decorators import session_login_required
 from StudentManagementSystem.models import SimpleAdmin, Teacher, Student
 from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.models.section import Section
 
 
-
-
 # Function to generate the context
+@session_login_required(Role.ADMIN)
 def generate_dashboard_context(admin_id):
     # Get admin details
     admin = SimpleAdmin.objects.get(id=admin_id)
@@ -76,7 +76,7 @@ def generate_dashboard_context(admin_id):
     return context
 
 
-
+@session_login_required(Role.ADMIN)
 def admin_dashboard(request):
     admin_id = request.session.get('user_id')
     if not admin_id:
@@ -87,6 +87,8 @@ def admin_dashboard(request):
 
     return render(request, 'admin/dashboard.html', context)
 
+
+@session_login_required(Role.ADMIN)
 def count_students(department_id=None):
     if department_id:
         # If department_id is provided, count students within that department

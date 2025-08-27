@@ -4,11 +4,13 @@ from django.shortcuts import redirect, render, get_object_or_404
 
 from GameProgress.models import LevelDefinition, AchievementDefinition
 from GameProgress.services.progress import sync_all_students_with_all_progress
+from StudentManagementSystem.decorators.custom_decorators import session_login_required
+from StudentManagementSystem.models.roles import Role
 
 
 # Add Level View
 
-
+@session_login_required(Role.ADMIN)
 def add_level(request):
     # Define the extra_tags variable at the top for easy modification
     message_tag = 'level_message'
@@ -36,7 +38,7 @@ def add_level(request):
     # If not POST, just re-render the dashboard without changes
     return redirect('admin_dashboard')
 
-
+@session_login_required(Role.ADMIN)
 def delete_level(request, level_id):
     if request.method == 'POST':
         level = get_object_or_404(LevelDefinition, id=level_id)
@@ -54,7 +56,7 @@ def delete_level(request, level_id):
 
 
 # Add Achievement View
-
+@session_login_required(Role.ADMIN)
 def add_achievement(request):
     # Define the extra_tags variable at the top for easy modification
     message_tag = 'achievement_message'
@@ -84,7 +86,7 @@ def add_achievement(request):
     # If not POST, just re-render the dashboard without changes
     return redirect('admin_dashboard')
 
-
+@session_login_required(Role.ADMIN)
 def delete_achievement(request, achievement_id):
     if request.method == 'POST':
         achievement = get_object_or_404(AchievementDefinition, id=achievement_id)
@@ -100,7 +102,7 @@ def delete_achievement(request, achievement_id):
         return JsonResponse({'success': True})
     return JsonResponse({'success': False})
 
-
+@session_login_required(Role.ADMIN)
 def force_sync_everyone(request):
     # Define the extra_tags variable for easy modification
     message_tag = 'sync_message'
