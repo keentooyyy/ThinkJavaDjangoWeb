@@ -6,104 +6,136 @@ from django.http.response import JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
 
 from StudentManagementSystem.decorators.custom_decorators import session_login_required
-
 from StudentManagementSystem.models import Student, SectionJoinCode
 from StudentManagementSystem.models.department import Department
 from StudentManagementSystem.models.roles import Role
+from StudentManagementSystem.models.section import Section
 from StudentManagementSystem.models.teachers import HandledSection, Teacher
 
 
 def get_students_for_teacher(teacher_id, department=None, section=None, sort_by=None, sort_order=None, per_page=25):
-    # Fetch all sections handled by the teacher
     handled_sections = HandledSection.objects.filter(teacher_id=teacher_id)
+    students = Student.objects.filter(section__in=[hs.section for hs in handled_sections])
 
-    # Get students in these sections
-    students = Student.objects.filter(section__in=[section.section for section in handled_sections])
-
-    # Apply department filter if provided
     if department:
         students = students.filter(section__department__name=department)
 
-    # Apply section filter if provided
     if section:
-        # Assume section is in the format "1A" (year+letter)
-        year = section[:1]  # First part for year (e.g., '1' from '1A')
-        letter = section[1:]  # Second part for letter (e.g., 'A' from '1A')
-
-        # Apply filter for section based on year_level and letter
+        year = section[:1]
+        letter = section[1:]
         students = students.filter(section__year_level__year=year, section__letter=letter)
 
-    # Apply sorting if requested
     if sort_by:
-        if sort_order == 'desc':
-            students = students.order_by(f"-{sort_by}")
-        else:
-            students = students.order_by(f"{sort_by}")
+        students = students.order_by(f"{'-' if sort_order == 'desc' else ''}{sort_by}")
     else:
-        # Default order if no sort_by is provided
-        students = students.order_by('student_id')  # Adjust to default field of your choice
+        students = students.order_by("student_id")
 
-    # Paginate the students
-    paginator = Paginator(students, per_page)  # Show 'per_page' students per page
-    return paginator
+    return Paginator(students, per_page)
 
 
 @session_login_required(role=Role.TEACHER)
 def register_student(request):
-    extra_tags = 'create_message'  # This can be added to the message for additional styling or handling
-    teacher_id = request.session.get('user_id')
+    """
+    GET  → show students list with filters
+    POST → create a new student
+    """
+    extra_tags = "create_message"
+    teacher_id = request.session.get("user_id")
 
     if not teacher_id:
-        messages.error(request, "Unauthorized access. You need to log in first.", extra_tags=extra_tags)
-        return redirect('unified_logout')
+        messages.error(request, "Unauthorized access. Please log in first.", extra_tags=extra_tags)
+        return redirect("unified_logout")
 
-    # Fetch sections handled by the teacher
+    # ✅ Handle student creation
+    if request.method == "POST":
+        student_id = request.POST.get("student_id")
+        first_name = request.POST.get("first_name")
+        last_name = request.POST.get("last_name")
+        section_id = request.POST.get("section_id")  # actual PK from form
+
+        if not first_name or not last_name or not section_id:
+            messages.error(request, "All fields are required.", extra_tags=extra_tags)
+            return redirect("register_student")
+
+        # Make sure the section belongs to this teacher
+        handled_section = HandledSection.objects.filter(
+            teacher_id=teacher_id,
+            section_id=section_id,
+        ).select_related("section").first()
+
+        if not handled_section:
+            messages.error(request, "You are not assigned to this section.", extra_tags=extra_tags)
+            return redirect("register_student")
+
+        # Create student
+        student = Student.objects.create(
+            first_name=first_name,
+            last_name=last_name,
+            section=handled_section.section,
+            student_id=student_id,
+        )
+
+        messages.success(
+            request,
+            f"Student {student.first_name} {student.last_name} registered successfully.",
+            extra_tags=extra_tags
+        )
+        return redirect("register_student")
+
+    # ✅ Otherwise (GET) → render list with filters
     handled_sections = HandledSection.objects.filter(teacher_id=teacher_id)
+    if not handled_sections.exists():
+        messages.error(request, "You are not assigned to any sections yet.", extra_tags=extra_tags)
 
-    # Initialize an empty list to store unique sections
     sections = []
-    for handled_section in handled_sections:
-        section = handled_section.section
-        section_key = f"{section.year_level.year}{section.letter}"  # Concatenate year and letter
+    for hs in handled_sections:
+        key = f"{hs.section.year_level.year}{hs.section.letter}"
+        if not any(f"{s.year_level.year}{s.letter}" == key for s in sections):
+            sections.append(hs.section)
 
-        # Check if section (year + letter) is already in the list (ignoring department)
-        if not any(f"{s.year_level.year}{s.letter}" == section_key for s in sections):
-            sections.append(section)
+    department = request.GET.get("department")
+    section_filter = request.GET.get("filter_by")
+    sort_by = request.GET.get("sort_by")
+    sort_order = request.GET.get("sort_order")
+    per_page = int(request.GET.get("per_page", 25))
 
-    # Get filter values from the GET request
-    department = request.GET.get('department', None)
-    section_filter = request.GET.get('filter_by', None)
-    sort_by = request.GET.get('sort_by', None)
-    sort_order = request.GET.get('sort_order', None)
-    per_page = int(request.GET.get('per_page', 25))  # Default to 25 items per page
-
-    # Get the filtered and paginated students
     paginator = get_students_for_teacher(teacher_id, department, section_filter, sort_by, sort_order, per_page)
+    page_obj = paginator.get_page(request.GET.get("page"))
 
-    # Get the current page
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    if not page_obj.object_list:
+        messages.error(request, "No students found for the selected filters.", extra_tags=extra_tags)
 
-    # Fetch teacher details for the logged-in user
     teacher = Teacher.objects.get(id=teacher_id)
-    full_name = teacher.first_name + " " + teacher.last_name
-    role = Role.TEACHER
+    departments = Department.objects.all()
+    if not departments.exists():
+        messages.error(request, "No departments available.", extra_tags=extra_tags)
 
-    # Fetch departments for the filter dropdowns
-    departments = Department.objects.all()  # Adjust based on your models
     section_codes = SectionJoinCode.objects.filter(section__in=[hs.section for hs in handled_sections])
-    print(f"section_codes {section_codes}")
+    if not section_codes.exists():
+        messages.error(request, "No join codes have been generated yet.", extra_tags=extra_tags)
+
+    context = {
+        "handled_sections": handled_sections,
+        "username": f"{teacher.first_name} {teacher.last_name}",
+        "role": Role.TEACHER,
+        "page_obj": page_obj,
+        "departments": departments,
+        "sections": sections,
+        "department": department,
+        "section": section_filter,
+        "sort_by": sort_by,
+        "sort_order": sort_order,
+        "per_page": per_page,
+        "selected_department": department,
+        "selected_section": section_filter,
+        "section_codes": section_codes,
+    }
+    return render(request, "teacher/register_student.html", context)
 
 
-    # Context for rendering the page
-    context = {'handled_sections': handled_sections, 'username': full_name, 'role': role, 'page_obj': page_obj,
-        'departments': departments, 'sections': sections,  # Only show unique sections handled by the teacher
-        'department': department, 'section': section_filter, 'sort_by': sort_by, 'sort_order': sort_order,
-        'per_page': per_page, 'selected_department': department, 'selected_section': section_filter, 'section_codes': section_codes,}
-
-    return render(request, 'teacher/register_student.html', context)
-
-
+# ----------------------------
+# Edit Student
+# ----------------------------
 @session_login_required(role=Role.TEACHER)
 def edit_student(request, student_id):
     teacher_id = request.session.get("user_id")
@@ -115,13 +147,11 @@ def edit_student(request, student_id):
     teacher = get_object_or_404(Teacher, id=teacher_id)
     student = get_object_or_404(Student, id=student_id)
 
-    # Make sure the student belongs to this teacher
     handled_sections = HandledSection.objects.filter(teacher=teacher).values_list("section_id", flat=True)
     if student.section_id not in handled_sections:
         messages.error(request, "You are not authorized to edit this student.", extra_tags="edit_message")
         return JsonResponse({"success": False})
 
-    # ✅ GET request → return student details
     if request.method == "GET":
         return JsonResponse({
             "success": True,
@@ -134,7 +164,6 @@ def edit_student(request, student_id):
             }
         })
 
-    # ✅ POST request → update student
     if request.method == "POST":
         first_name = request.POST.get("student_first_name_modal")
         last_name = request.POST.get("student_last_name_modal")
@@ -145,14 +174,13 @@ def edit_student(request, student_id):
             return JsonResponse({"success": False})
 
         year, letter = section_key[0], section_key[1:]
-
         try:
-            new_section = student.section.__class__.objects.get(
+            new_section = Section.objects.get(
                 year_level__year=year,
                 letter=letter,
                 department=student.section.department,
             )
-        except Exception:
+        except Section.DoesNotExist:
             messages.error(request, "Invalid section selected.", extra_tags="edit_message")
             return JsonResponse({"success": False})
 
@@ -168,11 +196,12 @@ def edit_student(request, student_id):
         )
         return JsonResponse({"success": True})
 
-    # ✅ Fallback if method not allowed
     return JsonResponse({"success": False, "message": "Invalid request method."}, status=405)
 
 
-
+# ----------------------------
+# Delete Student
+# ----------------------------
 @session_login_required(role=Role.TEACHER)
 def delete_student(request, student_id):
     teacher_id = request.session.get("user_id")
@@ -184,13 +213,12 @@ def delete_student(request, student_id):
     teacher = get_object_or_404(Teacher, id=teacher_id)
     student = get_object_or_404(Student, id=student_id)
 
-    # Check authorization
     handled_sections = HandledSection.objects.filter(teacher=teacher).values_list("section_id", flat=True)
     if student.section_id not in handled_sections:
         messages.error(request, "You are not authorized to delete this student.", extra_tags="edit_message")
         return JsonResponse({"success": False}, status=403)
 
-    if request.method == "DELETE" or request.method == "POST":
+    if request.method in ["DELETE", "POST"]:
         student_name = f"{student.first_name} {student.last_name}"
         student.delete()
         messages.success(request, f"Student {student_name} deleted successfully.", extra_tags="edit_message")

@@ -5,10 +5,10 @@
             <hr>
 
             <!-- Displaying any messages -->
-            <div id="list_message">
+            <div id="edit_message">
                 {% if messages %}
                     {% for message in messages %}
-                        {% if 'list_message' in message.tags %}
+                        {% if 'edit_message' in message.tags %}
                             {% include 'utility/alert_message.html' %}
                         {% endif %}
                     {% endfor %}
