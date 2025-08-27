@@ -1,15 +1,14 @@
-from django.http.response import JsonResponse
-from django.shortcuts import render
 from django.core.paginator import Paginator
 from django.http import HttpResponseForbidden
+from django.shortcuts import render
 
 from GameProgress.services.ranking import get_all_student_rankings
 from StudentManagementSystem.decorators.custom_decorators import session_login_required
-# from StudentManagementSystem.decorators.custom_decorators import session_login_required
-from StudentManagementSystem.models import SimpleAdmin, Student
+from StudentManagementSystem.models import SimpleAdmin
 from StudentManagementSystem.models.department import Department
 from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.models.section import Section
+
 
 @session_login_required(role=Role.ADMIN)
 def get_user_context(request):
@@ -18,10 +17,8 @@ def get_user_context(request):
     try:
         # Check if the user is an admin
         admin = SimpleAdmin.objects.get(id=user_id)
-        return {
-            'username': admin.username,
-            'role': admin.role,  # Role for SimpleAdmin (Admin)
-        }
+        return {'username': admin.username, 'role': admin.role,  # Role for SimpleAdmin (Admin)
+                }
     except SimpleAdmin.DoesNotExist:
         return {}  # If the user is neither an admin nor a teacher, return an empty dictionary
 
@@ -47,8 +44,8 @@ def student_ranking(request):
 
     # Get sections for admin (admin sees all sections, filtered by department)
     if department_name and department_name.lower() != "all":
-        sections = Section.objects.filter(department__name=department_name) \
-            .select_related("year_level").order_by("year_level__year", "letter")
+        sections = Section.objects.filter(department__name=department_name).select_related("year_level").order_by(
+            "year_level__year", "letter")
     else:
         sections = Section.objects.select_related("year_level").order_by("year_level__year", "letter")
 
@@ -62,31 +59,18 @@ def student_ranking(request):
             unique_sections.append(section)
 
     # Get the rankings based on the filtering
-    rankings = get_all_student_rankings(
-        sort_by=sort_by,
-        sort_order=sort_order,
-        filter_by=section_filter,
-        department_filter=None if department_name and department_name.lower() == "all" else department_name
-    )
+    rankings = get_all_student_rankings(sort_by=sort_by, sort_order=sort_order, filter_by=section_filter,
+                                        department_filter=None if department_name and department_name.lower() == "all" else department_name)
 
     # Pagination
     paginator = Paginator(rankings, per_page)
     page_obj = paginator.get_page(page_number)
 
     # Render the student_ranking.html template with context
-    context = {
-        'departments': departments,
-        'sections': unique_sections,  # Only show unique sections handled by the teacher
-        'rankings': page_obj.object_list,
-        'page_obj': page_obj,
-        'selected_department': department_name,
-        'selected_section': section_filter,
-        'sort_by': sort_by,
-        'sort_order': sort_order,
-        'per_page': per_page,
-        'username': user_context['username'],
-        'role': user_context['role'],
-    }
+    context = {'departments': departments, 'sections': unique_sections,
+               # Only show unique sections handled by the teacher
+               'rankings': page_obj.object_list, 'page_obj': page_obj, 'selected_department': department_name,
+               'selected_section': section_filter, 'sort_by': sort_by, 'sort_order': sort_order, 'per_page': per_page,
+               'username': user_context['username'], 'role': user_context['role'], }
 
     return render(request, 'admin/student_ranking.html', context)
-

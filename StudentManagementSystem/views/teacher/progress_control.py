@@ -3,19 +3,14 @@
 from django.contrib import messages
 from django.shortcuts import render, redirect
 
-from GameProgress.services.progress import (
-    sync_all_students_with_all_progress,
-    lock_all_levels, unlock_all_levels,
-    enable_all_achievements, disable_all_achievements,
-    reset_all_progress,
-    lock_level, unlock_level,
-    set_achievement_active
-)
+from GameProgress.services.progress import (sync_all_students_with_all_progress, lock_all_levels, unlock_all_levels,
+                                            enable_all_achievements, disable_all_achievements, reset_all_progress,
+                                            lock_level, unlock_level, set_achievement_active)
 from StudentManagementSystem.decorators.custom_decorators import session_login_required
-# from StudentManagementSystem.decorators.custom_decorators import session_login_required
 from StudentManagementSystem.models import Teacher
 from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.views.teacher.dashboard_teacher import get_teacher_dashboard_context
+
 
 @session_login_required(role=Role.TEACHER)
 def progress_control_teacher(request):

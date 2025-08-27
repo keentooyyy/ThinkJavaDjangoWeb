@@ -1,19 +1,15 @@
 # StudentManagementSystem/views/teacher/register_student.py
 
 from django.contrib import messages
-from django.contrib.auth.hashers import make_password
-from django.shortcuts import redirect, render
 from django.core.paginator import Paginator
+from django.shortcuts import redirect, render
 
 from StudentManagementSystem.decorators.custom_decorators import session_login_required
-# from StudentManagementSystem.decorators.custom_decorators import session_login_required
+
 from StudentManagementSystem.models import Student
 from StudentManagementSystem.models.department import Department
 from StudentManagementSystem.models.roles import Role
-from StudentManagementSystem.models.section import Section
 from StudentManagementSystem.models.teachers import HandledSection, Teacher
-
-
 
 
 def get_students_for_teacher(teacher_id, department=None, section=None, sort_by=None, sort_order=None, per_page=25):
@@ -49,6 +45,7 @@ def get_students_for_teacher(teacher_id, department=None, section=None, sort_by=
     # Paginate the students
     paginator = Paginator(students, per_page)  # Show 'per_page' students per page
     return paginator
+
 
 @session_login_required(role=Role.TEACHER)
 def register_student(request):
@@ -95,22 +92,9 @@ def register_student(request):
     departments = Department.objects.all()  # Adjust based on your models
 
     # Context for rendering the page
-    context = {
-        'handled_sections': handled_sections,
-        'username': full_name,
-        'role': role,
-        'page_obj': page_obj,
-        'departments': departments,
-        'sections': sections,  # Only show unique sections handled by the teacher
-        'department': department,
-        'section': section_filter,
-        'sort_by': sort_by,
-        'sort_order': sort_order,
-        'per_page': per_page,
-        'selected_department': department,
-        'selected_section': section_filter,
-    }
+    context = {'handled_sections': handled_sections, 'username': full_name, 'role': role, 'page_obj': page_obj,
+        'departments': departments, 'sections': sections,  # Only show unique sections handled by the teacher
+        'department': department, 'section': section_filter, 'sort_by': sort_by, 'sort_order': sort_order,
+        'per_page': per_page, 'selected_department': department, 'selected_section': section_filter, }
 
     return render(request, 'teacher/register_student.html', context)
-
-

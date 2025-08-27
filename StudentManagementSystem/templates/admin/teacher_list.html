@@ -77,12 +77,11 @@
             </div>
             <form method="POST" id="editTeacherForm">
 
-                {% csrf_token %}
+                <div class="modal-body p-5">
 
-                <input type="hidden" name="show_in_table_modal" id="show_in_table_modal" value="true">
+                    {% csrf_token %}
 
-
-                <div class="modal-body">
+                    <input type="hidden" name="show_in_table_modal" id="show_in_table_modal" value="true">
                     <input type="hidden" name="teacher_id_edit_modal" id="teacher_id_edit_modal"
                            value="{{ teacher.id }}">
 
@@ -198,9 +197,6 @@
     </div>
 </div>
 
-<!-- Background overlay to dim the rest of the screen when modal is open -->
-<div id="modalOverlay"
-     style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 999;"></div>
 
 
 

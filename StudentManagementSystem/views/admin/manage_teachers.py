@@ -1,4 +1,3 @@
-from django.contrib import messages  # Import messages module
 from django.contrib.auth.hashers import make_password
 from django.db import IntegrityError  # Import IntegrityError for handling database constraints
 from django.http.response import JsonResponse
@@ -11,6 +10,7 @@ from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.models.section import Section
 from StudentManagementSystem.models.teachers import HandledSection
 from StudentManagementSystem.models.year_level import YearLevel
+
 
 # @session_login_required(role=Role.ADMIN)
 def get_teacher_context(admin_id):
@@ -27,21 +27,15 @@ def get_teacher_context(admin_id):
         # Extract section names using __str__ from Section model
         section_names = [str(handled_section.section) for handled_section in handled_sections]
 
-        teachers_with_sections.append({
-            'teacher': teacher,
-            'section_names': section_names
-        })
+        teachers_with_sections.append({'teacher': teacher, 'section_names': section_names})
 
-    context = {
-        'departments': departments,
-        'username': admin.username,
-        'role': Role.ADMIN,
-        'teachers_with_sections': teachers_with_sections,
-    }
+    context = {'departments': departments, 'username': admin.username, 'role': Role.ADMIN,
+        'teachers_with_sections': teachers_with_sections, }
     return context
 
 
 from django.contrib import messages
+
 
 @session_login_required(role=Role.ADMIN)
 def create_teacher(request):
@@ -101,13 +95,8 @@ def create_teacher(request):
             hashed_password = make_password(raw_password)
 
             # Create the teacher object
-            teacher = Teacher.objects.create(
-                teacher_id=teacher_id,
-                first_name=first_name,
-                last_name=last_name,
-                password=hashed_password,
-                date_of_birth=None,
-            )
+            teacher = Teacher.objects.create(teacher_id=teacher_id, first_name=first_name, last_name=last_name,
+                password=hashed_password, date_of_birth=None, )
 
             # Default to Year 1 (you can modify to be dynamic later)
             year_level = YearLevel.objects.get_or_create(year=1)[0]
@@ -118,12 +107,8 @@ def create_teacher(request):
                 section = Section.objects.get(department=department, year_level=year_level, letter=letter)
 
                 # Create a HandledSection object to link the teacher and section
-                HandledSection.objects.create(
-                    teacher=teacher,
-                    section=section,
-                    department=section.department,
-                    year_level=section.year_level
-                )
+                HandledSection.objects.create(teacher=teacher, section=section, department=section.department,
+                    year_level=section.year_level)
 
             messages.success(request, 'Created a teacher successfully!', extra_tags=message_tag)
 
@@ -140,6 +125,7 @@ def create_teacher(request):
     # Fetch context using the helper function
     context = get_teacher_context(admin_id)
     return render(request, 'admin/teacher_form.html', context)
+
 
 @session_login_required(role=Role.ADMIN)
 def edit_teacher(request, teacher_id):
@@ -208,12 +194,8 @@ def edit_teacher(request, teacher_id):
 
             # Now, create all the new handled sections
             for section in sections_to_create:
-                HandledSection.objects.create(
-                    teacher=teacher,
-                    section=section,
-                    department=section.department,
-                    year_level=section.year_level
-                )
+                HandledSection.objects.create(teacher=teacher, section=section, department=section.department,
+                    year_level=section.year_level)
 
         # On successful update, show a success message and redirect to the dashboard
         messages.success(request, 'Teacher details updated successfully!', extra_tags=message_tag)
@@ -226,32 +208,23 @@ def edit_teacher(request, teacher_id):
 
 # 2. View to fetch teacher details for the modal
 @session_login_required(role=Role.ADMIN)
-def get_teacher_details(request,teacher_id):
+def get_teacher_details(request, teacher_id):
     teacher = get_object_or_404(Teacher, id=teacher_id)
 
     handled_sections = teacher.handled_sections.all()  # Fetch the handled sections for this teacher
 
     # Prepare data to send to the frontend
-    sections_data = [
-        {
-            'id': section.id,
-            'department': section.department.name,
-            'year_level': section.year_level.year,
-            'letter': section.section.letter,
-            'section_name': f"{section.department.name} {section.year_level.year}{section.section.letter}"
-            # Combined section name
-        }
-        for section in handled_sections
-    ]
+    sections_data = [{'id': section.id, 'department': section.department.name, 'year_level': section.year_level.year,
+        'letter': section.section.letter,
+        'section_name': f"{section.department.name} {section.year_level.year}{section.section.letter}"
+        # Combined section name
+    } for section in handled_sections]
 
-    data = {
-        'teacher_id': teacher.id,
-        'first_name': teacher.first_name,
-        'last_name': teacher.last_name,
-        'handled_sections': sections_data
-    }
+    data = {'teacher_id': teacher.id, 'first_name': teacher.first_name, 'last_name': teacher.last_name,
+        'handled_sections': sections_data}
 
     return JsonResponse(data)
+
 
 @session_login_required(role=Role.ADMIN)
 def remove_section(request, section_id):
@@ -264,6 +237,7 @@ def remove_section(request, section_id):
 
         return JsonResponse({'success': True})
     return JsonResponse({'success': False}, status=400)
+
 
 @session_login_required(role=Role.ADMIN)
 def delete_teacher(request, teacher_id):

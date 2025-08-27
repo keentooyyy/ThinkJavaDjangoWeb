@@ -1,7 +1,4 @@
-import json
-
 from django.db.models.aggregates import Count
-from django.http.response import JsonResponse
 from django.shortcuts import render, redirect
 
 from GameProgress.models import AchievementDefinition, LevelDefinition
@@ -22,9 +19,8 @@ def generate_dashboard_context(admin_id):
     student_count_total = Student.objects.count()
 
     # Use annotate to get student counts for CS and IT departments in a single query
-    department_counts = Section.objects.filter(department__id__in=[1, 2]) \
-        .values('department__id') \
-        .annotate(student_count=Count('student'))  # Assuming 'student' is the related name in Student model
+    department_counts = Section.objects.filter(department__id__in=[1, 2]).values('department__id').annotate(
+        student_count=Count('student'))  # Assuming 'student' is the related name in Student model
 
     student_count_CS = next((count['student_count'] for count in department_counts if count['department__id'] == 1), 0)
     student_count_IT = next((count['student_count'] for count in department_counts if count['department__id'] == 2), 0)
@@ -41,10 +37,7 @@ def generate_dashboard_context(admin_id):
         dept_id = section.department.id
         if dept_id not in sections_by_department:
             sections_by_department[dept_id] = []
-        sections_by_department[dept_id].append({
-            'id': section.id,
-            'letter': section.letter
-        })
+        sections_by_department[dept_id].append({'id': section.id, 'letter': section.letter})
 
     # Get rankings by section
     ranking_by_section = get_section_rankings()
@@ -57,20 +50,12 @@ def generate_dashboard_context(admin_id):
     levels_details = LevelDefinition.objects.values('id', 'name', 'unlocked')
 
     # Prepare context
-    context = {
-        'username': admin.username,
-        'role': Role.ADMIN,
-        'student_count': student_count_total,
-        'student_count_CS': student_count_CS,
-        'student_count_IT': student_count_IT,
-        'teacher_count': teacher_count,
-        'section_count': section_count,
-        'ranking_by_section': ranking_by_section,  # No need to json.dumps if it's going to be rendered directly
-        'achievements_count': achievements_count,
-        'levels_count': levels_count,
-        'achievements': list(achievements_details),
-        'levels': list(levels_details),
-    }
+    context = {'username': admin.username, 'role': Role.ADMIN, 'student_count': student_count_total,
+        'student_count_CS': student_count_CS, 'student_count_IT': student_count_IT, 'teacher_count': teacher_count,
+        'section_count': section_count, 'ranking_by_section': ranking_by_section,
+        # No need to json.dumps if it's going to be rendered directly
+        'achievements_count': achievements_count, 'levels_count': levels_count,
+        'achievements': list(achievements_details), 'levels': list(levels_details), }
 
     # Return the context to render the page
     return context
@@ -84,7 +69,6 @@ def admin_dashboard(request):
 
     context = generate_dashboard_context(admin_id)
 
-
     return render(request, 'admin/dashboard.html', context)
 
 
@@ -95,5 +79,3 @@ def count_students(department_id=None):
         return Student.objects.filter(section__department_id=department_id).count()
     # If no department_id is provided, count all students
     return Student.objects.count()
-
-

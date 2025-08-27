@@ -1,11 +1,10 @@
 from django.contrib import messages
 from django.http.response import JsonResponse
-from django.shortcuts import redirect, render, get_object_or_404
+from django.shortcuts import redirect, get_object_or_404
 
 from GameProgress.models import LevelDefinition, AchievementDefinition
 from GameProgress.services.progress import sync_all_students_with_all_progress
 from StudentManagementSystem.decorators.custom_decorators import session_login_required
-# from StudentManagementSystem.decorators.custom_decorators import session_login_required
 from StudentManagementSystem.models.roles import Role
 
 
@@ -22,14 +21,11 @@ def add_level(request):
         level_unlocked = request.POST.get('level_unlocked', False) == 'on'  # Check if the checkbox is ticked
 
         if level_name:
-            level, created = LevelDefinition.objects.get_or_create(
-                name=level_name,
-                defaults={'unlocked': level_unlocked}
-            )
+            level, created = LevelDefinition.objects.get_or_create(name=level_name,
+                                                                   defaults={'unlocked': level_unlocked})
             if created:
                 messages.success(request, f"Level '{level_name}' has been created successfully.",
-                                 extra_tags=message_tag)
-                # sync_all_students_with_all_progress()  # Sync progress after adding a level
+                                 extra_tags=message_tag)  # sync_all_students_with_all_progress()  # Sync progress after adding a level
             else:
                 messages.error(request, f"Level '{level_name}' already exists.", extra_tags=message_tag)
 
@@ -38,6 +34,7 @@ def add_level(request):
 
     # If not POST, just re-render the dashboard without changes
     return redirect('admin_dashboard')
+
 
 @session_login_required(role=Role.ADMIN)
 def delete_level(request, level_id):
@@ -70,14 +67,13 @@ def add_achievement(request):
         ach_is_active = request.POST.get('achievement_is_active', False) == 'on'
 
         if ach_code and ach_title and ach_description:
-            achievement, created = AchievementDefinition.objects.get_or_create(
-                code=ach_code,
-                defaults={'title': ach_title, 'description': ach_description, 'is_active': ach_is_active}
-            )
+            achievement, created = AchievementDefinition.objects.get_or_create(code=ach_code,
+                                                                               defaults={'title': ach_title,
+                                                                                         'description': ach_description,
+                                                                                         'is_active': ach_is_active})
             if created:
                 messages.success(request, f"Achievement '{ach_title}' has been created successfully.",
-                                 extra_tags=message_tag)
-                # sync_all_students_with_all_progress()  # Sync progress after adding an achievement
+                                 extra_tags=message_tag)  # sync_all_students_with_all_progress()  # Sync progress after adding an achievement
             else:
                 messages.error(request, f"Achievement '{ach_title}' already exists.", extra_tags=message_tag)
 
@@ -86,6 +82,7 @@ def add_achievement(request):
 
     # If not POST, just re-render the dashboard without changes
     return redirect('admin_dashboard')
+
 
 # @session_login_required(Role.ADMIN)
 def delete_achievement(request, achievement_id):
@@ -102,6 +99,7 @@ def delete_achievement(request, achievement_id):
         # Return a JsonResponse to confirm the delete operation
         return JsonResponse({'success': True})
     return JsonResponse({'success': False})
+
 
 # # @session_login_required(Role.ADMIN)
 def force_sync_everyone(request):
