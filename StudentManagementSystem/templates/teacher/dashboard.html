@@ -18,11 +18,11 @@
 
         {% include 'teacher/teacher_info.html' %}
 
-{#        <div class="d-none">#}
-{#            {% include 'teacher/register_student.html' %}#}
-{#        {% include 'teacher/generate_section_code.html' %}#}
-{#        {% include 'teacher/progress_control.html' %}#}
-{#        </div>#}
+        {#        <div class="d-none">#}
+        {#            {% include 'teacher/register_student.html' %}#}
+        {#        {% include 'teacher/generate_section_code.html' %}#}
+        {#        {% include 'teacher/progress_control.html' %}#}
+        {#        </div>#}
 
 
     </div>
@@ -54,72 +54,76 @@
                 height: 230,
             },
             title: {
-                text: 'Temporary Pie Chart'
+                text: 'Sections by Department'
             },
             plotOptions: {
                 pie: {
                     dataLabels: {
-                        enabled: false // Disable all data labels
+                        enabled: true, // enable if you want labels on slices
+                        format: '{point.name}: {point.y}'
                     }
-                }
-            },
-
-            series: [{
-                name: 'Market Share',
-                data: [
-                    {name: 'Chrome', y: 61.4},
-                    {name: 'Internet Explorer', y: 11.8},
-                    {name: 'Firefox', y: 10.9},
-                    {name: 'Edge', y: 4.7},
-                    {name: 'Safari', y: 4.2},
-                    {name: 'Other', y: 7.05}
-                ]
-            }]
-        });
-
-
-        Highcharts.chart('handled_section_ranking', {
-            chart: {
-                type: 'column',  // Column chart type
-                height: '500',
-            },
-            title: {
-                text: 'Top 5 Sections by Average Score'  // Title of the chart
-            },
-            subtitle: {
-                text: 'Based on student performance'
-            },
-            legend: {
-                enabled: false  // Disable the legend (removes the clickable item)
-            },
-            xAxis: {
-                categories: ['Section A', 'Section B', 'Section C', 'Section D', 'Section E'],  // X-axis labels as section names
-                title: {
-                    text: 'Section'  // Label for X-axis
-                }
-            },
-            yAxis: {
-                min: 0,
-                title: {
-                    text: 'Average Score'  // Label for Y-axis
                 }
             },
             credits: {
                 enabled: false  // Disable Highcharts branding (the "Highcharts.com" logo and link)
             },
             series: [{
-                name: 'Average Score',
-                data: [85.6, 78.4, 92.3, 88.7, 80.5],  // Y-axis data (average scores for each section)
-                colorByPoint: true,  // Apply color to each point (bar)
-                colors: ['#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6'],  // Custom colors array
+                name: 'Sections',
+                colorByPoint: true,
+                data: [
+                    {name: 'Computer Science', y: {{ total_cs_section|default:0 }}},
+                    {name: 'Information Technology', y: {{ total_it_section|default:0 }}}
+                ]
+            }]
+        });
+
+        const topStudents = {{ top_5_students|safe }};
+
+        // Extract X and Y values
+        const categories = topStudents.map(s => s.first_name + " " + s.last_name);
+        const scores = topStudents.map(s => s.score);
+
+        Highcharts.chart('handled_section_ranking', {
+            chart: {
+                type: 'column',
+                height: '500',
+            },
+            title: {
+                text: 'Top 5 Students by Score'
+            },
+            subtitle: {
+                text: 'From handled sections'
+            },
+            legend: {
+                enabled: false
+            },
+            xAxis: {
+                categories: categories,  // student names
+                title: {
+                    text: 'Student'
+                }
+            },
+            yAxis: {
+                min: 0,
+                title: {
+                    text: 'Score'
+                }
+            },
+            credits: {
+                enabled: false
+            },
+            series: [{
+                name: 'Score',
+                data: scores,   // student scores
+                colorByPoint: true,
                 dataLabels: {
                     enabled: true,
                     formatter: function () {
-                        return this.y.toFixed(2);  // Format the value to 2 decimal places
-                    },// Enable data labels
+                        return this.y.toFixed(0);  // No decimals for scores
+                    },
                     style: {
                         fontWeight: 'bold',
-                        color: 'white'  // Color of the data label text
+                        color: 'white'
                     }
                 }
             }]
