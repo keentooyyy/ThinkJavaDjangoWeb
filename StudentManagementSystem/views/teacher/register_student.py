@@ -140,29 +140,40 @@ def edit_student(request, student_id):
     teacher_id = request.session.get("user_id")
 
     if not teacher_id:
-        messages.error(request, "Unauthorized access. Please log in again.", extra_tags="edit_message")
-        return JsonResponse({"success": False})
+        return JsonResponse({"success": False, "message": "Unauthorized"}, status=401)
 
     teacher = get_object_or_404(Teacher, id=teacher_id)
     student = get_object_or_404(Student, id=student_id)
 
-    handled_sections = HandledSection.objects.filter(teacher=teacher).values_list("section_id", flat=True)
-    if student.section_id not in handled_sections:
-        messages.error(request, "You are not authorized to edit this student.", extra_tags="edit_message")
-        return JsonResponse({"success": False})
+    handled_sections = (
+        HandledSection.objects
+        .filter(teacher=teacher)
+        .select_related("section__year_level", "department")
+        .order_by("department__name", "section__year_level__year", "section__letter")
+    )
 
-    section = student.section
-    department = section.department
-    year_level = section.year_level
+    # 🚨 Must handle student's current section
+    if not handled_sections.filter(section=student.section).exists():
+        return JsonResponse({"success": False, "message": "Not authorized"}, status=403)
 
-    # ✅ Prefill modal
+    # -----------------------------
+    # GET: Prefill modal
+    # -----------------------------
     if request.method == "GET":
-        dept_sections = (
-            HandledSection.objects
-            .filter(teacher=teacher, department=student.section.department)
-            .select_related("section__year_level")
-            .order_by("section__year_level__year", "section__letter")
-        )
+        departments_dict = {}
+        for hs in handled_sections:
+            dept_id = hs.department.id
+            if dept_id not in departments_dict:
+                departments_dict[dept_id] = {
+                    "id": dept_id,
+                    "name": hs.department.name,
+                    "sections": []
+                }
+            departments_dict[dept_id]["sections"].append({
+                "id": hs.section.id,
+                "year": hs.section.year_level.year,
+                "letter": hs.section.letter
+            })
 
         return JsonResponse({
             "success": True,
@@ -171,18 +182,19 @@ def edit_student(request, student_id):
                 "student_id": student.student_id,
                 "first_name": student.first_name,
                 "last_name": student.last_name,
-                "department_id": department.id,
-                "department_name": department.name,
-                "section_id": section.id,
-                "section_display": f"{year_level.year}{section.letter}",
+                "department_id": student.section.department.id,
+                "department_name": student.section.department.name,
+                "section_id": student.section.id,
+                "section_display": f"{student.section.department.name}"
+                                    f"{student.section.year_level.year}"
+                                    f"{student.section.letter}",
             },
-            "sections": [
-                {"id": hs.section.id, "display": f"{hs.section.year_level.year}{hs.section.letter}"}
-                for hs in dept_sections
-            ]
+            "departments": list(departments_dict.values())
         })
 
-    # ✅ Save updates
+    # -----------------------------
+    # POST: Save updates
+    # -----------------------------
     if request.method == "POST":
         first_name = request.POST.get("student_first_name_modal")
         last_name = request.POST.get("student_last_name_modal")
@@ -193,11 +205,17 @@ def edit_student(request, student_id):
             return JsonResponse({"success": False})
 
         try:
-            new_section = Section.objects.get(id=section_id)
+            new_section = Section.objects.select_related("department", "year_level").get(id=section_id)
         except Section.DoesNotExist:
             messages.error(request, "Invalid section selected.", extra_tags="edit_message")
             return JsonResponse({"success": False})
 
+        # 🚨 Ensure teacher really handles this section
+        if not handled_sections.filter(section=new_section).exists():
+            messages.error(request, "You are not authorized to assign this section.", extra_tags="edit_message")
+            return JsonResponse({"success": False})
+
+        # ✅ Apply updates
         student.first_name = first_name
         student.last_name = last_name
         student.section = new_section
@@ -210,7 +228,9 @@ def edit_student(request, student_id):
         )
         return JsonResponse({"success": True})
 
-    return JsonResponse({"success": False, "message": "Invalid request method."}, status=405)
+    return JsonResponse({"success": False, "message": "Invalid method"}, status=405)
+
+
 
 
 # ----------------------------

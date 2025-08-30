@@ -221,26 +221,59 @@ function openEditStudentModal(studentId, btn) {
             $('#student_id_edit_modal').val(s.id);
             $('#student_first_name_modal').val(s.first_name);
             $('#student_last_name_modal').val(s.last_name);
-            $('#student_department_modal').val(s.department_id);
 
-            // ✅ Rebuild section dropdown dynamically
+            // ✅ Rebuild department dropdown
+            const deptSelect = $('#student_department_modal');
+            deptSelect.empty().append('<option value="">-- Select Department --</option>');
+
+            data.departments.forEach(dept => {
+                const opt = $('<option>', {
+                    value: dept.id,
+                    text: dept.name
+                });
+                if (dept.id === s.department_id) {
+                    opt.prop('selected', true);
+                }
+                deptSelect.append(opt);
+            });
+
+            // ✅ Populate section dropdown based on current dept
             const sectionSelect = $('#student_section_modal');
             sectionSelect.empty().append('<option value="">-- Select Section --</option>');
-            data.sections.forEach(sec => {
-                const option = $('<option>', {
-                    value: sec.id,
-                    text: sec.display
+            const currentDept = data.departments.find(d => d.id === s.department_id);
+            if (currentDept) {
+                currentDept.sections.forEach(sec => {
+                    const opt = $('<option>', {
+                        value: sec.id,
+                        text: sec.year + sec.letter
+                    });
+                    if (sec.id === s.section_id) {
+                        opt.prop('selected', true);
+                    }
+                    sectionSelect.append(opt);
                 });
-                if (sec.id === s.section_id) {
-                    option.prop('selected', true);
+            }
+
+            // ✅ On dept change → reload sections
+            deptSelect.off('change').on('change', function () {
+                const selectedDeptId = $(this).val();
+                sectionSelect.empty().append('<option value="">-- Select Section --</option>');
+                const selectedDept = data.departments.find(d => d.id == selectedDeptId);
+                if (selectedDept) {
+                    selectedDept.sections.forEach(sec => {
+                        const opt = $('<option>', {
+                            value: sec.id,
+                            text: sec.year + sec.letter
+                        });
+                        sectionSelect.append(opt);
+                    });
                 }
-                sectionSelect.append(option);
             });
 
             // Show modal
             $('#editStudentModal').modal('show');
 
-            // Bind submit
+            // Submit handler
             $('#editStudentForm').off('submit').on('submit', function (e) {
                 e.preventDefault();
                 let formData = $(this).serialize();
@@ -254,7 +287,7 @@ function openEditStudentModal(studentId, btn) {
                             $('#editStudentModal').modal('hide');
                             location.reload();
                         } else {
-                            alert("Failed to update student.");
+                            alert(response.message || "Failed to update student.");
                         }
                     },
                     error: function () {
