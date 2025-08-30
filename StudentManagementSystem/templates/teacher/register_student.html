@@ -202,13 +202,10 @@
 
 
     <script>
+
 let lastStudentEditBtn = null;
 
 function openEditStudentModal(studentId, btn) {
-    // Remember which button opened the modal
-    lastStudentEditBtn = btn;
-
-    // Fetch student details first
     $.ajax({
         url: `/teacher/students/${studentId}/edit/`,
         method: 'GET',
@@ -218,16 +215,32 @@ function openEditStudentModal(studentId, btn) {
                 return;
             }
 
+            const s = data.student;
+
             // Fill modal fields
-            $('#student_id_edit_modal').val(data.student.id);
-            $('#student_first_name_modal').val(data.student.first_name);
-            $('#student_last_name_modal').val(data.student.last_name);
-            $('#student_section_modal').val(data.student.full_section);
+            $('#student_id_edit_modal').val(s.id);
+            $('#student_first_name_modal').val(s.first_name);
+            $('#student_last_name_modal').val(s.last_name);
+            $('#student_department_modal').val(s.department_id);
+
+            // ✅ Rebuild section dropdown dynamically
+            const sectionSelect = $('#student_section_modal');
+            sectionSelect.empty().append('<option value="">-- Select Section --</option>');
+            data.sections.forEach(sec => {
+                const option = $('<option>', {
+                    value: sec.id,
+                    text: sec.display
+                });
+                if (sec.id === s.section_id) {
+                    option.prop('selected', true);
+                }
+                sectionSelect.append(option);
+            });
 
             // Show modal
             $('#editStudentModal').modal('show');
 
-            // Bind form submit (unbind first to avoid duplicates)
+            // Bind submit
             $('#editStudentForm').off('submit').on('submit', function (e) {
                 e.preventDefault();
                 let formData = $(this).serialize();
@@ -255,6 +268,9 @@ function openEditStudentModal(studentId, btn) {
         }
     });
 }
+
+
+
 
 // ✅ When modal closes (X, Close button, or backdrop click), return focus to the opener
 $(document).ready(function () {
@@ -295,6 +311,46 @@ $(document).ready(function () {
                 }
             });
         }
+    </script>
+
+
+
+    <script>
+
+        $(document).ready(function () {
+
+            // 🔑 Toggle show/hide password for student
+            $('#toggleStudentPassword').on('click', function () {
+                const passwordField = $('#student_password_modal');
+                const icon = $(this).find('i');
+
+                if (passwordField.attr('type') === 'password') {
+                    passwordField.attr('type', 'text');
+                    icon.removeClass('bx-hide').addClass('bx-show');
+                } else {
+                    passwordField.attr('type', 'password');
+                    icon.removeClass('bx-show').addClass('bx-hide');
+                }
+            });
+
+            // 🔑 Generate random password for student
+            $('#generateStudentPassword').on('click', function () {
+                const length = 10; // you can adjust length
+                const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+                let newPassword = "";
+                for (let i = 0; i < length; i++) {
+                    const randomIndex = Math.floor(Math.random() * charset.length);
+                    newPassword += charset[randomIndex];
+                }
+
+                // Fill the field & switch it to visible
+                $('#student_password_modal').val(newPassword).attr('type', 'text');
+                $('#toggleStudentPassword i').removeClass('bx-hide').addClass('bx-show');
+            });
+
+        });
+
+
     </script>
 {% endblock %}
 

@@ -1,5 +1,3 @@
-# StudentManagementSystem/views/teacher/register_student.py
-
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.http.response import JsonResponse
@@ -87,6 +85,7 @@ def register_student(request):
     if not handled_sections.exists():
         messages.error(request, "You are not assigned to any sections yet.", extra_tags=extra_tags)
 
+    # 👇 sections for FILTER DROPDOWN only
     sections = []
     for hs in handled_sections:
         key = f"{hs.section.year_level.year}{hs.section.letter}"
@@ -120,7 +119,7 @@ def register_student(request):
         "role": Role.TEACHER,
         "page_obj": page_obj,
         "departments": departments,
-        "sections": sections,
+        "sections": sections,  # 👈 filter dropdown only
         "department": department,
         "section": section_filter,
         "sort_by": sort_by,
@@ -152,7 +151,19 @@ def edit_student(request, student_id):
         messages.error(request, "You are not authorized to edit this student.", extra_tags="edit_message")
         return JsonResponse({"success": False})
 
+    section = student.section
+    department = section.department
+    year_level = section.year_level
+
+    # ✅ Prefill modal
     if request.method == "GET":
+        dept_sections = (
+            HandledSection.objects
+            .filter(teacher=teacher, department=student.section.department)
+            .select_related("section__year_level")
+            .order_by("section__year_level__year", "section__letter")
+        )
+
         return JsonResponse({
             "success": True,
             "student": {
@@ -160,26 +171,29 @@ def edit_student(request, student_id):
                 "student_id": student.student_id,
                 "first_name": student.first_name,
                 "last_name": student.last_name,
-                "full_section": f"{student.section.year_level.year}{student.section.letter}",
-            }
+                "department_id": department.id,
+                "department_name": department.name,
+                "section_id": section.id,
+                "section_display": f"{year_level.year}{section.letter}",
+            },
+            "sections": [
+                {"id": hs.section.id, "display": f"{hs.section.year_level.year}{hs.section.letter}"}
+                for hs in dept_sections
+            ]
         })
 
+    # ✅ Save updates
     if request.method == "POST":
         first_name = request.POST.get("student_first_name_modal")
         last_name = request.POST.get("student_last_name_modal")
-        section_key = request.POST.get("student_section_modal")
+        section_id = request.POST.get("student_section_modal")
 
-        if not first_name or not last_name or not section_key:
+        if not first_name or not last_name or not section_id:
             messages.error(request, "All fields are required.", extra_tags="edit_message")
             return JsonResponse({"success": False})
 
-        year, letter = section_key[0], section_key[1:]
         try:
-            new_section = Section.objects.get(
-                year_level__year=year,
-                letter=letter,
-                department=student.section.department,
-            )
+            new_section = Section.objects.get(id=section_id)
         except Section.DoesNotExist:
             messages.error(request, "Invalid section selected.", extra_tags="edit_message")
             return JsonResponse({"success": False})

@@ -83,7 +83,9 @@
                                     onclick="openEditStudentModal({{ student.id }})">
                                 Edit
                             </button>
-                            <button type="button" class="btn btn-danger btn-sm" onclick="deleteStudent({{ student.id }})">Delete</button>
+                            <button type="button" class="btn btn-danger btn-sm"
+                                    onclick="deleteStudent({{ student.id }})">Delete
+                            </button>
                         </td>
                     </tr>
                 {% empty %}
@@ -174,26 +176,62 @@
                 <input type="hidden" name="student_id_edit_modal" id="student_id_edit_modal" value="">
 
                 <div class="modal-body p-5">
+
+                    <!-- First + Last Name -->
                     <div class="row mb-3">
                         <div class="col-4">
-                            <label for="student_first_name_modal" class="form-label">First Name:</label>
+                            <label for="student_first_name_modal" class="form-label">Full Name:</label>
                         </div>
                         <div class="col-8">
-                            <input type="text" class="form-control" id="student_first_name_modal"
-                                   name="student_first_name_modal" required>
+                            <div class="row">
+                                <div class="col-6">
+                                    <input type="text" class="form-control" id="student_first_name_modal"
+                                           name="student_first_name_modal" placeholder="First Name" required>
+                                </div>
+                                <div class="col-6">
+                                    <input type="text" class="form-control" id="student_last_name_modal"
+                                           name="student_last_name_modal" placeholder="Last Name" required>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
+                    <!-- Password -->
                     <div class="row mb-3">
                         <div class="col-4">
-                            <label for="student_last_name_modal" class="form-label">Last Name:</label>
+                            <label for="student_password_modal" class="form-label">Password (Optional):</label>
                         </div>
                         <div class="col-8">
-                            <input type="text" class="form-control" id="student_last_name_modal"
-                                   name="student_last_name_modal" required>
+                            <div class="input-group mb-3">
+                                <input type="password" class="form-control" id="student_password_modal"
+                                       name="student_password_modal">
+                                <a href="javascript:;" class="input-group-text bg-transparent"
+                                   id="toggleStudentPassword"><i class="bx bx-hide"></i></a>
+                                <button class="btn btn-outline-primary btn-sm" type="button"
+                                        id="generateStudentPassword">
+                                    Generate Password
+                                </button>
+                            </div>
                         </div>
                     </div>
 
+                    <!-- Department Dropdown -->
+                    <div class="row mb-3">
+                        <div class="col-4">
+                            <label for="student_department_modal" class="form-label">Department:</label>
+                        </div>
+                        <div class="col-8">
+                            <select id="student_department_modal" name="student_department_modal" class="form-select"
+                                    required>
+                                <option value="">-- Select Department --</option>
+                                {% for dept in departments %}
+                                    <option value="{{ dept.id }}">{{ dept.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Section Dropdown -->
                     <div class="row mb-3">
                         <div class="col-4">
                             <label for="student_section_modal" class="form-label">Section:</label>
@@ -201,18 +239,11 @@
                         <div class="col-8">
                             <select id="student_section_modal" name="student_section_modal" class="form-select"
                                     required>
-                                <option value="">-- Select Section --</option>
-                                {% for section in sections %}
-                                    {% with section_key=section.year_level.year|stringformat:"s"|add:section.letter %}
-                                        <option value="{{ section_key }}">
-                                            {{ section.year_level.year }}{{ section.letter }}
-                                        </option>
-                                    {% endwith %}
-                                {% endfor %}
                             </select>
                         </div>
                     </div>
-                </div>
+
+                </div> <!-- /.modal-body -->
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
