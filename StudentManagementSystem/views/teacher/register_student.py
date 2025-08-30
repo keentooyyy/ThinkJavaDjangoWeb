@@ -110,8 +110,8 @@ def register_student(request):
         messages.error(request, "No departments available.", extra_tags=extra_tags)
 
     section_codes = SectionJoinCode.objects.filter(section__in=[hs.section for hs in handled_sections])
-    if not section_codes.exists():
-        messages.error(request, "No join codes have been generated yet.", extra_tags=extra_tags)
+    # if not section_codes.exists():
+    #     messages.error(request, "No join codes have been generated yet.", extra_tags=extra_tags)
 
     context = {
         "handled_sections": handled_sections,
