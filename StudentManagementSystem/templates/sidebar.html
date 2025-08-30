@@ -99,6 +99,14 @@
                                         <div class="menu-title">Student Ranks</div>
                                     </a>
                                 </li>
+                            {% elif request.session.role == 'TEACHER' %}
+                                <li>
+                                    <a href="{% url 'teacher_student_ranking' %}">
+                                        <div class="parent-icon"><i class="bx bx-bar-chart-square"></i>
+                                        </div>
+                                        <div class="menu-title">Student Ranks</div>
+                                    </a>
+                                </li>
                             {% endif %}
 
 
