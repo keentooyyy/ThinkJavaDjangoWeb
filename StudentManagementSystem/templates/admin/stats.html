@@ -6,9 +6,7 @@
                 <div class="d-flex align-items-center">
                     <div>
                         <p class="mb-0 text-secondary">No. Students</p>
-                        <h4 class="my-1" id="student_count">
-                            <div class="spinner-grow text-primary"></div>
-                        </h4>
+                        <h4 class="my-1" id="student_count">{{ student_count }}</h4>
                     </div>
                     <div class="text-primary ms-auto font-35"><i class="bx bx-merge"></i></div>
                 </div>
@@ -22,9 +20,7 @@
                 <div class="d-flex align-items-center">
                     <div>
                         <p class="mb-0 text-secondary">CS Students</p>
-                        <h4 class="my-1" id="student_count_CS">
-                            <div class="spinner-grow text-primary"></div>
-                        </h4>
+                        <h4 class="my-1" id="student_count_CS">{{ student_count_CS }}</h4>
                     </div>
                     <div class="text-primary ms-auto font-35"><i class="bx bx-minus-back"></i></div>
                 </div>
@@ -38,9 +34,7 @@
                 <div class="d-flex align-items-center">
                     <div>
                         <p class="mb-0 text-secondary">IT Students</p>
-                        <h4 class="my-1" id="student_count_IT">
-                            <div class="spinner-grow text-primary"></div>
-                        </h4>
+                        <h4 class="my-1" id="student_count_IT">{{ student_count_IT }}</h4>
                     </div>
                     <div class="text-primary ms-auto font-35"><i class="bx bx-minus-front"></i></div>
                 </div>
@@ -54,9 +48,7 @@
                 <div class="d-flex align-items-center">
                     <div>
                         <p class="mb-0 text-secondary">No. Teachers</p>
-                        <h4 class="my-1" id="teacher_count">
-                            <div class="spinner-grow text-primary"></div>
-                        </h4>
+                        <h4 class="my-1" id="teacher_count">{{ teacher_count }}</h4>
                     </div>
                     <div class="text-primary ms-auto font-35"><i class="bx bx-user"></i></div>
                 </div>
@@ -70,9 +62,7 @@
                 <div class="d-flex align-items-center">
                     <div>
                         <p class="mb-0 text-secondary">No. Sections</p>
-                        <h4 class="my-1" id="section_count">
-                            <div class="spinner-grow text-primary"></div>
-                        </h4>
+                        <h4 class="my-1" id="section_count">{{ section_count }}</h4>
                     </div>
                     <div class="text-primary ms-auto font-35"><i class="lni lni-graph"></i></div>
                 </div>
@@ -80,6 +70,7 @@
         </div>
     </div>
 
+    <!-- Ranking (async, keep spinner) -->
     <div class="col-12">
         <div class="card radius-10">
             <div class="card-body">

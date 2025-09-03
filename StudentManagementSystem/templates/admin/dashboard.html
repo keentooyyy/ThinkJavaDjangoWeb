@@ -42,23 +42,6 @@
 
     <script>
     $(function () {
-        // Students
-        $.getJSON("{% url 'dashboard_students' %}", function (data) {
-            $("#student_count").text(data.student_count);
-            $("#student_count_CS").text(data.student_count_CS);
-            $("#student_count_IT").text(data.student_count_IT);
-        });
-
-        // Teachers
-        $.getJSON("{% url 'dashboard_teachers' %}", function (data) {
-            $("#teacher_count").text(data.teacher_count);
-        });
-
-        // Sections
-        $.getJSON("{% url 'dashboard_sections' %}", function (data) {
-            $("#section_count").text(data.section_count);
-        });
-
         // Section Ranking -> build chart here
         $.getJSON("{% url 'dashboard_ranking' %}", function (data) {
             var rankingBySection = data.ranking_by_section;
@@ -113,12 +96,6 @@
                     }
                 }]
             });
-        });
-
-        // Progress (achievements + levels)
-        $.getJSON("{% url 'dashboard_progress' %}", function (data) {
-            {#console.log("Achievements:", data.achievements);#}
-            {#console.log("Levels:", data.levels);#}
         });
     });
 </script>
