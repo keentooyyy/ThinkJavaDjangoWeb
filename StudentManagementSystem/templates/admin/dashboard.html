@@ -41,69 +41,87 @@
 {% block scripts %}
 
     <script>
-        // Get the ranking data passed from Django
-        var rankingBySection = {{ ranking_by_section|safe }};
-
-        // Extract section names and average scores from the ranking data
-        var sectionNames = rankingBySection.map(function (item) {
-            return item.section;
+    $(function () {
+        // Students
+        $.getJSON("{% url 'dashboard_students' %}", function (data) {
+            $("#student_count").text(data.student_count);
+            $("#student_count_CS").text(data.student_count_CS);
+            $("#student_count_IT").text(data.student_count_IT);
         });
 
-        var averageScores = rankingBySection.map(function (item) {
-            return item.average_score;
+        // Teachers
+        $.getJSON("{% url 'dashboard_teachers' %}", function (data) {
+            $("#teacher_count").text(data.teacher_count);
         });
 
-        // Define custom colors for each bar
-        var colors = ['#FF5733', '#33FF57', '#3357FF', '#F5A623', '#8E44AD']; // Customize this array to match the number of sections
+        // Sections
+        $.getJSON("{% url 'dashboard_sections' %}", function (data) {
+            $("#section_count").text(data.section_count);
+        });
 
-        // Create the Highcharts column chart
-        Highcharts.chart('section_ranking', {
-            chart: {
-                type: 'column',  // Column chart type
-                height: '500',
+        // Section Ranking -> build chart here
+        $.getJSON("{% url 'dashboard_ranking' %}", function (data) {
+            var rankingBySection = data.ranking_by_section;
 
-            },
-            title: {
-                text: 'Top 5 Sections by Average Score'  // Title of the chart
-            },
-            subtitle: {
-                text: 'Based on student performance'
-            },
-            legend: {
-                enabled: false  // Disable the legend (removes the clickable item)
-            },
-            xAxis: {
-                categories: sectionNames,  // X-axis labels as section names
+            var sectionNames = rankingBySection.map(function (item) {
+                return item.section;
+            });
+
+            var averageScores = rankingBySection.map(function (item) {
+                return item.average_score;
+            });
+
+            var colors = ['#FF5733', '#33FF57', '#3357FF', '#F5A623', '#8E44AD'];
+
+            Highcharts.chart('section_ranking', {
+                chart: {
+                    type: 'column',
+                    height: '500'
+                },
                 title: {
-                    text: 'Section'  // Label for X-axis
-                }
-            },
-            yAxis: {
-                min: 0,
-                title: {
-                    text: 'Average Score'  // Label for Y-axis
-                }
-            },
-            credits: {
-                enabled: false  // Disable Highcharts branding (the "Highcharts.com" logo and link)
-            },
-            series: [{
-                name: 'Average Score',
-                data: averageScores,  // Y-axis data (average scores for each section)
-                colorByPoint: true,  // Apply color to each point (bar)
-                colors: colors,  // Custom colors array
-                dataLabels: {
-                    enabled: true,
-                    formatter: function () {
-                        return this.y.toFixed(2);  // Format the value to 2 decimal places
-                    },// Enable data labels
-                    style: {
-                        fontWeight: 'bold',
-                        color: 'white'  // Color of the data label text
+                    text: 'Top 5 Sections by Average Score'
+                },
+                subtitle: {
+                    text: 'Based on student performance'
+                },
+                legend: {
+                    enabled: false
+                },
+                xAxis: {
+                    categories: sectionNames,
+                    title: { text: 'Section' }
+                },
+                yAxis: {
+                    min: 0,
+                    title: { text: 'Average Score' }
+                },
+                credits: { enabled: false },
+                series: [{
+                    name: 'Average Score',
+                    data: averageScores,
+                    colorByPoint: true,
+                    colors: colors,
+                    dataLabels: {
+                        enabled: true,
+                        formatter: function () {
+                            return this.y.toFixed(2);
+                        },
+                        style: {
+                            fontWeight: 'bold',
+                            color: 'white'
+                        }
                     }
-                }
-            }]
+                }]
+            });
         });
-    </script>
+
+        // Progress (achievements + levels)
+        $.getJSON("{% url 'dashboard_progress' %}", function (data) {
+            {#console.log("Achievements:", data.achievements);#}
+            {#console.log("Levels:", data.levels);#}
+        });
+    });
+</script>
+
 
 {% endblock %}

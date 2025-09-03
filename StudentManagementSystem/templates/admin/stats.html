@@ -1,6 +1,4 @@
-<div class="row p-5" >
-
-
+<div class="row p-5">
 
     <div class="col-4">
         <div class="card radius-10">
@@ -8,16 +6,15 @@
                 <div class="d-flex align-items-center">
                     <div>
                         <p class="mb-0 text-secondary">No. Students</p>
-                        <h4 class="my-1">{{ student_count }}</h4>
+                        <h4 class="my-1" id="student_count">
+                            <div class="spinner-grow text-primary"></div>
+                        </h4>
                     </div>
-                    <div class="text-primary ms-auto font-35"><i class="bx bx-merge"></i>
-                    </div>
+                    <div class="text-primary ms-auto font-35"><i class="bx bx-merge"></i></div>
                 </div>
             </div>
         </div>
     </div>
-
-
 
     <div class="col-4">
         <div class="card radius-10">
@@ -25,16 +22,15 @@
                 <div class="d-flex align-items-center">
                     <div>
                         <p class="mb-0 text-secondary">CS Students</p>
-                        <h4 class="my-1">{{ student_count_CS }}</h4>
+                        <h4 class="my-1" id="student_count_CS">
+                            <div class="spinner-grow text-primary"></div>
+                        </h4>
                     </div>
-                    <div class="text-primary ms-auto font-35"><i class="bx bx-minus-back"></i>
-                    </div>
+                    <div class="text-primary ms-auto font-35"><i class="bx bx-minus-back"></i></div>
                 </div>
             </div>
         </div>
     </div>
-
-
 
     <div class="col-4">
         <div class="card radius-10">
@@ -42,17 +38,15 @@
                 <div class="d-flex align-items-center">
                     <div>
                         <p class="mb-0 text-secondary">IT Students</p>
-                        <h4 class="my-1">{{ student_count_IT }}</h4>
+                        <h4 class="my-1" id="student_count_IT">
+                            <div class="spinner-grow text-primary"></div>
+                        </h4>
                     </div>
-                    <div class="text-primary ms-auto font-35"><i class="bx bx-minus-front"></i>
-                    </div>
+                    <div class="text-primary ms-auto font-35"><i class="bx bx-minus-front"></i></div>
                 </div>
             </div>
         </div>
     </div>
-
-
-
 
     <div class="col-6">
         <div class="card radius-10">
@@ -60,17 +54,15 @@
                 <div class="d-flex align-items-center">
                     <div>
                         <p class="mb-0 text-secondary">No. Teachers</p>
-                        <h4 class="my-1">{{ teacher_count }}</h4>
+                        <h4 class="my-1" id="teacher_count">
+                            <div class="spinner-grow text-primary"></div>
+                        </h4>
                     </div>
-                    <div class="text-primary ms-auto font-35"><i class="bx bx-user"></i>
-                    </div>
+                    <div class="text-primary ms-auto font-35"><i class="bx bx-user"></i></div>
                 </div>
             </div>
         </div>
     </div>
-
-
-
 
     <div class="col-6">
         <div class="card radius-10">
@@ -78,25 +70,25 @@
                 <div class="d-flex align-items-center">
                     <div>
                         <p class="mb-0 text-secondary">No. Sections</p>
-                        <h4 class="my-1">{{ section_count }}</h4>
+                        <h4 class="my-1" id="section_count">
+                            <div class="spinner-grow text-primary"></div>
+                        </h4>
                     </div>
-                    <div class="text-primary ms-auto font-35"><i class="lni lni-graph"></i>
-                    </div>
+                    <div class="text-primary ms-auto font-35"><i class="lni lni-graph"></i></div>
                 </div>
             </div>
         </div>
     </div>
 
-
     <div class="col-12">
         <div class="card radius-10">
             <div class="card-body">
-                <div id="section_ranking"></div>
+                <div id="section_ranking">
+                    <div class="spinner-grow text-primary"></div>
+                </div>
             </div>
         </div>
     </div>
 
-
-
-     {% include 'admin/add_progress.html' %}
+    {% include 'admin/add_progress.html' %}
 </div>

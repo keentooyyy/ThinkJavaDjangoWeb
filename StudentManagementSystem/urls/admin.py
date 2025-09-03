@@ -1,9 +1,17 @@
-from tkinter.font import names
-
 from django.urls import path
 
 from StudentManagementSystem.views.admin.auth_admin import admin_register
-from StudentManagementSystem.views.admin.dashboard_admin import admin_dashboard
+from StudentManagementSystem.views.admin.manage_teachers import create_teacher, get_teacher_details, \
+    edit_teacher, remove_section, delete_teacher
+from StudentManagementSystem.views.admin.proggress_addition_admin import add_achievement, add_level, delete_achievement, \
+    delete_level, force_sync_everyone
+from StudentManagementSystem.views.admin.ranking_students import student_ranking
+from StudentManagementSystem.views.auth_unified import unified_login, unified_logout
+from django.urls import path
+
+from StudentManagementSystem.views.admin.auth_admin import admin_register
+from StudentManagementSystem.views.admin.dashboard_admin import admin_dashboard, dashboard_students, dashboard_teachers, \
+    dashboard_sections, dashboard_ranking, dashboard_progress
 from StudentManagementSystem.views.admin.manage_teachers import create_teacher, get_teacher_details, \
     edit_teacher, remove_section, delete_teacher
 from StudentManagementSystem.views.admin.proggress_addition_admin import add_achievement, add_level, delete_achievement, \
@@ -19,6 +27,13 @@ urlpatterns = [
 
     # Dashboard
     path('dashboard/', admin_dashboard, name='admin_dashboard'),
+
+    # JSON Endpoints
+    path("students/", dashboard_students, name="dashboard_students"),
+    path("teachers/", dashboard_teachers, name="dashboard_teachers"),
+    path("sections/", dashboard_sections, name="dashboard_sections"),
+    path("ranking/", dashboard_ranking, name="dashboard_ranking"),
+    path("progress/", dashboard_progress, name="dashboard_progress"),
 
     # Teacher Management Routes
     path('create-teacher/', create_teacher, name='create_teacher'),

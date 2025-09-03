@@ -1,7 +1,10 @@
 from collections import defaultdict
 
+from django.db import models
+from django.db.models import Sum, Count, Case, When, F, Q
+
 from GameProgress.models import LevelProgress, AchievementProgress, LevelDefinition
-from StudentManagementSystem.models.student import Student
+from StudentManagementSystem.models import Student
 
 
 def get_student_performance(student):
@@ -89,37 +92,94 @@ def get_all_student_rankings(sort_by="score", sort_order="desc", filter_by=None,
     return rankings
 
 
-# Ranking Based on Sections
 def get_section_rankings(sort_order="desc", limit=5):
-    # Base queryset for students
-    students = Student.objects.all()
+    """
+    Compute top-N sections by average student score.
+    Avoids join multiplication by separating level and achievement queries.
+    """
 
-    # Group students by their full section
-    section_groups = defaultdict(list)
+    # --- Level scores per student ---
+    level_scores = (
+        LevelProgress.objects
+        .values("student_id")
+        .annotate(
+            level_score=Sum(
+                Case(
+                    When(best_time__gte=90, then=100),
+                    When(best_time__gte=60, then=70),
+                    When(best_time__gte=30, then=40),
+                    When(best_time__gt=1, then=10),
+                    default=0,
+                    output_field=models.IntegerField(),
+                )
+            )
+        )
+    )
+    level_map = {row["student_id"]: row["level_score"] or 0 for row in level_scores}
 
-    for student in students:
-        # Get the full section for each student
-        full_section = getattr(student, "full_section", "N/A")
+    # --- Achievement scores per student ---
+    ach_scores = (
+        AchievementProgress.objects
+        .filter(unlocked=True)
+        .values("student_id")
+        .annotate(ach_score=Count("id") * 25)
+    )
+    ach_map = {row["student_id"]: row["ach_score"] or 0 for row in ach_scores}
 
-        # Calculate the student's performance and score
-        student_performance = get_student_performance(student)
-        student_score = student_performance["score"]
+    # --- Combine per student ---
+    students = Student.objects.select_related("section__department", "year_level").all()
 
-        # Add the student and their score to the appropriate section group
-        section_groups[full_section].append(student_score)
+    section_groups = {}
+    for s in students:
+        total_score = level_map.get(s.id, 0) + ach_map.get(s.id, 0)
+        if s.section:
+            section_name = f"{s.section.department.name}{s.year_level.year}{s.section.letter}"
+            section_groups.setdefault(section_name, []).append(total_score)
 
-    # Calculate the average score for each section
-    section_averages = []
-    for section, scores in section_groups.items():
-        average_score = sum(scores) / len(scores) if scores else 0
-        section_averages.append({
-            "section": section,
-            "average_score": average_score
-        })
+    # --- Average per section ---
+    section_averages = [
+        {"section": sec, "average_score": sum(scores) / len(scores) if scores else 0}
+        for sec, scores in section_groups.items()
+    ]
 
-    # Sort sections by average score
+    # --- Sort and limit ---
     reverse = sort_order == "desc"
     section_averages.sort(key=lambda x: x["average_score"], reverse=reverse)
 
-    # Return the top N sections based on average score
     return section_averages[:limit]
+
+
+# Ranking Based on Sections
+# def get_section_rankings(sort_order="desc", limit=5):
+#     # Base queryset for students
+#     students = Student.objects.all()
+#
+#     # Group students by their full section
+#     section_groups = defaultdict(list)
+#
+#     for student in students:
+#         # Get the full section for each student
+#         full_section = getattr(student, "full_section", "N/A")
+#
+#         # Calculate the student's performance and score
+#         student_performance = get_student_performance(student)
+#         student_score = student_performance["score"]
+#
+#         # Add the student and their score to the appropriate section group
+#         section_groups[full_section].append(student_score)
+#
+#     # Calculate the average score for each section
+#     section_averages = []
+#     for section, scores in section_groups.items():
+#         average_score = sum(scores) / len(scores) if scores else 0
+#         section_averages.append({
+#             "section": section,
+#             "average_score": average_score
+#         })
+#
+#     # Sort sections by average score
+#     reverse = sort_order == "desc"
+#     section_averages.sort(key=lambda x: x["average_score"], reverse=reverse)
+#
+#     # Return the top N sections based on average score
+#     return section_averages[:limit]

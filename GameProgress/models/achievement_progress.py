@@ -11,3 +11,7 @@ class AchievementProgress(models.Model):
 
     class Meta:
         unique_together = ('student', 'achievement')
+        indexes = [
+            models.Index(fields=["student"]),
+            models.Index(fields=["unlocked"]),
+        ]

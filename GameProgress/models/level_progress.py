@@ -12,3 +12,7 @@ class LevelProgress(models.Model):
 
     class Meta:
         unique_together = ('student', 'level')
+        indexes = [
+            models.Index(fields=["student"]),
+            models.Index(fields=["best_time"]),
+        ]

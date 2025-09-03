@@ -368,7 +368,7 @@ $(document).ready(function () {
 
             // 🔑 Generate random password for student
             $('#generateStudentPassword').on('click', function () {
-                const length = 10; // you can adjust length
+                const length = 16; // you can adjust length
                 const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
                 let newPassword = "";
                 for (let i = 0; i < length; i++) {
@@ -377,8 +377,7 @@ $(document).ready(function () {
                 }
 
                 // Fill the field & switch it to visible
-                $('#student_password_modal').val(newPassword).attr('type', 'text');
-                $('#toggleStudentPassword i').removeClass('bx-hide').addClass('bx-show');
+                $('#student_password_modal').val(newPassword)
             });
 
         });
