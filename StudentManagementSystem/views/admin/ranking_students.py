@@ -35,7 +35,7 @@ def student_ranking(request):
     department_name = request.GET.get("department")
     section_filter = request.GET.get("filter_by")
     sort_by = request.GET.get("sort_by", "")
-    sort_order = request.GET.get("sort_order", "")
+    sort_order = request.GET.get("sort_order", "desc")
     page_number = request.GET.get("page", 1)
     per_page = int(request.GET.get("per_page", 25))
 

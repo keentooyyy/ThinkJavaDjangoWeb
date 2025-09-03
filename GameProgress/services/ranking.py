@@ -12,9 +12,9 @@ def get_student_performance(student):
     achievement_progress = AchievementProgress.objects.filter(student=student)
 
     total_score = 0
-    total_levels = LevelDefinition.objects.count()
+    # total_levels = LevelDefinition.objects.count()
     achievements_unlocked = achievement_progress.filter(unlocked=True).count()
-    total_achievements = achievement_progress.count()
+    # total_achievements = achievement_progress.count()
     total_time_remaining = 0
 
     for lp in level_progress:
@@ -51,11 +51,23 @@ def get_student_performance(student):
     }
 
 
-def get_all_student_rankings(sort_by="score", sort_order="desc", filter_by=None, department_filter=None, limit_to_students=None):
+from django.db.models import (
+    Sum, Count, Case, When, F, Q, Value, IntegerField, Subquery, OuterRef
+)
+from django.db.models.functions import Coalesce
+
+
+def get_all_student_rankings(
+    sort_by="score",
+    sort_order="desc",
+    filter_by=None,
+    department_filter=None,
+    limit_to_students=None,
+):
     # Base queryset
     students = Student.objects.all()
 
-    # Optional limit to a predefined set of student IDs (e.g., teacher's students)
+    # Limit to specific students
     if limit_to_students is not None:
         students = students.filter(id__in=limit_to_students)
 
@@ -63,33 +75,114 @@ def get_all_student_rankings(sort_by="score", sort_order="desc", filter_by=None,
     if department_filter:
         students = students.filter(section__department__name=department_filter)
 
-    # Filter by section in format '1A', '2B', etc.
+    # Filter by section like "1A", "2B"
     if filter_by:
         try:
             year = int(filter_by[0])
             section_letter = filter_by[1].upper()
-            students = students.filter(year_level__year=year, section__letter=section_letter)
+            students = students.filter(
+                year_level__year=year, section__letter=section_letter
+            )
         except (IndexError, ValueError):
-            pass  # Ignore invalid filter input
+            pass
 
-    # Compute performance per student
-    rankings = [get_student_performance(s) for s in students]
+    # --- Subqueries to avoid join inflation ---
 
-    # Sort by selected criteria
+    # Level score per student
+    level_score_subq = (
+        LevelProgress.objects.filter(student=OuterRef("pk"))
+        .annotate(
+            score=Case(
+                When(best_time__gte=90, then=Value(100)),
+                When(best_time__gte=60, then=Value(70)),
+                When(best_time__gte=30, then=Value(40)),
+                When(best_time__gt=1, then=Value(10)),
+                default=Value(0),
+                output_field=IntegerField(),
+            )
+        )
+        .values("student")
+        .annotate(total=Sum("score"))
+        .values("total")[:1]
+    )
+
+    # Total time remaining
+    time_subq = (
+        LevelProgress.objects.filter(student=OuterRef("pk"))
+        .values("student")
+        .annotate(total=Sum("best_time"))
+        .values("total")[:1]
+    )
+
+    # Achievements unlocked
+    achievements_subq = (
+        AchievementProgress.objects.filter(student=OuterRef("pk"), unlocked=True)
+        .values("student")
+        .annotate(total=Count("id"))
+        .values("total")[:1]
+    )
+
+    # Annotate students with subquery results
+    students = (
+        students.annotate(
+            level_score=Coalesce(Subquery(level_score_subq, output_field=IntegerField()), Value(0)),
+            total_time_remaining=Coalesce(Subquery(time_subq, output_field=IntegerField()), Value(0)),
+            achievements_unlocked=Coalesce(Subquery(achievements_subq, output_field=IntegerField()), Value(0)),
+        )
+        .annotate(score=F("level_score") + F("achievements_unlocked") * 25)
+        .select_related("section__department", "year_level")
+    )
+
+    # --- Sorting ---
     reverse = sort_order == "desc"
-
     if sort_by == "score":
-        rankings.sort(key=lambda r: r["score"], reverse=reverse)
+        students = students.order_by(("-" if reverse else "") + "score")
     elif sort_by == "time_remaining":
-        rankings.sort(key=lambda r: (r["total_time_remaining"], r["achievements_unlocked"]), reverse=reverse)
+        students = students.order_by(
+            ("-" if reverse else "") + "total_time_remaining",
+            ("-" if reverse else "") + "achievements_unlocked",
+        )
     elif sort_by == "achievements":
-        rankings.sort(key=lambda r: (r["achievements_unlocked"], r["total_time_remaining"]), reverse=reverse)
+        students = students.order_by(
+            ("-" if reverse else "") + "achievements_unlocked",
+            ("-" if reverse else "") + "total_time_remaining",
+        )
     elif sort_by == "name":
-        rankings.sort(key=lambda r: r["name"].lower(), reverse=reverse)
+        students = students.order_by(
+            ("-" if reverse else "") + "last_name",
+            ("-" if reverse else "") + "first_name",
+        )
     elif sort_by == "section":
-        rankings.sort(key=lambda r: (r["department"], r["year_level"], r["section_letter"]), reverse=reverse)
+        students = students.order_by(
+            ("-" if reverse else "") + "section__department__name",
+            ("-" if reverse else "") + "year_level__year",
+            ("-" if reverse else "") + "section__letter",
+        )
+
+    # --- Build result list ---
+    rankings = []
+    for s in students:
+        rankings.append(
+            {
+                "student_id": s.student_id,
+                "first_name": s.first_name,
+                "last_name": s.last_name,
+                "section": s.full_section,
+                "department": (
+                    s.section.department.name
+                    if s.section and s.section.department
+                    else "N/A"
+                ),
+                "year_level": s.year_level.year if s.year_level else "N/A",
+                "section_letter": s.section.letter if s.section else "N/A",
+                "total_time_remaining": s.total_time_remaining or 0,
+                "achievements_unlocked": s.achievements_unlocked or 0,
+                "score": s.score or 0,
+            }
+        )
 
     return rankings
+
 
 
 def get_section_rankings(sort_order="desc", limit=5):
@@ -148,7 +241,7 @@ def get_section_rankings(sort_order="desc", limit=5):
 
     return section_averages[:limit]
 
-
+# region old code
 # Ranking Based on Sections
 # def get_section_rankings(sort_order="desc", limit=5):
 #     # Base queryset for students
@@ -183,3 +276,4 @@ def get_section_rankings(sort_order="desc", limit=5):
 #
 #     # Return the top N sections based on average score
 #     return section_averages[:limit]
+#end region code
