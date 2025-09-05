@@ -45,7 +45,7 @@ def create_teacher(request):
 
     admin_id = request.session.get('user_id')
     if not admin_id:
-        return redirect('unified_login')
+        return redirect('unified_logout')
 
     if request.method == 'POST':
         # Get form data from the POST request
@@ -135,7 +135,7 @@ def edit_teacher(request, teacher_id):
 
     admin_id = request.session.get('user_id')
     if not admin_id:
-        return redirect('unified_login')
+        return redirect('unified_logout')
 
     if request.method == 'POST':
         # Get the teacher object based on the teacher_id
