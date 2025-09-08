@@ -8,34 +8,26 @@ from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.models.section import Section
 from StudentManagementSystem.models.year_level import YearLevel
 
+
 class Teacher(models.Model):
     teacher_id = models.CharField(max_length=50, unique=True)
     first_name = models.CharField(max_length=150)
     last_name = models.CharField(max_length=150)
-    date_of_birth = models.DateField(null=True, blank=True)
     password = models.CharField(max_length=128)  # store hashed passwords ideally
     role = models.CharField(
         max_length=20,
         choices=Role.choices,
-        default=Role.TEACHER  # Default to 'Teacher' role
+        default=Role.TEACHER
     )
 
     class Meta:
         indexes = [
-            models.Index(fields=['teacher_id']),  # Index for teacher_id
-            models.Index(fields=['last_name', 'first_name']),  # Index for sorting by name
+            models.Index(fields=['teacher_id']),
+            models.Index(fields=['last_name', 'first_name']),
         ]
 
     def __str__(self):
         return self.teacher_id
-
-    def age(self):
-        today = date.today()
-        age = today.year - self.date_of_birth.year
-        if today.month < self.date_of_birth.month or (
-                today.month == self.date_of_birth.month and today.day < self.date_of_birth.day):
-            age -= 1
-        return age
 
 
 class HandledSection(models.Model):

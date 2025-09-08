@@ -8,39 +8,30 @@ from StudentManagementSystem.models.year_level import YearLevel
 
 
 class Student(models.Model):
-    student_id = models.CharField(max_length=50, unique=True)  # unique username or ID
+    student_id = models.CharField(max_length=50, unique=True)
     first_name = models.CharField(max_length=150)
     last_name = models.CharField(max_length=150)
-    date_of_birth = models.DateField(null=True, blank=True)
-    password = models.CharField(max_length=128)  # should be hashed
+    password = models.CharField(max_length=128)
     year_level = models.ForeignKey(YearLevel, on_delete=models.CASCADE, null=True, blank=True)
     section = models.ForeignKey(Section, on_delete=models.CASCADE, null=True, blank=True)
     role = models.CharField(
         max_length=20,
         choices=Role.choices,
-        default=Role.STUDENT  # Default to 'Student' role
+        default=Role.STUDENT
     )
 
     class Meta:
         indexes = [
-            models.Index(fields=['student_id']),  # Adding index for student_id
-            models.Index(fields=['last_name', 'first_name']),  # Composite index for sorting/searching by name
-            models.Index(fields=['year_level', 'section']),  # Index on year_level and section for common queries
+            models.Index(fields=['student_id']),
+            models.Index(fields=['last_name', 'first_name']),
+            models.Index(fields=['year_level', 'section']),
         ]
 
     def __str__(self):
-        return f"{self.name} ({self.student_id})"
+        return f"{self.first_name} {self.last_name} ({self.student_id})"
 
     @property
     def full_section(self):
         if self.section:
             return f"{self.section.department.name}{self.section.year_level.year}{self.section.letter}"
         return "N/A"
-
-    def age(self):
-        today = date.today()
-        age = today.year - self.date_of_birth.year
-        if today.month < self.date_of_birth.month or (
-                today.month == self.date_of_birth.month and today.day < self.date_of_birth.day):
-            age -= 1
-        return age

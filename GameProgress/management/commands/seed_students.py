@@ -1,5 +1,6 @@
 import random
 from django.contrib.auth.hashers import make_password
+from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import BaseCommand
 from faker import Faker
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -8,8 +9,10 @@ from GameProgress.models.achievement_definition import AchievementDefinition
 from GameProgress.models.achievement_progress import AchievementProgress
 from GameProgress.models.level_definition import LevelDefinition
 from GameProgress.models.level_progress import LevelProgress
+from StudentManagementSystem.models import UserProfile
 from StudentManagementSystem.models.section import Section
 from StudentManagementSystem.models.student import Student
+
 
 fake = Faker()
 
@@ -42,10 +45,16 @@ class Command(BaseCommand):
             student_id=student_id,
             first_name=fake.first_name(),
             last_name=fake.last_name(),
-            date_of_birth=fake.date_of_birth(),
             password=make_password('123'),
             year_level=section.year_level,
             section=section
+        )
+
+        # ✅ Create UserProfile linked via GenericForeignKey
+        UserProfile.objects.create(
+            content_type=ContentType.objects.get_for_model(Student),
+            object_id=student.id,
+            date_of_birth=fake.date_of_birth()
         )
 
         # Create student progress
@@ -70,16 +79,12 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         students_to_create = options['students']
-
-        # Display the number of students to be created
         self.stdout.write(self.style.SUCCESS(f"Seeding {students_to_create} students..."))
 
-        # Use ThreadPoolExecutor to parallelize student creation
         with ThreadPoolExecutor(max_workers=10) as executor:
             futures = [executor.submit(self.create_student, _) for _ in range(students_to_create)]
 
-            # Process the results and print each student creation
             for future in as_completed(futures):
-                self.stdout.write(self.style.SUCCESS(future.result()))  # Display result of each student creation
+                self.stdout.write(self.style.SUCCESS(future.result()))
 
         self.stdout.write(self.style.SUCCESS(f"✅ Created {students_to_create} students with progress"))

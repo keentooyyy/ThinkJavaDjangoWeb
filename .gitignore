@@ -70,3 +70,4 @@ yarn-error.log
 Thumbs.db
 /.django_tailwind_cli/tailwindcss-windows-x64-4.1.11.exe
 /main-files
+/assets/
