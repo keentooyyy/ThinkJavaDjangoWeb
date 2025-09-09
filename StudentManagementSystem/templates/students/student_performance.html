@@ -1,8 +1,45 @@
-{% block student_performance %}
-    <h3>Performance</h3>
-    <ul>
-        <li><strong>Total Time Remaining:</strong> {{ performance.total_time_remaining }} seconds</li>
-        <li><strong>Achievements Unlocked:</strong> {{ performance.achievements_unlocked }}</li>
-        <li><strong>Performance Score:</strong> {{ performance.score }}</li>
-    </ul>
-{% endblock %}
+<div class="col-4">
+    <div class="card radius-10">
+        <div class="card-body">
+            <div class="d-flex align-items-center">
+                <div>
+                    <p class="mb-0 text-secondary">Total Time Remaining:</p>
+                    <h4 class="my-1">{{ performance.total_time_remaining }} <span class="text-secondary font-13">Seconds</span></h4>
+                </div>
+                <div class="text-primary ms-auto font-35"><i class="lni lni-timer"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-4">
+    <div class="card radius-10">
+        <div class="card-body">
+            <div class="d-flex align-items-center">
+                <div>
+                    <p class="mb-0 text-secondary">Achievements Unlocked:</p>
+                    <h4 class="my-1">{{ performance.achievements_unlocked }}</h4>
+                </div>
+                <div class="text-primary ms-auto font-35"><i class="bx bx-lock-open"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-4">
+    <div class="card radius-10">
+        <div class="card-body">
+            <div class="d-flex align-items-center">
+                <div>
+                    <p class="mb-0 text-secondary">Performance Score:</p>
+                    <h4 class="my-1">{{ performance.score }}</h4>
+                </div>
+                <div class="text-primary ms-auto font-35"><i class="bx bx-stats"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+

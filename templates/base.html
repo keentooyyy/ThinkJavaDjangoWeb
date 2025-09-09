@@ -3,6 +3,19 @@
 <!DOCTYPE html>
 <html lang="en" class="light-theme">
 <head>
+<script>
+    (function() {
+      let savedTheme = localStorage.getItem("theme");
+
+      if (savedTheme === "light") {
+        document.documentElement.className = "light-theme";
+      } else {
+        // Default to dark if nothing saved
+        document.documentElement.className = "dark-theme";
+      }
+    })();
+
+  </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Think Java{% endblock %}</title>
@@ -60,6 +73,17 @@
 
 <!-- App JS -->
 <script src="{% static 'js/app.js' %}"></script>
+<script>
+    $(document).ready(function () {
+    let savedTheme = localStorage.getItem("theme");
+
+    if (savedTheme === "light") {
+        $(".dark-mode-icon i").attr("class", "bx bx-moon");
+    } else {
+        $(".dark-mode-icon i").attr("class", "bx bx-sun");
+    }
+});
+</script>
 
 
 

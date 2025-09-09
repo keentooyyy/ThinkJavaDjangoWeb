@@ -1,9 +1,46 @@
+
+
+
+
 {% extends 'base.html' %}
+{% load static %}
+
 
 {% block title %}Student Dashboard{% endblock %}
 
+
+{% block sidebar %}{% include 'sidebar.html' %} {% endblock %}
+
+
+{% block header %} {% include 'header.html' %} {% endblock %}
+
+
+
 {% block content %}
-    {% include 'students/student_info.html' %}
-    {% include 'students/student_performance.html' %}
-    <p><a href="{% url 'unified_logout' %}">Logout</a></p>
+    <div class="page-wrapper">
+
+
+        {% include 'students/student_info.html' %}
+
+
+
+    </div>
+
+
+
+
+
+
 {% endblock %}
+
+
+
+
+{% block footer %}
+    {% include 'footer.html' %}
+{% endblock %}
+
+
+
+
+
