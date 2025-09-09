@@ -9,27 +9,44 @@ from GameProgress.models import (
     AchievementProgress
 )
 from StudentManagementSystem.models.student import Student
+from django.db import transaction
 
 
 def sync_all_students_with_all_progress():
-    students = Student.objects.all()
-    levels = LevelDefinition.objects.all()
-    achievements = AchievementDefinition.objects.all()
+    students = Student.objects.values_list("id", flat=True)
+    levels = list(LevelDefinition.objects.values_list("id", flat=True))
+    achievements = list(AchievementDefinition.objects.values_list("id", flat=True))
 
-    # Function to sync levels and achievements for a single student
-    def sync_student_progress(student):
-        # Sync progress for all levels
-        for level in levels:
-            LevelProgress.objects.get_or_create(student=student, level=level)
+    # Preload existing progress to avoid duplicates
+    existing_levels = set(
+        LevelProgress.objects.values_list("student_id", "level_id")
+    )
+    existing_achievements = set(
+        AchievementProgress.objects.values_list("student_id", "achievement_id")
+    )
 
-        # Sync progress for all achievements
-        for achievement in achievements:
-            AchievementProgress.objects.get_or_create(student=student, achievement=achievement)
+    new_level_progress = []
+    new_achievement_progress = []
 
-    # Use ThreadPoolExecutor to handle multiple students at once
-    with ThreadPoolExecutor(max_workers=10) as executor:
-        # Submit tasks for each student
-        executor.map(sync_student_progress, students)
+    for student_id in students:
+        for level_id in levels:
+            key = (student_id, level_id)
+            if key not in existing_levels:
+                new_level_progress.append(
+                    LevelProgress(student_id=student_id, level_id=level_id, best_time=0, current_time=0)
+                )
+
+        for achievement_id in achievements:
+            key = (student_id, achievement_id)
+            if key not in existing_achievements:
+                new_achievement_progress.append(
+                    AchievementProgress(student_id=student_id, achievement_id=achievement_id, unlocked=False)
+                )
+
+    # Use transactions + bulk_create in chunks
+    with transaction.atomic():
+        LevelProgress.objects.bulk_create(new_level_progress, batch_size=1000, ignore_conflicts=True)
+        AchievementProgress.objects.bulk_create(new_achievement_progress, batch_size=1000, ignore_conflicts=True)
 
     print("Sync completed!")
 

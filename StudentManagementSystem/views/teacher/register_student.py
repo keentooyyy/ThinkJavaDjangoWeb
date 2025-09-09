@@ -1,8 +1,10 @@
 from django.contrib import messages
+from django.contrib.auth.hashers import make_password
 from django.core.paginator import Paginator
 from django.http.response import JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
 
+from GameProgress.services.progress import sync_all_students_with_all_progress
 from StudentManagementSystem.decorators.custom_decorators import session_login_required
 from StudentManagementSystem.models import Student, SectionJoinCode
 from StudentManagementSystem.models.department import Department
@@ -33,13 +35,11 @@ def get_students_for_teacher(teacher_id, department=None, section=None, sort_by=
 
 @session_login_required(role=Role.TEACHER)
 def register_student(request):
-    """
-    GET  → show students list with filters
-    POST → create a new student
+    """ GET → show students list with filters
+        POST → create a new student
     """
     extra_tags = "create_message"
     teacher_id = request.session.get("user_id")
-
     if not teacher_id:
         messages.error(request, "Unauthorized access. Please log in first.", extra_tags=extra_tags)
         return redirect("unified_logout")
@@ -50,8 +50,9 @@ def register_student(request):
         first_name = request.POST.get("first_name")
         last_name = request.POST.get("last_name")
         section_id = request.POST.get("section_id")  # actual PK from form
+        password = request.POST.get("password")
 
-        if not first_name or not last_name or not section_id:
+        if not first_name or not last_name or not section_id or not password:
             messages.error(request, "All fields are required.", extra_tags=extra_tags)
             return redirect("register_student")
 
@@ -65,18 +66,20 @@ def register_student(request):
             messages.error(request, "You are not assigned to this section.", extra_tags=extra_tags)
             return redirect("register_student")
 
-        # Create student
+        # Create student with hashed password
         student = Student.objects.create(
             first_name=first_name,
             last_name=last_name,
             section=handled_section.section,
             student_id=student_id,
+            password=make_password(password),   # ✅ securely hashed
         )
+        sync_all_students_with_all_progress()
 
         messages.success(
             request,
             f"Student {student.first_name} {student.last_name} registered successfully.",
-            extra_tags=extra_tags
+            extra_tags=extra_tags,
         )
         return redirect("register_student")
 
@@ -110,8 +113,6 @@ def register_student(request):
         messages.error(request, "No departments available.", extra_tags=extra_tags)
 
     section_codes = SectionJoinCode.objects.filter(section__in=[hs.section for hs in handled_sections])
-    # if not section_codes.exists():
-    #     messages.error(request, "No join codes have been generated yet.", extra_tags=extra_tags)
 
     context = {
         "handled_sections": handled_sections,
@@ -138,7 +139,6 @@ def register_student(request):
 @session_login_required(role=Role.TEACHER)
 def edit_student(request, student_id):
     teacher_id = request.session.get("user_id")
-
     if not teacher_id:
         return JsonResponse({"success": False, "message": "Unauthorized"}, status=401)
 
@@ -156,9 +156,9 @@ def edit_student(request, student_id):
     if not handled_sections.filter(section=student.section).exists():
         return JsonResponse({"success": False, "message": "Not authorized"}, status=403)
 
-    # -----------------------------
+    # ----------------------------- #
     # GET: Prefill modal
-    # -----------------------------
+    # ----------------------------- #
     if request.method == "GET":
         departments_dict = {}
         for hs in handled_sections:
@@ -186,19 +186,20 @@ def edit_student(request, student_id):
                 "department_name": student.section.department.name,
                 "section_id": student.section.id,
                 "section_display": f"{student.section.department.name}"
-                                    f"{student.section.year_level.year}"
-                                    f"{student.section.letter}",
+                                   f"{student.section.year_level.year}"
+                                   f"{student.section.letter}",
             },
             "departments": list(departments_dict.values())
         })
 
-    # -----------------------------
+    # ----------------------------- #
     # POST: Save updates
-    # -----------------------------
+    # ----------------------------- #
     if request.method == "POST":
         first_name = request.POST.get("student_first_name_modal")
         last_name = request.POST.get("student_last_name_modal")
         section_id = request.POST.get("student_section_modal")
+        password = request.POST.get("student_password_modal")
 
         if not first_name or not last_name or not section_id:
             messages.error(request, "All fields are required.", extra_tags="edit_message")
@@ -219,12 +220,16 @@ def edit_student(request, student_id):
         student.first_name = first_name
         student.last_name = last_name
         student.section = new_section
+
+        if password:  # only update if user provided a new one
+            student.password = make_password(password)
+
         student.save()
 
         messages.success(
             request,
             f"Student {student.first_name} {student.last_name} updated successfully!",
-            extra_tags="edit_message"
+            extra_tags="edit_message",
         )
         return JsonResponse({"success": True})
 

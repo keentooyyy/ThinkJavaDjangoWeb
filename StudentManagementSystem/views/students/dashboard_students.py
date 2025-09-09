@@ -66,7 +66,7 @@ def get_game_completion(student):
     # --- Levels ---
     total_levels = LevelDefinition.objects.count()
     levels_finished = (
-        LevelProgress.objects.filter(student=student)
+        LevelProgress.objects.filter(student=student, best_time__gt=0)  # only real plays
         .values("level_id")
         .distinct()
         .count()
@@ -83,10 +83,14 @@ def get_game_completion(student):
     )
 
     # --- Weighted completion ---
-    level_score = level_progress * 80   # out of 90
-    achievement_score = achievement_progress * 20   # out of 10
-    completion = level_score + achievement_score
+    level_score = level_progress * 90   # 90% weight
+    achievement_score = achievement_progress * 10   # 10% weight
 
+    # Optional rule: achievements only count if at least 1 level is finished
+    if levels_finished == 0:
+        achievement_score = 0
+
+    completion = level_score + achievement_score
     return round(completion, 2)
 
 def get_student_levels(student):
@@ -103,5 +107,4 @@ def get_student_levels(student):
             "stars": calc_level_stars(best_time),  # ← reusing thresholds logic
         })
 
-    print(levels_status)
     return levels_status
