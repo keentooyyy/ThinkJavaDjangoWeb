@@ -97,7 +97,7 @@ def create_teacher(request):
 
             # Create the teacher object
             teacher = Teacher.objects.create(teacher_id=teacher_id, first_name=first_name, last_name=last_name,
-                password=hashed_password, date_of_birth=None, )
+                password=hashed_password)
 
             # Default to Year 1 (you can modify to be dynamic later)
             year_level = YearLevel.objects.get_or_create(year=1)[0]

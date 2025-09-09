@@ -4,7 +4,8 @@
             <div class="d-flex align-items-center">
                 <div>
                     <p class="mb-0 text-secondary">Total Time Remaining:</p>
-                    <h4 class="my-1">{{ performance.total_time_remaining }} <span class="text-secondary font-13">Seconds</span></h4>
+                    <h4 class="my-1">{{ performance.total_time_remaining }} <span
+                            class="text-secondary font-13">Seconds</span></h4>
                 </div>
                 <div class="text-primary ms-auto font-35"><i class="lni lni-timer"></i>
                 </div>
@@ -40,6 +41,136 @@
         </div>
     </div>
 </div>
+
+<div class="col-6">
+    <div class="card radius-10">
+        <div class="card-body p-5">
+            <h6>Achievements</h6>
+            <hr>
+            <table class="table mb-0 table-hover align-middle">
+                <thead>
+                <tr>
+                    <th scope="col">Title</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Status</th>
+                </tr>
+                </thead>
+                <tbody>
+                {# Unlocked first #}
+                {% for ach in achievements %}
+                    {% if ach.unlocked %}
+                        <tr class="table-primary">
+                            <td>{{ ach.title }}</td>
+                            <td>{{ ach.description }}</td>
+                            <td><span class="text-primary fw-bold">Unlocked</span></td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+
+                {# Separator row with spacing #}
+                <tr>
+                    <td colspan="3" class="border-0" style="height: 25px;"></td>
+                </tr>
+                <tr class="table-dark">
+                    <td colspan="3" class="text-center fw-bold text-white">Locked Achievements</td>
+                </tr>
+                <tr>
+                    <td colspan="3" class="border-0" style="height: 10px;"></td>
+                </tr>
+
+                {# Locked next #}
+                {% for ach in achievements %}
+                    {% if not ach.unlocked %}
+                        <tr class="table-light text-muted">
+                            <td>{{ ach.title }}</td>
+                            <td>{{ ach.description }}</td>
+                            <td><span class="text-muted">Locked</span></td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="col-6">
+    <div class="card radius-10">
+        <div class="card-body p-5">
+            <h6>Levels</h6>
+            <hr>
+            <table class="table mb-0 table-hover">
+                <thead>
+                <tr>
+                    <th scope="col">Level</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Best Time</th>
+                    <th scope="col">Score</th>
+                    <th scope="col">Rating</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for level in levels %}
+                    <tr>
+                        <th scope="row">{{ level.id }}</th>
+                        <td>{{ level.name }}</td>
+                        <td>
+                            {% if level.best_time %}
+                                {{ level.best_time }}s
+                            {% else %}
+                                <span class="text-muted">Not Played</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if level.score %}
+                                {{ level.score }}
+                            {% else %}
+                                <span class="text-muted">--</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if level.stars > 0 %}
+                                {% for i in "123" %}
+                                    {% if forloop.counter <= level.stars %}
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                    {% else %}
+                                        <i class="bi bi-star text-muted"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                <span class="text-muted">--</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+</div>
+
+
+<div class="col-12">
+    <div class="card radius-10">
+        <div class="card-body p-5">
+            <h6 class="text-center">Game Completion Percentage</h6>
+            <hr>
+            <div class="progress" style="height: 25px;">
+                <div
+                        class="progress-bar bg-primary fw-bold"
+                        role="progressbar"
+                        style="width: {{ game_completion }}%;"
+                        aria-valuenow="{{ game_completion }}"
+                        aria-valuemin="0"
+                        aria-valuemax="100">
+                    {{ game_completion }}%
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 
 
