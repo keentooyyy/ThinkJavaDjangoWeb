@@ -1,6 +1,5 @@
 from django.http import HttpResponseForbidden
 from django.shortcuts import render
-from django.db.models import Q
 
 from StudentManagementSystem.decorators.custom_decorators import session_login_required
 from StudentManagementSystem.models import Teacher, Student
@@ -63,10 +62,11 @@ def teacher_student_ranking(request):
         rankings = [
             r for r in rankings
             if search_query in str(r.get("student_id", "")).lower()
-            or search_query in str(r.get("first_name", "")).lower()
-            or search_query in str(r.get("last_name", "")).lower()
-            or search_query in str(r.get("section", "")).lower()
-            or search_query in str(r.get("score", "")).lower()
+               or search_query in str(r.get("first_name", "")).lower()
+               or search_query in str(r.get("last_name", "")).lower()
+               or search_query in f"{r.get('first_name', '')} {r.get('last_name', '')}".lower()  # ✅ full name
+               or search_query in str(r.get("section", "")).lower()
+               or search_query in str(r.get("score", "")).lower()
         ]
 
     # paginate results

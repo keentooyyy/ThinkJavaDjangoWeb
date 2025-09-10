@@ -7,8 +7,12 @@ from StudentManagementSystem.models.department import Department
 from StudentManagementSystem.models.roles import Role
 from GameProgress.services.ranking import get_all_student_rankings
 from StudentManagementSystem.models.section import Section
-from StudentManagementSystem.views.ranking_view import get_common_params, deduplicate_sections, paginate_queryset, \
-    build_ranking_context
+from StudentManagementSystem.views.ranking_view import (
+    get_common_params,
+    deduplicate_sections,
+    paginate_queryset,
+    build_ranking_context,
+)
 
 
 @session_login_required(role=Role.ADMIN)
@@ -37,6 +41,20 @@ def admin_student_ranking(request):
                                 else params["department_name"],
     )
 
+    # ✅ Apply search filter if provided
+    search_query = request.GET.get("search", "").strip().lower()
+    if search_query:
+        rankings = [
+            r for r in rankings
+            if search_query in str(r.get("student_id", "")).lower()
+               or search_query in str(r.get("first_name", "")).lower()
+               or search_query in str(r.get("last_name", "")).lower()
+               or search_query in f"{r.get('first_name', '')} {r.get('last_name', '')}".lower()  # ✅ full name
+               or search_query in str(r.get("section", "")).lower()
+               or search_query in str(r.get("score", "")).lower()
+        ]
+
+    # ✅ Paginate AFTER filtering
     page_obj = paginate_queryset(rankings, params["per_page"], params["page_number"])
 
     context = build_ranking_context(rankings, page_obj, params, user_context, {

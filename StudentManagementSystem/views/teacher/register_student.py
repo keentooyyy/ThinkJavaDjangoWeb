@@ -1,37 +1,18 @@
 from django.contrib import messages
 from django.contrib.auth.hashers import make_password
-from django.core.paginator import Paginator
+from django.db.models.query_utils import Q
 from django.http.response import JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
 
-from GameProgress.services.progress import sync_all_students_with_all_progress
 from StudentManagementSystem.decorators.custom_decorators import session_login_required
 from StudentManagementSystem.models import Student, SectionJoinCode
 from StudentManagementSystem.models.department import Department
 from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.models.section import Section
 from StudentManagementSystem.models.teachers import HandledSection, Teacher
+from StudentManagementSystem.views.ranking_view import build_ranking_context, paginate_queryset, get_common_params, \
+    deduplicate_sections
 from StudentManagementSystem.views.sync_all_progress import run_sync_in_background
-
-
-def get_students_for_teacher(teacher_id, department=None, section=None, sort_by=None, sort_order=None, per_page=25):
-    handled_sections = HandledSection.objects.filter(teacher_id=teacher_id)
-    students = Student.objects.filter(section__in=[hs.section for hs in handled_sections])
-
-    if department:
-        students = students.filter(section__department__name=department)
-
-    if section:
-        year = section[:1]
-        letter = section[1:]
-        students = students.filter(section__year_level__year=year, section__letter=letter)
-
-    if sort_by:
-        students = students.order_by(f"{'-' if sort_order == 'desc' else ''}{sort_by}")
-    else:
-        students = students.order_by("student_id")
-
-    return Paginator(students, per_page)
 
 
 @session_login_required(role=Role.TEACHER)
@@ -74,7 +55,7 @@ def register_student(request):
             section=handled_section.section,
             year_level=handled_section.section.year_level,
             student_id=student_id,
-            password=make_password(password),   # ✅ securely hashed
+            password=make_password(password),  # ✅ securely hashed
         )
         run_sync_in_background()
 
@@ -85,29 +66,12 @@ def register_student(request):
         )
         return redirect("register_student")
 
-    # ✅ Otherwise (GET) → render list with filters
     handled_sections = HandledSection.objects.filter(teacher_id=teacher_id)
     if not handled_sections.exists():
         messages.error(request, "You are not assigned to any sections yet.", extra_tags=extra_tags)
 
-    # 👇 sections for FILTER DROPDOWN only
-    sections = []
-    for hs in handled_sections:
-        key = f"{hs.section.year_level.year}{hs.section.letter}"
-        if not any(f"{s.year_level.year}{s.letter}" == key for s in sections):
-            sections.append(hs.section)
-
-    department = request.GET.get("department")
-    section_filter = request.GET.get("filter_by")
-    sort_by = request.GET.get("sort_by")
-    sort_order = request.GET.get("sort_order")
-    per_page = int(request.GET.get("per_page", 25))
-
-    paginator = get_students_for_teacher(teacher_id, department, section_filter, sort_by, sort_order, per_page)
-    page_obj = paginator.get_page(request.GET.get("page"))
-
-    if not page_obj.object_list:
-        messages.error(request, "No students found for the selected filters.", extra_tags=extra_tags)
+    # available sections for dropdown
+    unique_sections = deduplicate_sections([hs.section for hs in handled_sections])
 
     teacher = Teacher.objects.get(id=teacher_id)
     departments = Department.objects.all()
@@ -116,22 +80,52 @@ def register_student(request):
 
     section_codes = SectionJoinCode.objects.filter(section__in=[hs.section for hs in handled_sections])
 
-    context = {
-        "handled_sections": handled_sections,
+    # ✅ Use unified params + helpers
+    params = get_common_params(request)
+
+    # Limit to teacher’s students
+    students = Student.objects.filter(
+        section__in=handled_sections.values_list("section_id", flat=True)
+    ).select_related("section__department", "year_level")
+
+    # Apply filters
+    if params["department_name"] and params["department_name"].lower() != "all":
+        students = students.filter(section__department__name=params["department_name"])
+    if params["section_filter"]:
+        year = params["section_filter"][:1]
+        letter = params["section_filter"][1:]
+        students = students.filter(section__year_level__year=year, section__letter=letter)
+
+    # Apply search (same style as ranking views)
+    search_query = request.GET.get("search", "").strip().lower()
+    if search_query:
+        students = students.filter(
+            Q(student_id__icontains=search_query) |
+            Q(first_name__icontains=search_query) |
+            Q(last_name__icontains=search_query) |
+            Q(section__letter__icontains=search_query) |
+            Q(section__year_level__year__icontains=search_query)
+        )
+
+    # Apply sorting
+
+    students = students.order_by("student_id")
+
+    # Paginate with shared helper
+    page_obj = paginate_queryset(students, params["per_page"], params["page_number"])
+
+    context = build_ranking_context(students, page_obj, params, {
         "username": f"{teacher.first_name} {teacher.last_name}",
         "role": Role.TEACHER,
-        "page_obj": page_obj,
+    },
+    {
         "departments": departments,
-        "sections": sections,  # 👈 filter dropdown only
-        "department": department,
-        "section": section_filter,
-        "sort_by": sort_by,
-        "sort_order": sort_order,
-        "per_page": per_page,
-        "selected_department": department,
-        "selected_section": section_filter,
+        "sections": unique_sections,
+        "selected_department": params["department_name"],
+        "selected_section": params["section_filter"],
         "section_codes": section_codes,
-    }
+    })
+
     return render(request, "teacher/register_student.html", context)
 
 
@@ -237,8 +231,6 @@ def edit_student(request, student_id):
         return JsonResponse({"success": True})
 
     return JsonResponse({"success": False, "message": "Invalid method"}, status=405)
-
-
 
 
 # ----------------------------
