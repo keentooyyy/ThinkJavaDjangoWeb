@@ -1,5 +1,6 @@
 from django.http import HttpResponseForbidden
 from django.shortcuts import render
+from django.db.models import Q
 
 from StudentManagementSystem.decorators.custom_decorators import session_login_required
 from StudentManagementSystem.models import Teacher, Student
@@ -7,8 +8,12 @@ from StudentManagementSystem.models.department import Department
 from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.models.teachers import HandledSection
 from GameProgress.services.ranking import get_all_student_rankings
-from StudentManagementSystem.views.ranking_view import get_common_params, deduplicate_sections, paginate_queryset, \
-    build_ranking_context
+from StudentManagementSystem.views.ranking_view import (
+    get_common_params,
+    deduplicate_sections,
+    paginate_queryset,
+    build_ranking_context,
+)
 
 
 @session_login_required(role=Role.TEACHER)
@@ -25,6 +30,7 @@ def teacher_student_ranking(request):
     teacher_id = request.session.get("user_id")
     params = get_common_params(request)
 
+    # handled sections for this teacher
     all_handled_sections = (
         HandledSection.objects.filter(teacher_id=teacher_id)
         .select_related("section__year_level", "department")
@@ -41,6 +47,7 @@ def teacher_student_ranking(request):
         section__in=handled_sections.values_list("section_id", flat=True)
     ).values_list("id", flat=True)
 
+    # get base rankings
     rankings = get_all_student_rankings(
         sort_by=params["sort_by"],
         sort_order=params["sort_order"],
@@ -50,6 +57,19 @@ def teacher_student_ranking(request):
         limit_to_students=student_ids,
     )
 
+    # ✅ Apply search filter if provided
+    search_query = request.GET.get("search", "").strip().lower()
+    if search_query:
+        rankings = [
+            r for r in rankings
+            if search_query in str(r.get("student_id", "")).lower()
+            or search_query in str(r.get("first_name", "")).lower()
+            or search_query in str(r.get("last_name", "")).lower()
+            or search_query in str(r.get("section", "")).lower()
+            or search_query in str(r.get("score", "")).lower()
+        ]
+
+    # paginate results
     page_obj = paginate_queryset(rankings, params["per_page"], params["page_number"])
 
     context = build_ranking_context(rankings, page_obj, params, user_context, {

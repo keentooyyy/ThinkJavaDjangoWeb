@@ -1,7 +1,7 @@
 <div class="col-12">
     <div class="card radius-10" id="list_of_students">
         <div class="card-body p-5">
-            <h6>List of your Students</h6>
+            <h6>LIST OF YOUR STUDENTS</h6>
             <hr>
 
             <!-- Displaying any messages -->
@@ -18,43 +18,56 @@
             <!-- Filters Form -->
             <div class="fw-bold mb-3">FILTERS</div>
             <form method="get" class="filter-form">
-                <div class="row g-3">
-                    <div class="col-2">
-                        <select name="department" id="department" class="form-select">
-                            <option value="">DEPARTMENTS</option>
-                            {% for dept in departments %}
-                                <option value="{{ dept.name }}"
-                                        {% if dept.name == selected_department %}selected{% endif %}>
-                                    {{ dept.name }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-2">
-                        <select name="filter_by" id="filter_by" class="form-select">
-                            <option value="">SECTIONS</option>
-                            {% for section in sections %}
-                                {% with section_key=section.year_level.year|stringformat:"s"|add:section.letter %}
-                                    <option value="{{ section_key }}"
-                                            {% if section_key == selected_section %}selected{% endif %}>
-                                        {{ section.year_level.year }}{{ section.letter }}
-                                    </option>
-                                {% endwith %}
-                            {% endfor %}
-                        </select>
+                <div class="row g-3 my-3">
+                    <div class="col m-0">
+                        <div class="row">
+                            <div class="col m-0">
+                                <select name="department" id="department" class="form-select">
+                                    <option value="">DEPARTMENTS</option>
+                                    {% for dept in departments %}
+                                        <option value="{{ dept.name }}"
+                                                {% if dept.name == selected_department %}selected{% endif %}>
+                                            {{ dept.name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col m-0">
+                                <select name="filter_by" id="filter_by" class="form-select">
+                                    <option value="">SECTIONS</option>
+                                    {% for section in sections %}
+                                        {% with section_key=section.year_level.year|stringformat:"s"|add:section.letter %}
+                                            <option value="{{ section_key }}"
+                                                    {% if section_key == selected_section %}selected{% endif %}>
+                                                {{ section.year_level.year }}{{ section.letter }}
+                                            </option>
+                                        {% endwith %}
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="col m-0">
+                                <select name="per_page" onchange="this.form.submit()" class="form-select">
+                                    <option value="10" {% if per_page == 10 %}selected{% endif %}>10</option>
+                                    <option value="25" {% if per_page == 25 %}selected{% endif %}>25</option>
+                                    <option value="50" {% if per_page == 50 %}selected{% endif %}>50</option>
+                                </select>
+                            </div>
+                            <div class="col m-0">
+                                <button type="submit" class="btn btn-primary w-auto" style="width: 40%"><i
+                                        class="bx bx-filter"></i>Filter
+                                </button>
+                            </div>
+                        </div>
+
                     </div>
 
-                    <div class="col-2">
-                        <select name="per_page" onchange="this.form.submit()" class="form-select">
-                            <option value="10" {% if per_page == 10 %}selected{% endif %}>10</option>
-                            <option value="25" {% if per_page == 25 %}selected{% endif %}>25</option>
-                            <option value="50" {% if per_page == 50 %}selected{% endif %}>50</option>
-                        </select>
-                    </div>
-                    <div class="col-6">
-                        <button type="submit" class="btn btn-primary float-end" style="width: 40%"><i
-                                class="bx bx-filter"></i>Apply
-                        </button>
+                    <div class="col-4 m-0">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Search...">
+                            <button class="btn btn-secondary" type="button"><i class="bx bx-search-alt"></i>Search
+                            </button>
+                        </div>
                     </div>
                 </div>
             </form>
