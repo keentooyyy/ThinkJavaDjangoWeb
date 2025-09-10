@@ -6,7 +6,7 @@ from StudentManagementSystem.views.admin.manage_teachers import create_teacher, 
     edit_teacher, remove_section, delete_teacher
 from StudentManagementSystem.views.admin.proggress_addition_admin import add_achievement, add_level, delete_achievement, \
     delete_level, force_sync_everyone
-from StudentManagementSystem.views.admin.ranking_students import student_ranking
+from StudentManagementSystem.views.admin.student_ranking import admin_student_ranking
 from StudentManagementSystem.views.auth_unified import unified_login, unified_logout
 from django.urls import path
 
@@ -16,7 +16,7 @@ from StudentManagementSystem.views.admin.manage_teachers import create_teacher, 
     edit_teacher, remove_section, delete_teacher
 from StudentManagementSystem.views.admin.proggress_addition_admin import add_achievement, add_level, delete_achievement, \
     delete_level, force_sync_everyone
-from StudentManagementSystem.views.admin.ranking_students import student_ranking
+from StudentManagementSystem.views.admin.student_ranking import admin_student_ranking
 from StudentManagementSystem.views.auth_unified import unified_login, unified_logout
 
 urlpatterns = [
@@ -40,7 +40,7 @@ urlpatterns = [
     path('admin_teacher/delete/<int:teacher_id>/', delete_teacher, name='delete_teacher'),
 
     # Student Ranking
-    path('student_rankings/', student_ranking, name='admin_student_ranking'),
+    path('student_rankings/', admin_student_ranking, name='admin_student_ranking'),
 
     # Game Progression Routes,
     path('add-level/', add_level, name='add_level'),
