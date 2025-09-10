@@ -6,6 +6,7 @@ from GameProgress.models import LevelDefinition, AchievementDefinition
 from GameProgress.services.progress import sync_all_students_with_all_progress
 from StudentManagementSystem.decorators.custom_decorators import session_login_required
 from StudentManagementSystem.models.roles import Role
+from StudentManagementSystem.views.sync_all_progress import run_sync_in_background
 
 
 # Add Level View
@@ -24,6 +25,7 @@ def add_level(request):
             level, created = LevelDefinition.objects.get_or_create(name=level_name,
                                                                    defaults={'unlocked': level_unlocked})
             if created:
+                run_sync_in_background()
                 messages.success(request, f"Level '{level_name}' has been created successfully.",
                                  extra_tags=message_tag)  # sync_all_students_with_all_progress()  # Sync progress after adding a level
             else:
@@ -46,7 +48,7 @@ def delete_level(request, level_id):
         level.delete()
 
         # Sync progress after deleting a level
-        # sync_all_students_with_all_progress()
+        run_sync_in_background()
 
         # Return a JsonResponse to confirm the delete operation
         return JsonResponse({'success': True})
@@ -72,6 +74,7 @@ def add_achievement(request):
                                                                                          'description': ach_description,
                                                                                          'is_active': ach_is_active})
             if created:
+                run_sync_in_background()
                 messages.success(request, f"Achievement '{ach_title}' has been created successfully.",
                                  extra_tags=message_tag)  # sync_all_students_with_all_progress()  # Sync progress after adding an achievement
             else:
@@ -94,7 +97,7 @@ def delete_achievement(request, achievement_id):
         achievement.delete()
 
         # Sync progress after deleting an achievement
-        # sync_all_students_with_all_progress()
+        run_sync_in_background()
 
         # Return a JsonResponse to confirm the delete operation
         return JsonResponse({'success': True})
@@ -109,7 +112,7 @@ def force_sync_everyone(request):
     if request.method == 'POST':
         try:
             # Try to sync all students' progress
-            sync_all_students_with_all_progress()
+            run_sync_in_background()
 
             # If successful, show success message
             messages.success(request, 'Everyone is synced successfully!', extra_tags=message_tag)

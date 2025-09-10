@@ -137,13 +137,6 @@ def get_all_student_rankings(
                 filters["section__department__name"] = dept.upper()
             students = students.filter(**filters)
 
-    print("Filter by:", filter_by)
-    print("Department filter:", department_filter)
-    print("Student IDs limit:", list(limit_to_students)[:20] if limit_to_students else "None")
-    print("Does Kentoy exist in Student DB?", Student.objects.filter(student_id="17-2168-338").exists())
-    print("Kentoy details:", Student.objects.filter(student_id="17-2168-338").values(
-        "id", "student_id", "year_level__year", "section__letter", "section__department__name"
-    ))
     # --- Build rankings ---
     rankings = []
     for s in students:
@@ -162,7 +155,6 @@ def get_all_student_rankings(
             }
         )
 
-    print(f"Rankings: {rankings}")
     # --- Sorting ---
     reverse = sort_order == "desc"
     if sort_by == "score":

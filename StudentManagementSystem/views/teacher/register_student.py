@@ -11,6 +11,7 @@ from StudentManagementSystem.models.department import Department
 from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.models.section import Section
 from StudentManagementSystem.models.teachers import HandledSection, Teacher
+from StudentManagementSystem.views.sync_all_progress import run_sync_in_background
 
 
 def get_students_for_teacher(teacher_id, department=None, section=None, sort_by=None, sort_order=None, per_page=25):
@@ -75,7 +76,7 @@ def register_student(request):
             student_id=student_id,
             password=make_password(password),   # ✅ securely hashed
         )
-        sync_all_students_with_all_progress()
+        run_sync_in_background()
 
         messages.success(
             request,
