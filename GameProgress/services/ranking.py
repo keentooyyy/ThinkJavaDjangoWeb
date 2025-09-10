@@ -1,3 +1,4 @@
+import re
 from collections import defaultdict
 
 from django.db import models
@@ -90,8 +91,34 @@ def get_all_student_rankings(
     department_filter=None,
     limit_to_students=None,
 ):
-    students = Student.objects.all()
+    # --- Precompute scores like get_section_rankings ---
+    level_scores = (
+        LevelProgress.objects
+        .values("student_id", "level_id")
+        .annotate(per_level_score=level_score_case("best_time"))
+        .values("student_id")
+        .annotate(level_score=Sum("per_level_score"))
+    )
+    level_map = {row["student_id"]: row["level_score"] or 0 for row in level_scores}
 
+    time_scores = (
+        LevelProgress.objects
+        .values("student_id")
+        .annotate(total_time=Sum("best_time"))
+    )
+    time_map = {row["student_id"]: row["total_time"] or 0 for row in time_scores}
+
+    achievement_scores = (
+        AchievementProgress.objects.filter(unlocked=True)
+        .values("student_id")
+        .annotate(total=Count("id"))
+    )
+    achievement_map = {row["student_id"]: row["total"] or 0 for row in achievement_scores}
+
+    # --- Base queryset: all students ---
+    students = Student.objects.select_related("section__department", "year_level").all()
+
+    # --- Filters ---
     if limit_to_students is not None:
         students = students.filter(id__in=limit_to_students)
 
@@ -99,74 +126,25 @@ def get_all_student_rankings(
         students = students.filter(section__department__name=department_filter)
 
     if filter_by:
-        try:
-            year = int(filter_by[0])
-            section_letter = filter_by[1].upper()
-            students = students.filter(
-                year_level__year=year, section__letter=section_letter
-            )
-        except (IndexError, ValueError):
-            pass
+        match = re.match(r"([A-Za-z]*)(\d+)([A-Za-z])", filter_by)
+        if match:
+            dept, year, section_letter = match.groups()
+            filters = {
+                "year_level__year": int(year),
+                "section__letter": section_letter.upper(),
+            }
+            if dept:
+                filters["section__department__name"] = dept.upper()
+            students = students.filter(**filters)
 
-    # level score only
-    level_score_subq = (
-        LevelProgress.objects.filter(student=OuterRef("pk"))
-        .values("student_id", "level_id")
-        .annotate(per_level_score=level_score_case("best_time"))
-        .values("student_id")
-        .annotate(total=Sum("per_level_score"))
-        .values("total")[:1]
-    )
-
-    time_subq = (
-        LevelProgress.objects.filter(student=OuterRef("pk"))
-        .values("student")
-        .annotate(total=Sum("best_time"))
-        .values("total")[:1]
-    )
-
-    achievements_subq = (
-        AchievementProgress.objects.filter(student=OuterRef("pk"), unlocked=True)
-        .values("student")
-        .annotate(total=Count("id"))
-        .values("total")[:1]
-    )
-
-    students = (
-        students.annotate(
-            level_score=Coalesce(Subquery(level_score_subq, output_field=IntegerField()), Value(0)),
-            total_time_remaining=Coalesce(Subquery(time_subq, output_field=IntegerField()), Value(0)),
-            achievements_unlocked=Coalesce(Subquery(achievements_subq, output_field=IntegerField()), Value(0)),
-        )
-        .annotate(score=F("level_score"))  # 🚫 only levels
-        .select_related("section__department", "year_level")
-    )
-
-    reverse = sort_order == "desc"
-    if sort_by == "score":
-        students = students.order_by(("-" if reverse else "") + "score")
-    elif sort_by == "time_remaining":
-        students = students.order_by(
-            ("-" if reverse else "") + "total_time_remaining",
-            ("-" if reverse else "") + "achievements_unlocked",
-        )
-    elif sort_by == "achievements":
-        students = students.order_by(
-            ("-" if reverse else "") + "achievements_unlocked",
-            ("-" if reverse else "") + "total_time_remaining",
-        )
-    elif sort_by == "name":
-        students = students.order_by(
-            ("-" if reverse else "") + "last_name",
-            ("-" if reverse else "") + "first_name",
-        )
-    elif sort_by == "section":
-        students = students.order_by(
-            ("-" if reverse else "") + "section__department__name",
-            ("-" if reverse else "") + "year_level__year",
-            ("-" if reverse else "") + "section__letter",
-        )
-
+    print("Filter by:", filter_by)
+    print("Department filter:", department_filter)
+    print("Student IDs limit:", list(limit_to_students)[:20] if limit_to_students else "None")
+    print("Does Kentoy exist in Student DB?", Student.objects.filter(student_id="17-2168-338").exists())
+    print("Kentoy details:", Student.objects.filter(student_id="17-2168-338").values(
+        "id", "student_id", "year_level__year", "section__letter", "section__department__name"
+    ))
+    # --- Build rankings ---
     rankings = []
     for s in students:
         rankings.append(
@@ -178,11 +156,25 @@ def get_all_student_rankings(
                 "department": s.section.department.name if s.section and s.section.department else "N/A",
                 "year_level": s.year_level.year if s.year_level else "N/A",
                 "section_letter": s.section.letter if s.section else "N/A",
-                "total_time_remaining": s.total_time_remaining or 0,
-                "achievements_unlocked": s.achievements_unlocked or 0,
-                "score": s.score or 0,
+                "total_time_remaining": time_map.get(s.id, 0),
+                "achievements_unlocked": achievement_map.get(s.id, 0),
+                "score": level_map.get(s.id, 0),
             }
         )
+
+    print(f"Rankings: {rankings}")
+    # --- Sorting ---
+    reverse = sort_order == "desc"
+    if sort_by == "score":
+        rankings.sort(key=lambda r: r["score"], reverse=reverse)
+    elif sort_by == "time_remaining":
+        rankings.sort(key=lambda r: (r["total_time_remaining"], r["achievements_unlocked"]), reverse=reverse)
+    elif sort_by == "achievements":
+        rankings.sort(key=lambda r: (r["achievements_unlocked"], r["total_time_remaining"]), reverse=reverse)
+    elif sort_by == "name":
+        rankings.sort(key=lambda r: (r["last_name"], r["first_name"]), reverse=reverse)
+    elif sort_by == "section":
+        rankings.sort(key=lambda r: (r["department"], r["year_level"], r["section_letter"]), reverse=reverse)
 
     return rankings
 

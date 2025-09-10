@@ -22,7 +22,9 @@ class UserProfile(models.Model):
     # Extra details
     bio = models.TextField(null=True, blank=True)
     phone = models.CharField(max_length=20, null=True, blank=True)
-    address = models.TextField(null=True, blank=True)
+    street = models.TextField(null=True, blank=True)
+    province = models.CharField(max_length=100, null=True, blank=True)
+    barangay = models.CharField(max_length=100, null=True, blank=True)
 
     class Meta:
         indexes = [

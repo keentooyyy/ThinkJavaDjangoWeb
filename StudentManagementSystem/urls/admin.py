@@ -40,7 +40,7 @@ urlpatterns = [
     path('admin_teacher/delete/<int:teacher_id>/', delete_teacher, name='delete_teacher'),
 
     # Student Ranking
-    path('student_rankings/', student_ranking, name='student_ranking'),
+    path('student_rankings/', student_ranking, name='admin_student_ranking'),
 
     # Game Progression Routes,
     path('add-level/', add_level, name='add_level'),

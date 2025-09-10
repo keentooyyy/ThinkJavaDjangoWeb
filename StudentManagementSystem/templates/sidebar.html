@@ -93,7 +93,7 @@
 
                             {% if request.session.role == 'ADMIN' %}
                                 <li>
-                                    <a href="{% url 'student_ranking' %}">
+                                    <a href="{% url 'admin_student_ranking' %}">
                                         <div class="parent-icon"><i class="bx bx-bar-chart-square"></i>
                                         </div>
                                         <div class="menu-title">Student Ranks</div>
@@ -105,6 +105,14 @@
                                         <div class="parent-icon"><i class="bx bx-bar-chart-square"></i>
                                         </div>
                                         <div class="menu-title">Student Ranks</div>
+                                    </a>
+                                </li>
+                            {% elif request.session.role == 'STUDENT' %}
+                                <li>
+                                    <a href="{% url 'student_ranking' %}">
+                                        <div class="parent-icon"><i class="bx bx-bar-chart-square"></i>
+                                        </div>
+                                        <div class="menu-title">Class Ranks</div>
                                     </a>
                                 </li>
                             {% endif %}

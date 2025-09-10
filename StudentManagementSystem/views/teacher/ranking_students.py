@@ -27,14 +27,13 @@ def get_teacher_context(request):
 
 @session_login_required(role=Role.TEACHER)
 def student_ranking_teacher(request):
-    # Check for teacher role
     user_context = get_teacher_context(request)
     if user_context.get("role") != Role.TEACHER:
         return HttpResponseForbidden("You do not have permission to access this page.")
 
     teacher_id = request.session.get("user_id")
 
-    # Get parameters from GET request
+    # Get parameters
     department_name = request.GET.get("department")
     section_filter = request.GET.get("filter_by")
     sort_by = request.GET.get("sort_by", "")
@@ -42,14 +41,15 @@ def student_ranking_teacher(request):
     page_number = request.GET.get("page", 1)
     per_page = int(request.GET.get("per_page", 25))
 
-    # Get handled sections for this teacher
-    handled_sections = (
+    # 🔹 all handled sections (no filtering, for department list)
+    all_handled_sections = (
         HandledSection.objects.filter(teacher_id=teacher_id)
         .select_related("section__year_level", "department")
         .order_by("department__name", "section__year_level__year", "section__letter")
     )
 
-    # Filter sections based on department
+    # 🔹 filtered handled sections (for rankings + sections list)
+    handled_sections = all_handled_sections
     if department_name and department_name.lower() != "all":
         handled_sections = handled_sections.filter(department__name=department_name)
 
@@ -61,29 +61,30 @@ def student_ranking_teacher(request):
         if not any(f"{s.section.year_level.year}{s.section.letter}" == section_key for s in unique_sections):
             unique_sections.append(hs)
 
-    # Collect all student IDs in teacher's handled sections
+    # Collect all student IDs in filtered sections
     student_ids = (
         Student.objects.filter(section__in=handled_sections.values_list("section_id", flat=True))
         .values_list("id", flat=True)
     )
 
-    # --- Rankings: restricted to handled students only ---
+    # Rankings (restricted to teacher’s students only)
     rankings = get_all_student_rankings(
         sort_by=sort_by,
         sort_order=sort_order,
         filter_by=section_filter,
         department_filter=None if department_name and department_name.lower() == "all" else department_name,
-        limit_to_students=student_ids,  # 👈 now correctly limited
+        limit_to_students=student_ids,
     )
 
     # Pagination
     paginator = Paginator(rankings, per_page)
     page_obj = paginator.get_page(page_number)
 
-    # Context for rendering
+    # Context
     context = {
+        # 🔹 always show all teacher-handled departments in dropdown
         "departments": Department.objects.filter(
-            id__in=handled_sections.values_list("department_id", flat=True).distinct()
+            id__in=all_handled_sections.values_list("department_id", flat=True).distinct()
         ).order_by("name"),
         "sections": [hs.section for hs in unique_sections],
         "rankings": page_obj.object_list,
@@ -93,9 +94,9 @@ def student_ranking_teacher(request):
         "sort_by": sort_by,
         "sort_order": sort_order,
         "per_page": per_page,
-        "username": user_context["username"],  # keep as 'username' for header
+        "username": user_context["username"],
         "role": user_context["role"],
     }
 
-    return render(request, "admin/student_ranking.html", context)  # still using admin template
+    return render(request, "admin/student_ranking.html", context)
 

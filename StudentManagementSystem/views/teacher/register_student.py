@@ -71,6 +71,7 @@ def register_student(request):
             first_name=first_name,
             last_name=last_name,
             section=handled_section.section,
+            year_level=handled_section.section.year_level,
             student_id=student_id,
             password=make_password(password),   # ✅ securely hashed
         )
@@ -220,6 +221,7 @@ def edit_student(request, student_id):
         student.first_name = first_name
         student.last_name = last_name
         student.section = new_section
+        student.year_level = new_section.year_level
 
         if password:  # only update if user provided a new one
             student.password = make_password(password)
