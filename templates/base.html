@@ -9,9 +9,12 @@
 
             if (savedTheme === "dark") {
                 document.documentElement.className = "dark-theme";
-            } else {
-                // Default to light if nothing saved
+            } else if (savedTheme === "light") {
                 document.documentElement.className = "light-theme";
+            } else {
+                // Default to light if nothing saved, and persist it
+                document.documentElement.className = "light-theme";
+                localStorage.setItem("theme", "light");
             }
         })();
 
