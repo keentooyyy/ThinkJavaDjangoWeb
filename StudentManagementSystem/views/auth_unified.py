@@ -12,7 +12,7 @@ def unified_login(request):
         user_id = request.POST.get('username')
         raw_password = request.POST.get('password')
 
-        # Check if the user is a Student
+        # 🔹 Check Student
         try:
             student = Student.objects.get(student_id=user_id)
             if check_password(raw_password, student.password):
@@ -21,16 +21,17 @@ def unified_login(request):
                 create_log(
                     request,
                     "LOGIN",
-                    f"Student {student.first_name} {student.last_name} has logged in.",
+                    f"Student {student.first_name} {student.last_name} "
+                    f"(ID: {student.student_id}) has logged in."
                 )
                 return redirect('student_dashboard')
             else:
-                messages.error(request, 'Invalid credentials. User does not exist.')
+                messages.error(request, 'Invalid credentials.')
                 return redirect('unified_login')
         except Student.DoesNotExist:
-            pass  # Continue to check for Teacher or Admin
+            pass
 
-        # Check if the user is a Teacher
+        # 🔹 Check Teacher
         try:
             teacher = Teacher.objects.get(teacher_id=user_id)
             if check_password(raw_password, teacher.password):
@@ -39,16 +40,17 @@ def unified_login(request):
                 create_log(
                     request,
                     "LOGIN",
-                    f"Teacher {teacher.first_name} {teacher.last_name} has logged in.",
+                    f"Teacher {teacher.first_name} {teacher.last_name} "
+                    f"(ID: {teacher.teacher_id}) has logged in."
                 )
                 return redirect('teacher_dashboard')
             else:
-                messages.error(request, 'Invalid credentials. User does not exist.')
+                messages.error(request, 'Invalid credentials.')
                 return redirect('unified_login')
         except Teacher.DoesNotExist:
-            pass  # Continue to check for Admin
+            pass
 
-        # Check if the user is an Admin
+        # 🔹 Check Admin
         try:
             admin = SimpleAdmin.objects.get(username=user_id)
             if check_password(raw_password, admin.password):
@@ -57,14 +59,14 @@ def unified_login(request):
                 create_log(
                     request,
                     "LOGIN",
-                    f"Admin {admin.username} has logged in.",
+                    f"Admin {admin.username} (System ID: {admin.id}) has logged in."
                 )
                 return redirect('admin_dashboard')
             else:
-                messages.error(request, 'Invalid credentials. User does not exist.')
+                messages.error(request, 'Invalid credentials.')
                 return redirect('unified_login')
         except SimpleAdmin.DoesNotExist:
-            messages.error(request, 'Invalid credentials. User does not exist.')
+            messages.error(request, 'Invalid credentials.')
             return redirect('unified_login')
 
     return render(request, 'login.html')
@@ -81,7 +83,8 @@ def unified_logout(request):
             create_log(
                 request,
                 "LOGOUT",
-                f"Student {student.first_name} {student.last_name} has logged out.",
+                f"Student {student.first_name} {student.last_name} "
+                f"(ID: {student.student_id}) has logged out."
             )
 
     elif role == Role.TEACHER:
@@ -90,7 +93,8 @@ def unified_logout(request):
             create_log(
                 request,
                 "LOGOUT",
-                f"Teacher {teacher.first_name} {teacher.last_name} has logged out.",
+                f"Teacher {teacher.first_name} {teacher.last_name} "
+                f"(ID: {teacher.teacher_id}) has logged out."
             )
 
     elif role == Role.ADMIN:
@@ -99,7 +103,7 @@ def unified_logout(request):
             create_log(
                 request,
                 "LOGOUT",
-                f"Admin {admin.username} has logged out.",
+                f"Admin {admin.username} (System ID: {admin.id}) has logged out."
             )
 
     # ✅ flush AFTER logging

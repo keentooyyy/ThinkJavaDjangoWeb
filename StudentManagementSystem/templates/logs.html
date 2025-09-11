@@ -2,7 +2,7 @@
 {% load static %}
 
 
-{% block title %}Admin Dashboard{% endblock %}
+{% block title %}System Logs{% endblock %}
 
 
 {% block sidebar %}{% include 'sidebar.html' %} {% endblock %}
@@ -217,11 +217,50 @@
 {% block scripts %}
 
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
-            popoverTriggerList.map(function (popoverTriggerEl) {
-                return new bootstrap.Popover(popoverTriggerEl)
-            })
+        $(function () {
+            let currentPopover = null; // track the currently open popover
+
+            $('[data-bs-toggle="popover"]').each(function () {
+                const $el = $(this);
+                const popover = new bootstrap.Popover(this, {
+                    trigger: "manual",
+                    html: true
+                });
+
+                // Toggle on click
+                $el.on("click", function () {
+                    // If this popover is already open, close it
+                    if ($el.hasClass("popover-shown")) {
+                        popover.hide();
+                        $el.removeClass("popover-shown");
+                        currentPopover = null;
+                    } else {
+                        // Close any existing popover first
+                        if (currentPopover) {
+                            currentPopover.hide();
+                            $('[data-bs-toggle="popover"]').removeClass("popover-shown");
+                        }
+
+                        popover.show();
+                        $el.addClass("popover-shown");
+                        currentPopover = popover;
+                    }
+                });
+
+                // Auto-hide when mouse leaves element OR popover
+                $el.on("mouseleave", function () {
+                    setTimeout(function () {
+                        if (!$el.is(":hover") && !$(".popover:hover").length) {
+                            popover.hide();
+                            $el.removeClass("popover-shown");
+                            if (currentPopover === popover) {
+                                currentPopover = null;
+                            }
+                        }
+                    }, 200);
+                });
+
+            });
         });
     </script>
 
