@@ -127,7 +127,18 @@
                                 {% for log in logs %}
                                     <tr>
                                         <td>{{ log.ip_address }}</td>
-                                        <td>{{ log.description }}</td>
+                                        <td>
+                                          <span class="d-inline-block text-truncate"
+                                                style="max-width: 800px; cursor:pointer;"
+                                                tabindex="0"
+                                                data-bs-toggle="popover"
+                                                data-bs-trigger="focus"
+                                                data-bs-placement="top"
+                                                data-bs-html="true"
+                                                data-bs-content="{{ log.description }}">
+                                              {{ log.description }}
+                                          </span>
+                                        </td>
                                         <td>{{ log.role }}</td>
                                         <td>{{ log.action }}</td>
                                         <td>{{ log.timestamp|date:"F d, Y h:i A" }}</td>
@@ -203,4 +214,17 @@
 {% endblock %}
 
 
+{% block scripts %}
 
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+            popoverTriggerList.map(function (popoverTriggerEl) {
+                return new bootstrap.Popover(popoverTriggerEl)
+            })
+        });
+    </script>
+
+
+
+{% endblock %}

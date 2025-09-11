@@ -151,8 +151,6 @@ def add_achievement(request):
     return redirect('admin_dashboard')
 
 
-
-
 @session_login_required(role=Role.ADMIN)
 def delete_achievement(request, achievement_id):
     if request.method == 'POST':

@@ -10,6 +10,7 @@ from StudentManagementSystem.models.department import Department
 from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.models.section import Section
 from StudentManagementSystem.models.teachers import HandledSection, Teacher
+from StudentManagementSystem.views.logger import create_log
 from StudentManagementSystem.views.ranking_view import build_ranking_context, paginate_queryset, get_common_params, \
     deduplicate_sections
 from StudentManagementSystem.views.sync_all_progress import run_sync_in_background
@@ -63,6 +64,15 @@ def register_student(request):
             request,
             f"Student {student.first_name} {student.last_name} registered successfully.",
             extra_tags=extra_tags,
+        )
+        teacher = Teacher.objects.get(id=teacher_id)
+        create_log(
+            request,
+            "CREATE",
+            f"Teacher {teacher.first_name} {teacher.last_name} registered a new student "
+            f"{student.first_name} {student.last_name} ({student.student_id}) "
+            f"in section {handled_section.section.department.name}"
+            f"{handled_section.section.year_level.year}{handled_section.section.letter}."
         )
         return redirect("register_student")
 
@@ -124,6 +134,7 @@ def register_student(request):
         "selected_department": params["department_name"],
         "selected_section": params["section_filter"],
         "section_codes": section_codes,
+        "handled_sections": handled_sections
     })
 
     return render(request, "teacher/register_student.html", context)
@@ -148,7 +159,6 @@ def edit_student(request, student_id):
         .order_by("department__name", "section__year_level__year", "section__letter")
     )
 
-    # 🚨 Must handle student's current section
     if not handled_sections.filter(section=student.section).exists():
         return JsonResponse({"success": False, "message": "Not authorized"}, status=403)
 
@@ -192,10 +202,17 @@ def edit_student(request, student_id):
     # POST: Save updates
     # ----------------------------- #
     if request.method == "POST":
+        # Capture old values
+        old_first_name = student.first_name
+        old_last_name = student.last_name
+        old_password = student.password
+        old_section = student.section
+
+        # Get new values
         first_name = request.POST.get("student_first_name_modal")
         last_name = request.POST.get("student_last_name_modal")
         section_id = request.POST.get("student_section_modal")
-        password = request.POST.get("student_password_modal")
+        raw_password = request.POST.get("student_password_modal")
 
         if not first_name or not last_name or not section_id:
             messages.error(request, "All fields are required.", extra_tags="edit_message")
@@ -207,27 +224,51 @@ def edit_student(request, student_id):
             messages.error(request, "Invalid section selected.", extra_tags="edit_message")
             return JsonResponse({"success": False})
 
-        # 🚨 Ensure teacher really handles this section
         if not handled_sections.filter(section=new_section).exists():
             messages.error(request, "You are not authorized to assign this section.", extra_tags="edit_message")
             return JsonResponse({"success": False})
 
-        # ✅ Apply updates
-        student.first_name = first_name
-        student.last_name = last_name
-        student.section = new_section
-        student.year_level = new_section.year_level
+        # Track changes
+        changes = []
 
-        if password:  # only update if user provided a new one
-            student.password = make_password(password)
+        if first_name and first_name != old_first_name:
+            changes.append(f"first name from '{old_first_name}' to '{first_name}'")
+            student.first_name = first_name
+
+        if last_name and last_name != old_last_name:
+            changes.append(f"last name from '{old_last_name}' to '{last_name}'")
+            student.last_name = last_name
+
+        if new_section != old_section:
+            changes.append(
+                f"section from '{old_section.department.name}{old_section.year_level.year}{old_section.letter}' "
+                f"to '{new_section.department.name}{new_section.year_level.year}{new_section.letter}'"
+            )
+            student.section = new_section
+            student.year_level = new_section.year_level
+
+        if raw_password:
+            hashed_password = make_password(raw_password)
+            if hashed_password != old_password:
+                changes.append("password updated")
+                student.password = hashed_password
 
         student.save()
 
-        messages.success(
-            request,
-            f"Student {student.first_name} {student.last_name} updated successfully!",
-            extra_tags="edit_message",
+        # ✅ Logging
+        log_desc_parts = []
+        if changes:
+            log_desc_parts.append("updated " + ", ".join(changes))
+
+        log_description = (
+            f"Teacher {teacher.first_name} {teacher.last_name} has {'; '.join(log_desc_parts)} "
+            f"for student ({student.student_id}) named {student.first_name} {student.last_name}."
         )
+
+        create_log(request, "UPDATE", log_description)
+
+        messages.success(request, f"Student {student.first_name} {student.last_name} updated successfully!",
+                         extra_tags="edit_message")
         return JsonResponse({"success": True})
 
     return JsonResponse({"success": False, "message": "Invalid method"}, status=405)
@@ -254,8 +295,23 @@ def delete_student(request, student_id):
 
     if request.method in ["DELETE", "POST"]:
         student_name = f"{student.first_name} {student.last_name}"
+        student_id_val = student.student_id
+        section_name = f"{student.section.department.name}{student.section.year_level.year}{student.section.letter}"
+
+        # 🚨 Keep details for logging before deletion
+        log_description = (
+            f"Teacher {teacher.first_name} {teacher.last_name} has deleted student "
+            f"({student_id_val}) named {student_name} from section {section_name}."
+        )
+
         student.delete()
+
         messages.success(request, f"Student {student_name} deleted successfully.", extra_tags="edit_message")
+
+        # ✅ Logging
+        create_log(request, "DELETE", log_description)
+
         return JsonResponse({"success": True})
 
     return JsonResponse({"success": False, "message": "Invalid request method."}, status=405)
+

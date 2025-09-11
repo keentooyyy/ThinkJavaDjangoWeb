@@ -8,7 +8,8 @@ from django.shortcuts import redirect, get_object_or_404
 from StudentManagementSystem.decorators.custom_decorators import session_login_required
 from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.models.section_code import SectionJoinCode
-from StudentManagementSystem.models.teachers import HandledSection
+from StudentManagementSystem.models.teachers import HandledSection, Teacher
+from StudentManagementSystem.views.logger import create_log
 
 
 def generate_code(section, department, year_level):
@@ -56,6 +57,13 @@ def generate_section_code_view(request):
         f"Code for {handled.department.name}{handled.year_level.year}{handled.section.letter}: {code}",
         extra_tags="section_codes"
     )
+    teacher = handled.teacher
+    create_log(
+        request,
+        "CREATE",
+        f"Teacher {teacher.first_name} {teacher.last_name} generated a new join code "
+        f"({code}) for section {handled.department.name}{handled.year_level.year}{handled.section.letter}."
+    )
     return redirect('register_student')
 
 
@@ -65,6 +73,8 @@ def delete_section_code(request):
     if not teacher_id:
         messages.error(request, "Unauthorized access. Please log in again.", extra_tags="section_codes")
         return JsonResponse({"success": False}, status=401)
+
+    teacher = get_object_or_404(Teacher, id=teacher_id)
 
     # 1) Prefer deleting by SectionJoinCode.id when provided
     code_id = request.POST.get("code_id")
@@ -86,9 +96,18 @@ def delete_section_code(request):
 
         sjc.delete()
         messages.success(request, "Join code deleted successfully.", extra_tags="section_codes")
+
+        # ✅ Logging
+        create_log(
+            request,
+            "DELETE",
+            f"Teacher {teacher.first_name} {teacher.last_name} deleted the join code "
+            f"for section {sjc.department.name}{sjc.year_level.year}{sjc.section.letter}."
+        )
+
         return JsonResponse({"success": True})
 
-    # 2) Fallback: composite section_id format "section_dept_year" (e.g. "3_2_1")
+    # 2) Fallback: composite section_id format "section_dept_year"
     raw = request.POST.get("section_id")
     try:
         section_id, dept_id, year_id = map(int, (raw or "").split("_"))
@@ -122,4 +141,13 @@ def delete_section_code(request):
         f"Deleted join code for {handled.department.name}{handled.year_level.year}{handled.section.letter}.",
         extra_tags="section_codes"
     )
+
+    # ✅ Logging
+    create_log(
+        request,
+        "DELETE",
+        f"Teacher {teacher.first_name} {teacher.last_name} deleted the join code "
+        f"for section {handled.department.name}{handled.year_level.year}{handled.section.letter}."
+    )
+
     return JsonResponse({"success": True})
