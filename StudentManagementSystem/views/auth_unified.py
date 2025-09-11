@@ -78,6 +78,43 @@ def unified_login(request):
 
 
 def unified_logout(request):
+    user_id = request.session.get("user_id")
+    role = request.session.get("role")
+
+    if role == Role.STUDENT:
+        student = Student.objects.filter(id=user_id).first()
+        if student:
+            create_log(
+                request,
+                "LOGOUT",
+                f"Student {student.first_name} {student.last_name} has logged out.",
+                target_model="Student",
+                target_id=student.student_id
+            )
+
+    elif role == Role.TEACHER:
+        teacher = Teacher.objects.filter(id=user_id).first()
+        if teacher:
+            create_log(
+                request,
+                "LOGOUT",
+                f"Teacher {teacher.first_name} {teacher.last_name} has logged out.",
+                target_model="Teacher",
+                target_id=teacher.id
+            )
+
+    elif role == Role.ADMIN:
+        admin = SimpleAdmin.objects.filter(id=user_id).first()
+        if admin:
+            create_log(
+                request,
+                "LOGOUT",
+                f"Admin {admin.username} has logged out.",
+                target_model="SimpleAdmin",
+                target_id=admin.username
+            )
+
+    # ✅ flush AFTER logging
     request.session.flush()
     messages.success(request, 'Logged out successfully.')
     return redirect('unified_login')

@@ -64,4 +64,4 @@ def admin_student_ranking(request):
         "selected_section": params["section_filter"],
     })
 
-    return render(request, "admin/student_ranking.html", context)
+    return render(request, "admin/../../templates/student_ranking.html", context)

@@ -18,6 +18,7 @@ from StudentManagementSystem.views.admin.proggress_addition_admin import add_ach
     delete_level, force_sync_everyone
 from StudentManagementSystem.views.admin.student_ranking import admin_student_ranking
 from StudentManagementSystem.views.auth_unified import unified_login, unified_logout
+from StudentManagementSystem.views.logger import view_log
 
 urlpatterns = [
     # Login and Logout Routes
@@ -48,4 +49,8 @@ urlpatterns = [
     path('delete_level/<int:level_id>/', delete_level, name='delete_level'),
     path('delete_achievement/<int:achievement_id>/', delete_achievement, name='delete_achievement'),
     path('force_sync/', force_sync_everyone, name='force_sync'),
+    
+    
+    
+    path('logs/', view_log, name='admin_view_logs')
 ]

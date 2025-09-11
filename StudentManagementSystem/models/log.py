@@ -17,7 +17,6 @@ class Log(models.Model):
 
     # Who did the action
     actor_id = models.CharField(max_length=50)  # can store student_id, teacher_id, or admin_id
-    actor_name = models.CharField(max_length=150)  # for readability
     role = models.CharField(max_length=20, choices=Role.choices)
 
     # What action happened

@@ -66,4 +66,4 @@ def student_student_ranking(request):
         }
     )
 
-    return render(request, "admin/student_ranking.html", context)
+    return render(request, "admin/../../templates/student_ranking.html", context)
