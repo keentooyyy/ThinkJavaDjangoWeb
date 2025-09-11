@@ -117,6 +117,9 @@
                                 </li>
                             {% endif %}
 
+
+
+                        {% if request.session.role == 'ADMIN' or request.session.role == 'TEACHER' %}
                             <li>
                                 <a href="{% url 'admin_view_logs' %}">
                                     <div class="parent-icon"><i class="lni lni-write"></i>
@@ -124,6 +127,7 @@
                                     <div class="menu-title">Activity Logs</div>
                                 </a>
                             </li>
+                        {% endif %}
 
 
                             <li class="mt-auto">

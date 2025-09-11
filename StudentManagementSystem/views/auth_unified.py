@@ -22,8 +22,6 @@ def unified_login(request):
                     request,
                     "LOGIN",
                     f"Student {student.first_name} {student.last_name} has logged in.",
-                    target_model="Student",
-                    target_id=student.student_id
                 )
                 return redirect('student_dashboard')
             else:
@@ -42,8 +40,6 @@ def unified_login(request):
                     request,
                     "LOGIN",
                     f"Teacher {teacher.first_name} {teacher.last_name} has logged in.",
-                    target_model="Teacher",
-                    target_id=teacher.teacher_id
                 )
                 return redirect('teacher_dashboard')
             else:
@@ -62,8 +58,6 @@ def unified_login(request):
                     request,
                     "LOGIN",
                     f"Admin {admin.username} has logged in.",
-                    target_model="SimpleAdmin",
-                    target_id=admin.username
                 )
                 return redirect('admin_dashboard')
             else:
@@ -88,8 +82,6 @@ def unified_logout(request):
                 request,
                 "LOGOUT",
                 f"Student {student.first_name} {student.last_name} has logged out.",
-                target_model="Student",
-                target_id=student.student_id
             )
 
     elif role == Role.TEACHER:
@@ -99,8 +91,6 @@ def unified_logout(request):
                 request,
                 "LOGOUT",
                 f"Teacher {teacher.first_name} {teacher.last_name} has logged out.",
-                target_model="Teacher",
-                target_id=teacher.id
             )
 
     elif role == Role.ADMIN:
@@ -110,8 +100,6 @@ def unified_logout(request):
                 request,
                 "LOGOUT",
                 f"Admin {admin.username} has logged out.",
-                target_model="SimpleAdmin",
-                target_id=admin.username
             )
 
     # ✅ flush AFTER logging

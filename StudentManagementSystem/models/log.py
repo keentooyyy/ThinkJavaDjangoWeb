@@ -23,10 +23,6 @@ class Log(models.Model):
     action = models.CharField(max_length=20, choices=ACTION_CHOICES, default="OTHER")
     description = models.TextField()  # human-readable description ("Edited student John Doe", etc.)
 
-    # Extra context
-    target_model = models.CharField(max_length=50, blank=True, null=True)  # e.g. "Student", "Teacher"
-    target_id = models.CharField(max_length=50, blank=True, null=True)  # e.g. student_id, teacher_id
-
     ip_address = models.GenericIPAddressField(null=True, blank=True)
     timestamp = models.DateTimeField(default=now)
 
@@ -39,4 +35,5 @@ class Log(models.Model):
         ordering = ["-timestamp"]
 
     def __str__(self):
-        return f"[{self.timestamp:%Y-%m-%d %H:%M}] {self.actor_name} ({self.role}) → {self.action}"
+        formatted_time = self.timestamp.strftime("%B %d, %Y %I:%M %p")
+        return f"[{formatted_time}] ({self.role}) → {self.action}"

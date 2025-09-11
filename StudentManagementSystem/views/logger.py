@@ -7,34 +7,18 @@ from StudentManagementSystem.models.log import Log
 from StudentManagementSystem.models.roles import Role
 
 
-def create_log(request, action, description, target_model=None, target_id=None):
+def create_log(request, action, description):
     """Helper to create logs consistently."""
 
     user_id = request.session.get("user_id")
     role = request.session.get("role")
     ip = get_client_ip(request)
 
-    actor_name = "Unknown"
-    if role == Role.STUDENT:
-        from StudentManagementSystem.models import Student
-        user = Student.objects.filter(id=user_id).first()
-        actor_name = f"{user.first_name} {user.last_name}" if user else "Unknown Student"
-    elif role == Role.TEACHER:
-        from StudentManagementSystem.models import Teacher
-        user = Teacher.objects.filter(id=user_id).first()
-        actor_name = f"{user.first_name} {user.last_name}" if user else "Unknown Teacher"
-    elif role == Role.ADMIN:
-        from StudentManagementSystem.models import SimpleAdmin
-        user = SimpleAdmin.objects.filter(id=user_id).first()
-        actor_name = f"{user.first_name} {user.last_name}" if user else "Unknown Admin"
-
     Log.objects.create(
         actor_id=user_id,
         role=role,
         action=action,
         description=description,
-        target_model=target_model,
-        target_id=target_id,
         ip_address=ip,
     )
 

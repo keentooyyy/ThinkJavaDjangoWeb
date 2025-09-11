@@ -120,7 +120,6 @@
                                     <th scope="col">Description</th>
                                     <th scope="col">Role</th>
                                     <th scope="col">Action</th>
-                                    <th scope="col">Target</th>
                                     <th scope="col">Timestamp</th>
                                 </tr>
                                 </thead>
@@ -131,14 +130,7 @@
                                         <td>{{ log.description }}</td>
                                         <td>{{ log.role }}</td>
                                         <td>{{ log.action }}</td>
-                                        <td>
-                                            {% if log.target_model %}
-                                                {{ log.target_id }}
-                                            {% else %}
-                                                -
-                                            {% endif %}
-                                        </td>
-                                        <td>{{ log.timestamp|date:"Y-m-d H:i:s" }}</td>
+                                        <td>{{ log.timestamp|date:"F d, Y h:i A" }}</td>
                                     </tr>
                                 {% empty %}
                                     <tr>

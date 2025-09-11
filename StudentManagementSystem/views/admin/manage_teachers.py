@@ -11,6 +11,7 @@ from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.models.section import Section
 from StudentManagementSystem.models.teachers import HandledSection
 from StudentManagementSystem.models.year_level import YearLevel
+from StudentManagementSystem.views.logger import create_log
 
 
 # @session_login_required(role=Role.ADMIN)
@@ -98,6 +99,12 @@ def create_teacher(request):
             # Create the teacher object
             teacher = Teacher.objects.create(teacher_id=teacher_id, first_name=first_name, last_name=last_name,
                 password=hashed_password)
+            admin = SimpleAdmin.objects.get(id=admin_id)
+            create_log(
+                request,
+                "CREATE",
+                f"Admin {admin.username} has logged in.",
+            )
 
             # Default to Year 1 (you can modify to be dynamic later)
             year_level = YearLevel.objects.get_or_create(year=1)[0]
@@ -130,7 +137,6 @@ def create_teacher(request):
 
 @session_login_required(role=Role.ADMIN)
 def edit_teacher(request, teacher_id):
-    # Define the extra_tags variable at the top
     message_tag = 'list_message'
 
     admin_id = request.session.get('user_id')
@@ -138,73 +144,97 @@ def edit_teacher(request, teacher_id):
         return redirect('unified_logout')
 
     if request.method == 'POST':
-        # Get the teacher object based on the teacher_id
         teacher = get_object_or_404(Teacher, id=teacher_id)
 
-        # Get the data from the POST request
+        # Capture old values for comparison
+        old_first_name = teacher.first_name
+        old_last_name = teacher.last_name
+        old_password = teacher.password
+
+        # Get new values
         first_name = request.POST.get('first_name_modal')
         last_name = request.POST.get('last_name_modal')
-        raw_password = request.POST.get('password_modal')  # Optional password field
-        departments = request.POST.getlist('departments[]')  # New departments added
-        letters = request.POST.getlist('letters[]')  # New section letters added
+        raw_password = request.POST.get('password_modal')
+        departments = request.POST.getlist('departments[]')
+        letters = request.POST.getlist('letters[]')
 
-        # Update teacher data (first name, last name, and password)
-        teacher.first_name = first_name
-        teacher.last_name = last_name
+        # Track changes
+        changes = []
 
-        # If password is provided, hash and update it
+        if first_name and first_name != old_first_name:
+            changes.append(f"first name from '{old_first_name}' to '{first_name}'")
+            teacher.first_name = first_name
+
+        if last_name and last_name != old_last_name:
+            changes.append(f"last name from '{old_last_name}' to '{last_name}'")
+            teacher.last_name = last_name
+
         if raw_password:
-            teacher.password = make_password(raw_password)
+            hashed_password = make_password(raw_password)
+            if hashed_password != old_password:  # Just check new password set
+                changes.append("password updated")
+                teacher.password = hashed_password
 
-        # Save the updated teacher object
         teacher.save()
 
-        # Add new handled sections (department and section) if they don't already exist
+        # Track new handled sections
+        new_sections_added = []
         if departments and letters:
-            duplicate_sections = []  # List to collect duplicate sections
-            sections_to_create = []  # List to store sections to create later
+            duplicate_sections = []
+            sections_to_create = []
 
-            # First, check if the sections are already handled by another teacher
             for dept_id, letter in zip(departments, letters):
-                if dept_id and letter:  # Only process if both dept_id and letter are valid
+                if dept_id and letter:
                     try:
                         department = Department.objects.get(id=dept_id)
                         section = Section.objects.get(department=department, letter=letter)
 
-                        # Check if the section is already handled by another teacher
                         if HandledSection.objects.filter(section=section).exists():
-                            # If the section is already handled, add it to the duplicate sections list
                             duplicate_sections.append(
-                                f"{section.department.name}{section.year_level.year}{section.letter}")
+                                f"{section.department.name}{section.year_level.year}{section.letter}"
+                            )
                         else:
-                            # If no duplicate, prepare the section for creation
                             sections_to_create.append(section)
 
                     except (Department.DoesNotExist, Section.DoesNotExist):
-                        # Handle the case where a department or section doesn't exist
-                        messages.error(request, "One or more sections/departments do not exist. Please try again.",
-                                       extra_tags=message_tag)
+                        messages.error(request, "Invalid section/department.", extra_tags=message_tag)
                         return redirect('create_teacher')
 
-            # If there are any duplicate sections, show an error message with all the duplicates
             if duplicate_sections:
                 sections_str = ', '.join(duplicate_sections)
-                messages.error(request, f"The section(s) {sections_str} are already assigned to another teacher.",
-                               extra_tags=message_tag)
+                messages.error(request, f"The section(s) {sections_str} are already assigned.", extra_tags=message_tag)
                 return redirect('create_teacher')
 
-            # Now, create all the new handled sections
             for section in sections_to_create:
-                HandledSection.objects.create(teacher=teacher, section=section, department=section.department,
-                    year_level=section.year_level)
+                HandledSection.objects.create(
+                    teacher=teacher, section=section,
+                    department=section.department, year_level=section.year_level
+                )
+                new_sections_added.append(f"{section.department.name}{section.year_level.year}{section.letter}")
 
-        # On successful update, show a success message and redirect to the dashboard
+        # ✅ Logging
+        admin = SimpleAdmin.objects.get(id=admin_id)
+        log_desc_parts = []
+
+        if changes:
+            log_desc_parts.append("updated " + ", ".join(changes))
+
+        if new_sections_added:
+            log_desc_parts.append("added section(s): " + ", ".join(new_sections_added))
+
+        log_description = (
+            f"Admin {admin.username} has {'; '.join(log_desc_parts)} "
+            f"for teacher ({teacher.teacher_id}) named {teacher.first_name} {teacher.last_name}."
+        )
+
+        create_log(request, "UPDATE", log_description)
+
         messages.success(request, 'Teacher details updated successfully!', extra_tags=message_tag)
         return redirect('create_teacher')
 
-    # Return error if it's not a POST request
-    messages.error(request, 'Invalid request method. Please try again.', extra_tags=message_tag)
+    messages.error(request, 'Invalid request method.', extra_tags=message_tag)
     return redirect('create_teacher')
+
 
 
 # 2. View to fetch teacher details for the modal
@@ -236,6 +266,16 @@ def remove_section(request, section_id):
         # Delete the section from the teacher's handled sections
         section.delete()
 
+        user_id = request.session.get('user_id')
+        admin = SimpleAdmin.objects.get(id=user_id)
+        create_log(
+            request,
+            "DELETE",
+            f"Admin {admin.username} has deleted a section "
+            f"({section.department.name}{section.year_level.year}{section.section.letter}) "
+            f"from the teacher ({section.teacher.first_name} {section.teacher.last_name})."
+        )
+
         return JsonResponse({'success': True})
     return JsonResponse({'success': False}, status=400)
 
@@ -248,6 +288,14 @@ def delete_teacher(request, teacher_id):
 
         # Delete the teacher from the database
         teacher.delete()
+
+        user_id = request.session.get('user_id')
+        admin = SimpleAdmin.objects.get(id=user_id)
+        create_log(
+            request,
+            "DELETE",
+            f"Admin {admin.username} has deleted a teacher, ({teacher.teacher_id}) named {teacher.first_name} {teacher.last_name}.",
+        )
 
         return JsonResponse({'success': True})
 
