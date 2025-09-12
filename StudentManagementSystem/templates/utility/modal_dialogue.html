@@ -1,0 +1,38 @@
+{% load list_extras %}
+
+{% with buttons=modal_buttons|to_list classes=modal_classes|to_list %}
+    <div class="modal fade" id="{{ modal_id }}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered"
+             style="{% if modal_width %}--bs-modal-width: {{ modal_width }};{% endif %}">
+            <div class="modal-content">
+
+                <!-- Header -->
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ modal_title }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <!-- Body -->
+                <div class="modal-body p-4">
+                    {{ modal_body|safe }}
+                </div>
+
+                <!-- Footer -->
+                {% with buttons=modal_buttons|to_list classes=modal_classes|to_list %}
+                    <div class="modal-footer">
+                        {% for btn in buttons %}
+                            {% with class_item=classes|slice:forloop.counter0 %}
+                                <button type="button"
+                                        class="{{ class_item.0|default:'btn btn-primary' }}"
+                                        id="{{ modal_id }}_{{ btn }}"
+                                        {% if btn == "cancel" %}data-bs-dismiss="modal"{% endif %}>
+                                    {{ btn|title }}
+                                </button>
+                            {% endwith %}
+                        {% endfor %}
+                    </div>
+                {% endwith %}
+            </div>
+        </div>
+    </div>
+{% endwith %}

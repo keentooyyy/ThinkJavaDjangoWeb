@@ -119,21 +119,20 @@
 
 
 
-                        {% if request.session.role == 'ADMIN' or request.session.role == 'TEACHER' %}
-                            <li>
-                                <a href="{% url 'admin_view_logs' %}">
-                                    <div class="parent-icon"><i class="lni lni-write"></i>
-                                    </div>
-                                    <div class="menu-title">Activity Logs</div>
-                                </a>
-                            </li>
-                        {% endif %}
+                            {% if request.session.role == 'ADMIN' or request.session.role == 'TEACHER' %}
+                                <li>
+                                    <a href="{% url 'admin_view_logs' %}">
+                                        <div class="parent-icon"><i class="lni lni-write"></i>
+                                        </div>
+                                        <div class="menu-title">Activity Logs</div>
+                                    </a>
+                                </li>
+                            {% endif %}
 
 
                             <li class="mt-auto">
-                                <a href="{% url 'unified_logout' %}">
-                                    <div class="parent-icon "><i class="bx bx-log-out text-danger"></i>
-                                    </div>
+                                <a href="javascript:;" data-bs-toggle="modal" data-bs-target="#logoutConfirmModal">
+                                    <div class="parent-icon "><i class="bx bx-log-out text-danger"></i></div>
                                     <div class="menu-title text-danger">Logout</div>
                                 </a>
                             </li>
@@ -148,3 +147,9 @@
         <div class="simplebar-placeholder" style="width: auto; height: 1351px;"></div>
     </div>
 </div>
+
+<button class="btn btn-outline-secondary"></button>
+
+{% include "utility/modal_dialogue.html" with modal_id="logoutConfirmModal" modal_title="Confirm Logout" modal_body="<span>Are you sure you want to log out?</span>" modal_width="400px" modal_buttons="['yes','cancel']" modal_classes="['btn btn-danger','btn btn-outline-secondary']" %}
+
+

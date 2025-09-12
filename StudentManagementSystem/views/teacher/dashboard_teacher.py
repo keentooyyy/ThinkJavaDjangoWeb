@@ -14,8 +14,8 @@ from StudentManagementSystem.models.teachers import HandledSection
 def get_teacher_dashboard_context(teacher):
     handled_sections = teacher.handled_sections.all()
 
-    # Get all students (currently unfiltered)
-    students = Student.objects.all()
+    # 🔒 Only include students from teacher's handled sections
+    students = Student.objects.filter(section__in=handled_sections.values_list("section_id", flat=True))
 
     sections_for_department = [
         {
@@ -34,7 +34,7 @@ def get_teacher_dashboard_context(teacher):
         "teacher": teacher,
         "handled_sections": handled_sections,
         "handled_sections_names": [f"{hs.year_level.year} {hs.section.letter}" for hs in handled_sections],
-        "handled_students": students,  # 🔹 can filter later to just teacher's students if needed
+        "handled_students": students,  # ✅ safe now
         "level_options": [{"value": level.name, "label": level.name} for level in LevelDefinition.objects.all()],
         "achievement_options": [
             {"value": ach.code, "label": ach.title, "is_active": ach.is_active}

@@ -104,7 +104,7 @@ def create_teacher(request):
         return redirect('create_teacher')
 
     context = get_teacher_context(admin)
-    return render(request, 'admin/teacher_form.html', context)
+    return render(request, 'admin/main/teacher_form.html', context)
 
 
 @session_login_required(role=Role.ADMIN)

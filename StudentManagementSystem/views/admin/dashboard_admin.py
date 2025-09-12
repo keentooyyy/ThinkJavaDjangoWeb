@@ -35,7 +35,7 @@ def admin_dashboard(request):
         "levels": LevelDefinition.objects.all(),
         "achievements": AchievementDefinition.objects.all(),
     }
-    return render(request, "admin/dashboard.html", context)
+    return render(request, "admin/main/dashboard.html", context)
 
 
 # --- Only ranking stays async ---

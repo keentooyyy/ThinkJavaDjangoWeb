@@ -17,21 +17,14 @@ from StudentManagementSystem.views.ranking_view import (
 
 @session_login_required(role=Role.TEACHER)
 def teacher_student_ranking(request):
-    try:
-        teacher = Teacher.objects.get(id=request.session.get("user_id"))
-        user_context = {"username": f"{teacher.first_name} {teacher.last_name}", "role": teacher.role}
-    except Teacher.DoesNotExist:
-        return HttpResponseForbidden("Forbidden")
+    teacher = request.user_obj  # ✅ validated Teacher from decorator
+    user_context = {"username": f"{teacher.first_name} {teacher.last_name}", "role": teacher.role}
 
-    if user_context["role"] != Role.TEACHER:
-        return HttpResponseForbidden("Forbidden")
-
-    teacher_id = request.session.get("user_id")
     params = get_common_params(request)
 
     # handled sections for this teacher
     all_handled_sections = (
-        HandledSection.objects.filter(teacher_id=teacher_id)
+        HandledSection.objects.filter(teacher=teacher)
         .select_related("section__year_level", "department")
         .order_by("department__name", "section__year_level__year", "section__letter")
     )
@@ -64,7 +57,7 @@ def teacher_student_ranking(request):
             if search_query in str(r.get("student_id", "")).lower()
                or search_query in str(r.get("first_name", "")).lower()
                or search_query in str(r.get("last_name", "")).lower()
-               or search_query in f"{r.get('first_name', '')} {r.get('last_name', '')}".lower()  # ✅ full name
+               or search_query in f"{r.get('first_name', '')} {r.get('last_name', '')}".lower()
                or search_query in str(r.get("section", "")).lower()
                or search_query in str(r.get("score", "")).lower()
         ]
@@ -81,4 +74,4 @@ def teacher_student_ranking(request):
         "selected_section": params["section_filter"],
     })
 
-    return render(request, "admin/../../templates/student_ranking.html", context)
+    return render(request, "student_ranking.html", context)
