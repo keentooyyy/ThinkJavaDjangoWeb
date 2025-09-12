@@ -17,14 +17,8 @@ from StudentManagementSystem.views.ranking_view import (
 
 @session_login_required(role=Role.ADMIN)
 def admin_student_ranking(request):
-    try:
-        admin = SimpleAdmin.objects.get(id=request.session.get("user_id"))
-        user_context = {"username": admin.username, "role": admin.role}
-    except SimpleAdmin.DoesNotExist:
-        return HttpResponseForbidden("Forbidden")
-
-    if user_context["role"] != Role.ADMIN:
-        return HttpResponseForbidden("Forbidden")
+    admin = request.user_obj  # ✅ validated SimpleAdmin
+    user_context = {"username": admin.username, "role": admin.role}
 
     params = get_common_params(request)
 
@@ -49,7 +43,7 @@ def admin_student_ranking(request):
             if search_query in str(r.get("student_id", "")).lower()
                or search_query in str(r.get("first_name", "")).lower()
                or search_query in str(r.get("last_name", "")).lower()
-               or search_query in f"{r.get('first_name', '')} {r.get('last_name', '')}".lower()  # ✅ full name
+               or search_query in f"{r.get('first_name', '')} {r.get('last_name', '')}".lower()
                or search_query in str(r.get("section", "")).lower()
                or search_query in str(r.get("score", "")).lower()
         ]
@@ -64,4 +58,4 @@ def admin_student_ranking(request):
         "selected_section": params["section_filter"],
     })
 
-    return render(request, "admin/../../templates/student_ranking.html", context)
+    return render(request, "student_ranking.html", context)

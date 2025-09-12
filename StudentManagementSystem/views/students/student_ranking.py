@@ -1,6 +1,7 @@
 from django.http import HttpResponseForbidden
 from django.shortcuts import redirect, render
 
+from StudentManagementSystem.decorators.custom_decorators import session_login_required
 from StudentManagementSystem.models import Student
 from StudentManagementSystem.models.roles import Role
 from GameProgress.services.ranking import get_all_student_rankings
@@ -10,21 +11,9 @@ from StudentManagementSystem.views.ranking_view import (
     build_ranking_context,
 )
 
-
+@session_login_required(role=Role.STUDENT)
 def student_student_ranking(request):
-    user_id = request.session.get("user_id")
-    role = request.session.get("role")
-
-    if not user_id or role != Role.STUDENT:
-        return HttpResponseForbidden("Forbidden")
-
-    try:
-        student = Student.objects.select_related(
-            "section", "year_level", "section__department"
-        ).get(id=user_id)
-    except Student.DoesNotExist:
-        return redirect("unified_logout")
-
+    student = request.user_obj  # ✅ validated Student
     if not student.section:
         return HttpResponseForbidden("You are not assigned to any section.")
 
@@ -50,7 +39,7 @@ def student_student_ranking(request):
             if search_query in str(r.get("student_id", "")).lower()
             or search_query in str(r.get("first_name", "")).lower()
             or search_query in str(r.get("last_name", "")).lower()
-            or search_query in f"{r.get('first_name', '')} {r.get('last_name', '')}".lower()  # full name
+            or search_query in f"{r.get('first_name', '')} {r.get('last_name', '')}".lower()
             or search_query in str(r.get("section", "")).lower()
             or search_query in str(r.get("score", "")).lower()
         ]
@@ -58,7 +47,10 @@ def student_student_ranking(request):
     # ✅ Paginate after filtering
     page_obj = paginate_queryset(rankings, params["per_page"], params["page_number"])
 
-    user_context = {"username": f"{student.first_name} {student.last_name}", "role": role}
+    user_context = {
+        "username": f"{student.first_name} {student.last_name}",
+        "role": student.role,  # ✅ comes directly from student object
+    }
 
     context = build_ranking_context(
         rankings, page_obj, params, user_context, {
@@ -66,4 +58,4 @@ def student_student_ranking(request):
         }
     )
 
-    return render(request, "admin/../../templates/student_ranking.html", context)
+    return render(request, "student_ranking.html", context)

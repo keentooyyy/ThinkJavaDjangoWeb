@@ -22,10 +22,7 @@ def register_student(request):
         POST → create a new student
     """
     extra_tags = "create_message"
-    teacher_id = request.session.get("user_id")
-    if not teacher_id:
-        messages.error(request, "Unauthorized access. Please log in first.", extra_tags=extra_tags)
-        return redirect("unified_logout")
+    teacher = request.user_obj  # ✅ validated Teacher
 
     # ✅ Handle student creation
     if request.method == "POST":
@@ -40,10 +37,12 @@ def register_student(request):
             return redirect("register_student")
 
         # Make sure the section belongs to this teacher
-        handled_section = HandledSection.objects.filter(
-            teacher_id=teacher_id,
-            section_id=section_id,
-        ).select_related("section").first()
+        handled_section = (
+            HandledSection.objects
+            .filter(teacher=teacher, section_id=section_id)
+            .select_related("section")
+            .first()
+        )
 
         if not handled_section:
             messages.error(request, "You are not assigned to this section.", extra_tags=extra_tags)
@@ -65,7 +64,7 @@ def register_student(request):
             f"Student {student.first_name} {student.last_name} registered successfully.",
             extra_tags=extra_tags,
         )
-        teacher = Teacher.objects.get(id=teacher_id)
+
         create_log(
             request,
             "CREATE",
@@ -76,29 +75,25 @@ def register_student(request):
         )
         return redirect("register_student")
 
-    handled_sections = HandledSection.objects.filter(teacher_id=teacher_id)
+    handled_sections = HandledSection.objects.filter(teacher=teacher)
     if not handled_sections.exists():
         messages.error(request, "You are not assigned to any sections yet.", extra_tags=extra_tags)
 
     # available sections for dropdown
     unique_sections = deduplicate_sections([hs.section for hs in handled_sections])
 
-    teacher = Teacher.objects.get(id=teacher_id)
     departments = Department.objects.all()
     if not departments.exists():
         messages.error(request, "No departments available.", extra_tags=extra_tags)
 
     section_codes = SectionJoinCode.objects.filter(section__in=[hs.section for hs in handled_sections])
 
-    # ✅ Use unified params + helpers
     params = get_common_params(request)
 
-    # Limit to teacher’s students
     students = Student.objects.filter(
         section__in=handled_sections.values_list("section_id", flat=True)
     ).select_related("section__department", "year_level")
 
-    # Apply filters
     if params["department_name"] and params["department_name"].lower() != "all":
         students = students.filter(section__department__name=params["department_name"])
     if params["section_filter"]:
@@ -106,7 +101,6 @@ def register_student(request):
         letter = params["section_filter"][1:]
         students = students.filter(section__year_level__year=year, section__letter=letter)
 
-    # Apply search (same style as ranking views)
     search_query = request.GET.get("search", "").strip().lower()
     if search_query:
         students = students.filter(
@@ -117,25 +111,24 @@ def register_student(request):
             Q(section__year_level__year__icontains=search_query)
         )
 
-    # Apply sorting
-
     students = students.order_by("student_id")
 
-    # Paginate with shared helper
     page_obj = paginate_queryset(students, params["per_page"], params["page_number"])
 
-    context = build_ranking_context(students, page_obj, params, {
-        "username": f"{teacher.first_name} {teacher.last_name}",
-        "role": Role.TEACHER,
-    },
-    {
-        "departments": departments,
-        "sections": unique_sections,
-        "selected_department": params["department_name"],
-        "selected_section": params["section_filter"],
-        "section_codes": section_codes,
-        "handled_sections": handled_sections
-    })
+    context = build_ranking_context(
+        students,
+        page_obj,
+        params,
+        {"username": f"{teacher.first_name} {teacher.last_name}", "role": Role.TEACHER},
+        {
+            "departments": departments,
+            "sections": unique_sections,
+            "selected_department": params["department_name"],
+            "selected_section": params["section_filter"],
+            "section_codes": section_codes,
+            "handled_sections": handled_sections,
+        },
+    )
 
     return render(request, "teacher/register_student.html", context)
 
@@ -145,11 +138,7 @@ def register_student(request):
 # ----------------------------
 @session_login_required(role=Role.TEACHER)
 def edit_student(request, student_id):
-    teacher_id = request.session.get("user_id")
-    if not teacher_id:
-        return JsonResponse({"success": False, "message": "Unauthorized"}, status=401)
-
-    teacher = get_object_or_404(Teacher, id=teacher_id)
+    teacher = request.user_obj  # ✅ validated Teacher
     student = get_object_or_404(Student, id=student_id)
 
     handled_sections = (
@@ -162,9 +151,6 @@ def edit_student(request, student_id):
     if not handled_sections.filter(section=student.section).exists():
         return JsonResponse({"success": False, "message": "Not authorized"}, status=403)
 
-    # ----------------------------- #
-    # GET: Prefill modal
-    # ----------------------------- #
     if request.method == "GET":
         departments_dict = {}
         for hs in handled_sections:
@@ -198,17 +184,12 @@ def edit_student(request, student_id):
             "departments": list(departments_dict.values())
         })
 
-    # ----------------------------- #
-    # POST: Save updates
-    # ----------------------------- #
     if request.method == "POST":
-        # Capture old values
         old_first_name = student.first_name
         old_last_name = student.last_name
         old_password = student.password
         old_section = student.section
 
-        # Get new values
         first_name = request.POST.get("student_first_name_modal")
         last_name = request.POST.get("student_last_name_modal")
         section_id = request.POST.get("student_section_modal")
@@ -228,17 +209,13 @@ def edit_student(request, student_id):
             messages.error(request, "You are not authorized to assign this section.", extra_tags="edit_message")
             return JsonResponse({"success": False})
 
-        # Track changes
         changes = []
-
         if first_name and first_name != old_first_name:
             changes.append(f"first name from '{old_first_name}' to '{first_name}'")
             student.first_name = first_name
-
         if last_name and last_name != old_last_name:
             changes.append(f"last name from '{old_last_name}' to '{last_name}'")
             student.last_name = last_name
-
         if new_section != old_section:
             changes.append(
                 f"section from '{old_section.department.name}{old_section.year_level.year}{old_section.letter}' "
@@ -246,7 +223,6 @@ def edit_student(request, student_id):
             )
             student.section = new_section
             student.year_level = new_section.year_level
-
         if raw_password:
             hashed_password = make_password(raw_password)
             if hashed_password != old_password:
@@ -255,20 +231,19 @@ def edit_student(request, student_id):
 
         student.save()
 
-        # ✅ Logging
-        log_desc_parts = []
         if changes:
-            log_desc_parts.append("updated " + ", ".join(changes))
+            log_description = (
+                f"Teacher {teacher.first_name} {teacher.last_name} updated "
+                f"{', '.join(changes)} for student ({student.student_id}) "
+                f"named {student.first_name} {student.last_name}."
+            )
+            create_log(request, "UPDATE", log_description)
 
-        log_description = (
-            f"Teacher {teacher.first_name} {teacher.last_name} has {'; '.join(log_desc_parts)} "
-            f"for student ({student.student_id}) named {student.first_name} {student.last_name}."
+        messages.success(
+            request,
+            f"Student {student.first_name} {student.last_name} updated successfully!",
+            extra_tags="edit_message"
         )
-
-        create_log(request, "UPDATE", log_description)
-
-        messages.success(request, f"Student {student.first_name} {student.last_name} updated successfully!",
-                         extra_tags="edit_message")
         return JsonResponse({"success": True})
 
     return JsonResponse({"success": False, "message": "Invalid method"}, status=405)
@@ -279,13 +254,7 @@ def edit_student(request, student_id):
 # ----------------------------
 @session_login_required(role=Role.TEACHER)
 def delete_student(request, student_id):
-    teacher_id = request.session.get("user_id")
-
-    if not teacher_id:
-        messages.error(request, "Unauthorized access. Please log in again.", extra_tags="edit_message")
-        return JsonResponse({"success": False}, status=401)
-
-    teacher = get_object_or_404(Teacher, id=teacher_id)
+    teacher = request.user_obj  # ✅ validated Teacher
     student = get_object_or_404(Student, id=student_id)
 
     handled_sections = HandledSection.objects.filter(teacher=teacher).values_list("section_id", flat=True)
@@ -298,17 +267,13 @@ def delete_student(request, student_id):
         student_id_val = student.student_id
         section_name = f"{student.section.department.name}{student.section.year_level.year}{student.section.letter}"
 
-        # 🚨 Keep details for logging before deletion
         log_description = (
-            f"Teacher {teacher.first_name} {teacher.last_name} has deleted student "
+            f"Teacher {teacher.first_name} {teacher.last_name} deleted student "
             f"({student_id_val}) named {student_name} from section {section_name}."
         )
 
         student.delete()
-
         messages.success(request, f"Student {student_name} deleted successfully.", extra_tags="edit_message")
-
-        # ✅ Logging
         create_log(request, "DELETE", log_description)
 
         return JsonResponse({"success": True})
