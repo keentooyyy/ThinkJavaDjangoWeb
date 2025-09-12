@@ -1,81 +1,86 @@
-
-    <header>
-        <div class="topbar d-flex align-items-center">
-            <nav class="navbar navbar-expand gap-3">
-                <div class="mobile-toggle-menu"><i class="bx bx-menu"></i>
+<header>
+    <div class="topbar d-flex align-items-center">
+        <nav class="navbar navbar-expand gap-3">
+            <div class="mobile-toggle-menu"><i class="bx bx-menu"></i>
+            </div>
+            <div class="search-bar flex-grow-1">
+                <div class="position-relative search-bar-box">
+                    <form>
+                        <input type="text" class="form-control search-control" autofocus=""
+                               placeholder="Type to search..."> <span
+                            class="position-absolute top-50 search-show translate-middle-y"><i
+                            class="bx bx-search"></i></span>
+                        <span class="position-absolute top-50 search-close translate-middle-y"><i
+                                class="bx bx-x"></i></span>
+                    </form>
                 </div>
-                <div class="search-bar flex-grow-1">
-                    <div class="position-relative search-bar-box">
-                        <form>
-                            <input type="text" class="form-control search-control" autofocus=""
-                                   placeholder="Type to search..."> <span
-                                class="position-absolute top-50 search-show translate-middle-y"><i
-                                class="bx bx-search"></i></span>
-                            <span class="position-absolute top-50 search-close translate-middle-y"><i
-                                    class="bx bx-x"></i></span>
-                        </form>
-                    </div>
-                </div>
-                <div class="top-menu ms-auto">
-                    <ul class="navbar-nav align-items-center gap-1">
-                        <li class="nav-item dark-mode d-none d-sm-flex">
-                            <a class="nav-link dark-mode-icon" href="javascript:;"><i class="bx bx-moon"></i>
+            </div>
+            <div class="top-menu ms-auto">
+                <ul class="navbar-nav align-items-center gap-1">
+                    <li class="nav-item dark-mode d-none d-sm-flex">
+                        <a class="nav-link dark-mode-icon" href="javascript:;"><i class="bx bx-moon"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown dropdown-large">
+                        <a class="nav-link dropdown-toggle dropdown-toggle-nocaret position-relative" href="#"
+                           role="button" data-bs-toggle="dropdown" aria-expanded="false"> <span
+                                class="alert-count">1</span>
+                            <i class="bx bx-bell"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end">
+                            <a href="javascript:;">
+                                <div class="msg-header">
+                                    <p class="msg-header-title">Notifications</p>
+                                    <p class="msg-header-clear ms-auto">Marks all as read</p>
+                                </div>
                             </a>
-                        </li>
-                        <li class="nav-item dropdown dropdown-large">
-                            <a class="nav-link dropdown-toggle dropdown-toggle-nocaret position-relative" href="#"
-                               role="button" data-bs-toggle="dropdown" aria-expanded="false"> <span
-                                    class="alert-count">1</span>
-                                <i class="bx bx-bell"></i>
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-end">
-                                <a href="javascript:;">
-                                    <div class="msg-header">
-                                        <p class="msg-header-title">Notifications</p>
-                                        <p class="msg-header-clear ms-auto">Marks all as read</p>
+                            <div class="header-notifications-list ps">
+                                <a class="dropdown-item" href="javascript:;">
+                                    <div class="d-flex align-items-center">
+                                        <div class="notify bg-light-primary text-primary"><i
+                                                class="bx bx-notification"></i>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="msg-name">New Customers<span class="msg-time float-end">14 Sec
+												ago</span></h6>
+                                            <p class="msg-info">5 new user registered</p>
+                                        </div>
                                     </div>
                                 </a>
-                                <div class="header-notifications-list ps">
-                                    <a class="dropdown-item" href="javascript:;">
-                                        <div class="d-flex align-items-center">
-                                            <div class="notify bg-light-primary text-primary"><i
-                                                    class="bx bx-notification"></i>
-                                            </div>
-                                            <div class="flex-grow-1">
-                                                <h6 class="msg-name">New Customers<span class="msg-time float-end">14 Sec
-												ago</span></h6>
-                                                <p class="msg-info">5 new user registered</p>
-                                            </div>
-                                        </div>
-                                    </a>
-                                    <div class="ps__rail-x" style="left: 0px; bottom: 0px;">
-                                        <div class="ps__thumb-x" tabindex="0" style="left: 0px; width: 0px;"></div>
-                                    </div>
-                                    <div class="ps__rail-y" style="top: 0px; right: 0px;">
-                                        <div class="ps__thumb-y" tabindex="0" style="top: 0px; height: 0px;"></div>
-                                    </div>
+                                <div class="ps__rail-x" style="left: 0px; bottom: 0px;">
+                                    <div class="ps__thumb-x" tabindex="0" style="left: 0px; width: 0px;"></div>
+                                </div>
+                                <div class="ps__rail-y" style="top: 0px; right: 0px;">
+                                    <div class="ps__thumb-y" tabindex="0" style="top: 0px; height: 0px;"></div>
                                 </div>
                             </div>
-                        </li>
-                    </ul>
-                </div>
-                <div class="user-box dropdown px-3">
-                    <a class="d-flex align-items-center nav-link dropdown-toggle dropdown-toggle-nocaret" href="#"
-                       role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <div class="user-info">
-                            <p class="user-name mb-0">{{ username | upper }}</p>
-                            <p class="designattion mb-0">{{ role | title }}</p>
                         </div>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li>
-                            <a class="dropdown-item text-danger" href="{% url 'unified_logout' %}">
-                                <i class="bx bx-log-out-circle text-danger"></i>
-                                <span>Logout</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
-        </div>
-    </header>
+                    </li>
+                </ul>
+            </div>
+            <div class="user-box dropdown px-3">
+                <a class="d-flex align-items-center nav-link dropdown-toggle dropdown-toggle-nocaret" href="#"
+                   role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <div class="user-info">
+                        <p class="user-name mb-0">{{ username | upper }}</p>
+                        <p class="designattion mb-0">{{ role | title }}</p>
+                    </div>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li>
+                        <a class="dropdown-item text-danger"
+                           href="javascript:void(0);"
+                           data-bs-toggle="modal"
+                           data-bs-target="#logoutConfirmModal">
+                            <i class="bx bx-log-out-circle text-danger"></i>
+                            <span>Logout</span>
+                        </a>
+                </ul>
+            </div>
+        </nav>
+    </div>
+</header>
+
+
+{% include "utility/modal_dialogue.html" with modal_id="logoutConfirmModal" modal_title="Confirm Logout" modal_body="<span>Are you sure you want to log out?</span>" modal_width="400px" modal_buttons="['yes','cancel']" modal_classes="['btn btn-danger','btn btn-primary']" %}
+

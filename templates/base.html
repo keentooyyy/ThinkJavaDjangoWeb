@@ -95,23 +95,16 @@
 {#  logout modal buttons confirmation  #}
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        // YES button
         const yesBtn = document.getElementById("logoutConfirmModal_yes");
         if (yesBtn) {
             yesBtn.addEventListener("click", function () {
                 window.location.href = "{% url 'unified_logout' %}";
             });
         }
-
-        // CANCEL button
-        const cancelBtn = document.getElementById("logoutConfirmModal_cancel");
-        if (cancelBtn) {
-            cancelBtn.addEventListener("click", function () {
-                // No redirect; modal will auto close because of data-bs-dismiss
-            });
-        }
     });
 </script>
+
+
 
 
 
