@@ -141,7 +141,7 @@
                         <!-- Section Management Separator -->
 
 
-                        <button type="submit" class="btn btn-primary float-end mt-3">
+                        <button type="button" class="btn btn-primary float-end mt-3" id="openTeacherConfirm">
                             <i class="bx bxs-user mr-1"></i>Create Teacher
                         </button>
 
@@ -162,6 +162,9 @@
     </div>
 
 
+
+
+{% include "utility/modal_dialogue.html" with modal_id="teacherConfirmModal" modal_title="Confirm Submission" modal_body="<span>Are you sure that all the details are correct?</span>" modal_width="400px" modal_buttons="['yes','cancel']" modal_classes="['btn btn-primary','btn btn-secondary']"%}
 
 
 
@@ -218,6 +221,21 @@
                 alert("You must have at least one section.");
             }
         }
+    </script>
+
+    <script>
+
+        // open modal when button is clicked
+        $('#openTeacherConfirm').on('click', function () {
+            $('#teacherConfirmModal').modal('show');
+        });
+
+        // if Yes → submit form
+        $('#teacherConfirmModal_yes').on('click', function () {
+            $('#teacher_form').submit();
+        });
+
+
     </script>
 
 
