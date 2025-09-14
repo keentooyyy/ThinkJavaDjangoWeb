@@ -34,7 +34,7 @@
                     </div>
 
                     <div class="col-12 mt-3">
-                        <button type="submit" class="btn btn-primary float-end">
+                        <button type="button" class="btn btn-primary float-end" id="openGenerateCodeConfirm">
                             <i class="bx bx-refresh"></i> Generate Code
                         </button>
                     </div>
@@ -81,49 +81,7 @@
 
 </div>
 
+{% include "utility/modal_dialogue.html" with modal_id="generateCodeConfirmModal" modal_title="Confirm Code Generation" modal_body="<span>If this section already has a join code, generating a new one will override it and the old code will no longer be usable. Do you want to continue?</span>" modal_width="500px" modal_buttons="['yes','cancel']" modal_classes="['btn btn-danger','btn btn-secondary']" %}
 
-{% block scripts %}
-<script>
-    function copyCode(id) {
-        let codeText = $("#code-" + id).text().trim();
+{% include "utility/modal_dialogue.html" with modal_id="deleteCodeConfirmModal" modal_title="Confirm Deletion" modal_body="<span>Are you sure you want to delete this join code?</span>" modal_width="500px" modal_buttons="['yes','cancel']" modal_classes="['btn btn-danger','btn btn-secondary']" %}
 
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(codeText).then(function () {
-                alert("Copied: " + codeText);
-            }).catch(function (err) {
-                console.error("Clipboard copy failed: ", err);
-                alert("Failed to copy code!");
-            });
-        } else {
-            let $temp = $("<input>");
-            $("body").append($temp);
-            $temp.val(codeText).select();
-            document.execCommand("copy");
-            $temp.remove();
-            alert("Copied: " + codeText);
-        }
-    }
-
-    function deleteCode(id) {
-        if (!confirm("Are you sure you want to delete this join code?")) return;
-
-        $.ajax({
-            url: "{% url 'delete_section_code' %}",
-            type: "POST",
-            data: {
-                code_id: id,
-                csrfmiddlewaretoken: "{{ csrf_token }}"
-            },
-            success: function (data) {
-                if (data.success) {
-                    $("#row-" + id).remove();
-                    location.reload()
-                }
-            },
-            error: function (xhr) {
-                alert("Failed to delete join code.");
-            }
-        });
-    }
-</script>
-{% endblock %}

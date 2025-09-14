@@ -79,17 +79,30 @@ def view_log(request):
     if not (admin or teacher):
         return redirect("unified_logout")
 
-    # ✅ Filter logs based on role
+    # Base queryset depending on role
     logs = get_filtered_logs_for_user(user_id, role)
 
-    # ✅ Sorting
-    sort_by = request.GET.get("sort_by", "")
-    sort_order = request.GET.get("sort_order", "")
-    if sort_by:
-        order = f"-{sort_by}" if sort_order == "desc" else sort_by
-        logs = logs.order_by(order)
-    else:
-        logs = logs.order_by("-timestamp")
+    # ✅ Filters
+    role_filter = request.GET.get("role", "")
+    action_filter = request.GET.get("action", "")
+    search_query = request.GET.get("search", "")
+
+    if role_filter:
+        logs = logs.filter(role=role_filter)
+
+    if action_filter:
+        logs = logs.filter(action=action_filter)
+
+    if search_query:
+        logs = logs.filter(
+            Q(description__icontains=search_query) |
+            Q(ip_address__icontains=search_query) |
+            Q(actor_id__icontains=search_query)
+        )
+
+    # ✅ Order
+    sort_order = request.GET.get("sort_order", "desc")
+    logs = logs.order_by("timestamp" if sort_order == "asc" else "-timestamp")
 
     # ✅ Pagination
     per_page = int(request.GET.get("per_page", 25))
@@ -97,7 +110,7 @@ def view_log(request):
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
-    # ✅ Username
+    # ✅ Username for header
     username = None
     if role == Role.ADMIN and admin:
         username = admin.username
@@ -108,10 +121,14 @@ def view_log(request):
         "logs": page_obj.object_list,
         "page_obj": page_obj,
         "per_page": per_page,
-        "sort_by": sort_by,
         "sort_order": sort_order,
+        "role_filter": role_filter,
+        "action_filter": action_filter,
+        "search_query": search_query,
         "role": role,
         "username": username,
+        "role_choices": Role.choices,              # ✅ from Role enum
+        "action_choices": Log.ACTION_CHOICES,      # ✅ from Log model
     }
 
     return render(request, "logs.html", context)

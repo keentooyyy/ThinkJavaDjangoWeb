@@ -391,6 +391,75 @@ $(document).ready(function () {
 
 
     </script>
+
+      <script>
+
+        $('#openGenerateCodeConfirm').on('click', function () {
+            $('#generateCodeConfirmModal').modal('show');
+        });
+
+        $('#generateCodeConfirmModal_yes').on('click', function () {
+            $('form[action="{% url "generate_section_code" %}"]').submit();
+        });
+
+    </script>
+
+
+        <script>
+        function copyCode(id) {
+            let codeText = $("#code-" + id).text().trim();
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(codeText).then(function () {
+                    alert("Copied: " + codeText);
+                }).catch(function (err) {
+                    console.error("Clipboard copy failed: ", err);
+                    alert("Failed to copy code!");
+                });
+            } else {
+                let $temp = $("<input>");
+                $("body").append($temp);
+                $temp.val(codeText).select();
+                document.execCommand("copy");
+                $temp.remove();
+                alert("Copied: " + codeText);
+            }
+        }
+
+        let deleteCodeId = null;
+
+        function deleteCode(id) {
+            deleteCodeId = id;
+            $('#deleteCodeConfirmModal').modal('show');
+        }
+
+        $(document).ready(function () {
+            $('#deleteCodeConfirmModal_yes').on('click', function () {
+                if (!deleteCodeId) return;
+
+                $.ajax({
+                    url: "{% url 'delete_section_code' %}",
+                    type: "POST",
+                    data: {
+                        code_id: deleteCodeId,
+                        csrfmiddlewaretoken: "{{ csrf_token }}"
+                    },
+                    success: function (data) {
+                        if (data.success) {
+                            $('#deleteCodeConfirmModal').modal('hide');
+                            $("#row-" + deleteCodeId).remove();
+                            location.reload();
+                        }
+                    },
+                    error: function () {
+                        alert("Failed to delete join code.");
+                    }
+                });
+            });
+        });
+
+
+    </script>
 {% endblock %}
 
 

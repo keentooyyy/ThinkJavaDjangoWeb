@@ -160,6 +160,6 @@ LOGIN_URL = '/'
 # SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 # SECURE_HSTS_PRELOAD = True
 #
-# ALLOWED_HOSTS = ['*']  # Allow local development domains
+ALLOWED_HOSTS = ['*']  # Allow local development domains
 # #
 #
