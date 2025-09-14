@@ -7,9 +7,7 @@ from django.shortcuts import render, redirect
 from StudentManagementSystem.models import Student, Teacher, SimpleAdmin
 from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.views.logger import create_log
-
-
-
+from StudentManagementSystem.views.login_key import make_login_key
 
 
 def unified_login(request):
