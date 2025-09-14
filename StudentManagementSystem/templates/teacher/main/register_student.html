@@ -317,33 +317,40 @@ $(document).ready(function () {
 
 
 
-        function deleteStudent(studentId) {
-            if (!confirm("Are you sure you want to delete this student?")) {
-                return;
-            }
+        let deleteStudentId = null;
 
-            $.ajax({
-                url: `/teacher/students/${studentId}/delete/`,
-                method: "POST",   // easier to use POST for CSRF than DELETE
-                headers: {
-                    "X-CSRFToken": $("input[name=csrfmiddlewaretoken]").val()
-                },
-                success: function (response) {
-                    if (response.success) {
-                        // remove row without reload
-                        $(`#student-row-${studentId}`).remove();
+function deleteStudent(studentId) {
+    // store student ID and show the modal
+    deleteStudentId = studentId;
+    $('#deleteConfirmModal').modal('show');
+}
 
-                        // OR just reload to also see messages
-                        location.reload();
-                    } else {
-                        alert("Failed to delete student.");
-                    }
-                },
-                error: function () {
-                    alert("Error deleting student.");
+$(document).ready(function () {
+    // handle confirm delete button
+    $('#deleteConfirmModal_yes').on('click', function () {
+        if (!deleteStudentId) return;
+
+        $.ajax({
+            url: `/teacher/students/${deleteStudentId}/delete/`,
+            method: "POST",   // easier to use POST for CSRF than DELETE
+            headers: {
+                "X-CSRFToken": $("input[name=csrfmiddlewaretoken]").val()
+            },
+            success: function (response) {
+                if (response.success) {
+                    $('#deleteConfirmModal').modal('hide');
+                    $(`#student-row-${deleteStudentId}`).remove();
+                    location.reload(); // keep reload if you want flash messages
+                } else {
+                    alert("Failed to delete student.");
                 }
-            });
-        }
+            },
+            error: function () {
+                alert("Error deleting student.");
+            }
+        });
+    });
+});
     </script>
 
 

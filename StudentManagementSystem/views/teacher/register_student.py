@@ -130,7 +130,7 @@ def register_student(request):
         },
     )
 
-    return render(request, "teacher/register_student.html", context)
+    return render(request, "teacher/main/register_student.html", context)
 
 
 # ----------------------------

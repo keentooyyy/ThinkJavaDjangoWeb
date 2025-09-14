@@ -61,4 +61,4 @@ def progress_control_teacher(request):
 
     context = get_teacher_dashboard_context(teacher)
     context['is_progress_page'] = True
-    return render(request, 'teacher/dashboard.html', context)
+    return render(request, 'teacher/main/dashboard.html', context)

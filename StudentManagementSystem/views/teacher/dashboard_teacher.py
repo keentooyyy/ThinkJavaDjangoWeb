@@ -56,7 +56,7 @@ def get_teacher_dashboard_context(teacher):
 def teacher_dashboard(request):
     teacher = request.user_obj  # ✅ validated Teacher from decorator
     context = get_teacher_dashboard_context(teacher)
-    return render(request, "teacher/dashboard.html", context)
+    return render(request, "teacher/main/dashboard.html", context)
 
 
 
