@@ -1,10 +1,10 @@
-from datetime import date
-
+from django.contrib.auth.hashers import make_password
 from django.db import models
 
 from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.models.section import Section
 from StudentManagementSystem.models.year_level import YearLevel
+from StudentManagementSystem.views.login_key import make_login_key
 
 
 class Student(models.Model):
@@ -19,6 +19,7 @@ class Student(models.Model):
         choices=Role.choices,
         default=Role.STUDENT
     )
+    login_key = models.CharField(max_length=128, unique=True, editable=False, null=True, blank=True)
 
     class Meta:
         indexes = [
@@ -29,6 +30,11 @@ class Student(models.Model):
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.student_id})"
+
+    def save(self, *args, **kwargs):
+        # generate login_key
+        self.login_key = make_login_key(self.student_id, self.role)
+        super().save(*args, **kwargs)
 
     @property
     def full_section(self):

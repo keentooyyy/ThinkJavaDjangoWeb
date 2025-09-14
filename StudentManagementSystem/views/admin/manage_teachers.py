@@ -1,5 +1,7 @@
 from django.contrib.auth.hashers import make_password
+from django.core.paginator import Paginator
 from django.db import IntegrityError  # Import IntegrityError for handling database constraints
+from django.db.models.query_utils import Q
 from django.http.response import JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib import messages
@@ -14,23 +16,38 @@ from StudentManagementSystem.models.year_level import YearLevel
 from StudentManagementSystem.views.logger import create_log
 
 
-def get_teacher_context(admin):
-    # admin is already a validated SimpleAdmin instance
+def get_teacher_context(admin, search_query=None, per_page=25, page_number=1):
     departments = Department.objects.all()
     teachers = Teacher.objects.all()
 
-    teachers_with_sections = []
-    for teacher in teachers:
-        handled_sections = teacher.handled_sections.all()
-        section_names = [str(handled_section.section) for handled_section in handled_sections]
-        teachers_with_sections.append({'teacher': teacher, 'section_names': section_names})
+    # ✅ Apply search filter if query exists
+    if search_query:
+        teachers = teachers.filter(
+            Q(teacher_id__icontains=search_query) |
+            Q(first_name__icontains=search_query) |
+            Q(last_name__icontains=search_query) |
+            Q(first_name__icontains=search_query.split(" ")[0],
+              last_name__icontains=search_query.split(" ")[-1])
+        )
+
+    teachers_with_sections = [
+        {'teacher': t, 'section_names': [str(s.section) for s in t.handled_sections.all()]}
+        for t in teachers
+    ]
+
+    paginator = Paginator(teachers_with_sections, per_page)
+    page_obj = paginator.get_page(page_number)
 
     return {
         'departments': departments,
         'username': admin.username,
         'role': Role.ADMIN,
-        'teachers_with_sections': teachers_with_sections,
+        'teachers_with_sections': page_obj,  # ✅ paginated
+        'page_obj': page_obj,
+        'per_page': per_page,
+        'search_query': search_query,
     }
+
 
 
 
@@ -103,7 +120,11 @@ def create_teacher(request):
 
         return redirect('create_teacher')
 
-    context = get_teacher_context(admin)
+    search_query = request.GET.get('search', '').strip()
+    per_page = int(request.GET.get('per_page', 25))
+    page_number = request.GET.get('page', 1)
+
+    context = get_teacher_context(admin, search_query, per_page, page_number)
     return render(request, 'admin/main/teacher_form.html', context)
 
 

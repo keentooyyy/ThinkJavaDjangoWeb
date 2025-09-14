@@ -7,6 +7,7 @@ from StudentManagementSystem.models.department import Department
 from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.models.section import Section
 from StudentManagementSystem.models.year_level import YearLevel
+from StudentManagementSystem.views.login_key import make_login_key
 
 
 class Teacher(models.Model):
@@ -19,6 +20,7 @@ class Teacher(models.Model):
         choices=Role.choices,
         default=Role.TEACHER
     )
+    login_key = models.CharField(max_length=128, unique=True, editable=False, null=True, blank=True)
 
     class Meta:
         indexes = [
@@ -28,6 +30,11 @@ class Teacher(models.Model):
 
     def __str__(self):
         return self.teacher_id
+
+    def save(self, *args, **kwargs):
+        # generate login_key
+        self.login_key = make_login_key(self.teacher_id, self.role)
+        super().save(*args, **kwargs)
 
 
 class HandledSection(models.Model):

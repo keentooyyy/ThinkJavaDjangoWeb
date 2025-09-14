@@ -1,6 +1,10 @@
 <div class="card radius-10" id="teacher_table">
     <div class="card-body p-5">
         <h6 class="mb-0 text-uppercase">Teacher List</h6>
+        <hr>
+
+        <div class="fw-bold mb-3">FILTERS</div>
+
 
         <!-- For the edit form -->
         <div id="list_message">
@@ -13,8 +17,37 @@
             {% endif %}
         </div>
 
+        <div class="row my-2 ">
+            <form method="get" class="d-flex">
 
-        <hr>
+                <!-- ✅ Items per page + Apply button group -->
+                <div class="col-4 d-flex">
+                    <select name="per_page" class="form-select me-4 w-50">
+                        <option value="">ITEMS PER PAGE</option>
+                        <option value="10" {% if per_page == 10 %}selected{% endif %}>10</option>
+                        <option value="25" {% if per_page == 25 %}selected{% endif %}>25</option>
+                        <option value="50" {% if per_page == 50 %}selected{% endif %}>50</option>
+                    </select>
+                    <button type="submit" class="btn btn-primary w-auto" style="width: 40%">
+                        <i class="bx bx-filter"></i> Apply
+                    </button>
+                </div>
+
+                <!-- ✅ Search group -->
+                <div class="col-auto ms-auto">
+                    <div class="input-group" style="width: 400px">
+                        <input type="text" name="search" value="{{ request.GET.search }}" class="form-control"
+                               placeholder="Search teachers...">
+                        <button class="btn btn-secondary" type="submit">
+                            <i class="bx bx-search-alt"></i> Search
+                        </button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+
+
         <table class="table mb-0 table-hover">
             <thead>
             <tr class="text-center">
@@ -63,7 +96,56 @@
             </tbody>
         </table>
 
+        <div class="mt-3">
+            {% if page_obj.has_other_pages %}
+                <div class="d-flex justify-content-center">
+                    <ul class="pagination">
+                        <!-- Previous -->
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link"
+                                   href="?search={{ request.GET.search }}&per_page={{ per_page }}&page={{ page_obj.previous_page_number }}">
+                                    «
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled"><span class="page-link">«</span></li>
+                        {% endif %}
 
+                        <!-- Page numbers -->
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                            {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %}
+                                <li class="page-item">
+                                    <a class="page-link"
+                                       href="?search={{ request.GET.search }}&per_page={{ per_page }}&page={{ num }}">
+                                        {{ num }}
+                                    </a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        <!-- Next -->
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link"
+                                   href="?search={{ request.GET.search }}&per_page={{ per_page }}&page={{ page_obj.next_page_number }}">
+                                    »
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled"><span class="page-link">»</span></li>
+                        {% endif %}
+                    </ul>
+                </div>
+
+                <!-- Page info -->
+                <div class="text-center mt-2">
+                    <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                </div>
+            {% endif %}
+        </div>
     </div>
 </div>
 
