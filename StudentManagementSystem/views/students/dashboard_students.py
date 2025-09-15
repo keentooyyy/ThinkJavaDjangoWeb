@@ -25,7 +25,7 @@ def student_dashboard(request):
         "game_completion": game_completion,
         "levels": levels,
     }
-    return render(request, "students/dashboard.html", context)
+    return render(request, "students/main/dashboard.html", context)
 
 def get_student_achievements(student):
     """Return all achievements for a student with unlocked/locked status."""

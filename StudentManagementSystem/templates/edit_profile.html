@@ -1,0 +1,212 @@
+{#dasboard.html#}
+
+{% extends 'base.html' %}
+
+
+{% load static %}
+
+
+{% block title %}Edit Profile {% endblock %}
+
+
+{% block sidebar %}{% include 'sidebar.html' %} {% endblock %}
+
+
+{% block header %} {% include 'header.html' %} {% endblock %}
+
+
+
+{% block content %}
+    <div class="page-wrapper">
+        <div class="row p-5">
+
+            <div class="card">
+                <div class="card-body p-5">
+                    <!-- Action button -->
+                    <div class="d-flex justify-content-end mb-3">
+                        <button id="editBtn" class="btn btn-primary">Edit Profile</button>
+                    </div>
+
+                    <!-- Tabs -->
+                    <ul class="nav nav-tabs nav-primary" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link active" data-bs-toggle="tab" href="#primaryhome" role="tab">
+                                <div class="d-flex align-items-center">
+                                    <div class="tab-icon"><i class="bx bxs-user-account font-18 me-1"></i></div>
+                                    <div class="tab-title">Basic Information</div>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link" data-bs-toggle="tab" href="#primaryprofile" role="tab">
+                                <div class="d-flex align-items-center">
+                                    <div class="tab-icon"><i class="bx bxs-notepad font-18 me-1"></i></div>
+                                    <div class="tab-title">Additional Information</div>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link" data-bs-toggle="tab" href="#primarycontact" role="tab">
+                                <div class="d-flex align-items-center">
+                                    <div class="tab-icon"><i class="bx bxs-contact font-18 me-1"></i></div>
+                                    <div class="tab-title">Contact</div>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link" data-bs-toggle="tab" href="#primaryeducation" role="tab">
+                                <div class="d-flex align-items-center">
+                                    <div class="tab-icon"><i class="bx bxs-graduation font-18 me-1"></i></div>
+                                    <div class="tab-title">Educational Background</div>
+                                </div>
+                            </a>
+                        </li>
+                    </ul>
+
+                    <!-- Tab Content -->
+                    <div class="tab-content py-3">
+                        <!-- 🔹 Home Tab -->
+                        <div class="tab-pane fade show active" id="primaryhome" role="tabpanel">
+                            <div class="mb-3">
+                                <label class="form-label">Full Name</label>
+                                <input type="text" class="form-control editable-input"
+                                       value="{{ user.first_name }} {{ user.last_name }}" disabled>
+                            </div>
+                        </div>
+
+                        <!-- 🔹 Profile Tab -->
+                        <div class="tab-pane fade" id="primaryprofile" role="tabpanel">
+                            <div class="mb-3">
+                                <label class="form-label">Date of Birth</label>
+                                <input type="text" class="form-control editable-input"
+                                       value="{{ profile.date_of_birth }}" disabled>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Age</label>
+                                <input type="text" class="form-control editable-input" value="{{ profile.age }}"
+                                       disabled>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Father's Name</label>
+                                <input type="text" class="form-control editable-input" value="{{ profile.father_name }}"
+                                       disabled>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Mother's Name</label>
+                                <input type="text" class="form-control editable-input" value="{{ profile.mother_name }}"
+                                       disabled>
+                            </div>
+                        </div>
+
+                        <!-- 🔹 Contact Tab -->
+                        <div class="tab-pane fade" id="primarycontact" role="tabpanel">
+                            <div class="mb-3">
+                                <label class="form-label">Phone</label>
+                                <input type="text" class="form-control editable-input" value="{{ profile.phone }}"
+                                       disabled>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Street</label>
+                                <input type="text" class="form-control editable-input" value="{{ profile.street }}"
+                                       disabled>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Province</label>
+                                <input type="text" class="form-control editable-input" value="{{ profile.province }}"
+                                       disabled>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Barangay</label>
+                                <input type="text" class="form-control editable-input" value="{{ profile.barangay }}"
+                                       disabled>
+                            </div>
+                        </div>
+                        <!-- 🔹 Educational Background Tab -->
+                        <div class="tab-pane fade" id="primaryeducation" role="tabpanel">
+                            {% for edu in educations %}
+                                <div class="mb-3">
+                                    <label class="form-label">Institution</label>
+                                    <input type="text" class="form-control editable-input"
+                                           value="{{ edu.institution|default_if_none:'None' }}" disabled>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Start Date</label>
+                                    <input type="text" class="form-control editable-input"
+                                           value="{{ edu.start_date|default_if_none:'None' }}" disabled>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Graduation Date</label>
+                                    <input type="text" class="form-control editable-input"
+                                           value="{{ edu.graduation_date|default_if_none:'None' }}" disabled>
+                                </div>
+                                {% if not forloop.last %}
+                                    <hr>
+                                {% endif %}
+                            {% empty %}
+                                <!-- Even if no records, still show empty inputs so UI is consistent -->
+                                <div class="mb-3">
+                                    <label class="form-label">Institution</label>
+                                    <input type="text" class="form-control editable-input" value="" disabled>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Start Date</label>
+                                    <input type="text" class="form-control editable-input" value="" disabled>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Graduation Date</label>
+                                    <input type="text" class="form-control editable-input" value="" disabled>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+
+
+
+
+
+{% endblock %}
+
+
+
+
+{% block footer %}
+    {% include 'footer.html' %}
+{% endblock %}
+
+
+{% block scripts %}
+    <script>
+        $(function () {
+            let editing = false;
+
+            $("#editBtn").on("click", function () {
+                editing = !editing;
+
+                $(".editable-input").prop("disabled", !editing);
+
+                if (editing) {
+                    $(this).text("Save Profile")
+                        .removeClass("btn-primary")
+                        .addClass("btn-success");
+                } else {
+                    $(this).text("Edit Profile")
+                        .removeClass("btn-success")
+                        .addClass("btn-primary");
+                }
+            });
+        });
+    </script>
+
+
+
+{% endblock %}
+
+

@@ -68,6 +68,12 @@
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">
                     <li>
+                        <a class="dropdown-item" href="{% url 'edit_profile' %}">
+                            <i class="bx bx-user"></i>
+                            <span>Profile</span>
+                        </a>
+                    </li>
+                    <li>
                         <a class="dropdown-item text-danger"
                            href="javascript:void(0);"
                            data-bs-toggle="modal"
@@ -75,6 +81,8 @@
                             <i class="bx bx-log-out-circle text-danger"></i>
                             <span>Logout</span>
                         </a>
+                    </li>
+
                 </ul>
             </div>
         </nav>

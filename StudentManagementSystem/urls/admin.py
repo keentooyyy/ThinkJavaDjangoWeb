@@ -1,7 +1,9 @@
 from django.urls import path
 
+
 from StudentManagementSystem.views.admin.auth_admin import admin_register
 from StudentManagementSystem.views.admin.dashboard_admin import dashboard_ranking, admin_dashboard
+from StudentManagementSystem.views.edit_profile import edit_profile
 from StudentManagementSystem.views.admin.manage_teachers import create_teacher, get_teacher_details, \
     edit_teacher, remove_section, delete_teacher
 from StudentManagementSystem.views.admin.proggress_addition_admin import add_achievement, add_level, delete_achievement, \
@@ -18,6 +20,8 @@ urlpatterns = [
 
     # Dashboard
     path('dashboard/', admin_dashboard, name='admin_dashboard'),
+    # Edit Profile
+    path("profile/", edit_profile, name="edit_profile"),
 
     # JSON Endpoints
     path("ranking/", dashboard_ranking, name="dashboard_ranking"),
@@ -39,8 +43,6 @@ urlpatterns = [
     path('delete_level/<int:level_id>/', delete_level, name='delete_level'),
     path('delete_achievement/<int:achievement_id>/', delete_achievement, name='delete_achievement'),
     path('force_sync/', force_sync_everyone, name='force_sync'),
-    
-    
-    
+
     path('logs/', view_log, name='admin_view_logs')
 ]
