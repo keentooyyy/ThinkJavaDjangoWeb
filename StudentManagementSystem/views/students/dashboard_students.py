@@ -1,9 +1,8 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 
 from GameProgress.models import AchievementDefinition, AchievementProgress, LevelProgress, LevelDefinition
 from GameProgress.services.ranking import get_student_performance, calc_level_score, calc_level_stars
 from StudentManagementSystem.decorators.custom_decorators import session_login_required
-from StudentManagementSystem.models import Student
 from StudentManagementSystem.models.roles import Role
 
 

@@ -5,8 +5,8 @@ from StudentManagementSystem.views.teacher.dashboard_teacher import teacher_dash
 from StudentManagementSystem.views.teacher.edit_profile import edit_profile
 from StudentManagementSystem.views.teacher.generate_section_code import generate_section_code_view, delete_section_code
 from StudentManagementSystem.views.teacher.progress_control import progress_control_teacher
-from StudentManagementSystem.views.teacher.student_ranking import teacher_student_ranking
 from StudentManagementSystem.views.teacher.register_student import register_student, edit_student, delete_student
+from StudentManagementSystem.views.teacher.student_ranking import teacher_student_ranking
 
 urlpatterns = [  # path('login/', teacher_login, name='teacher_login'),
     path('logout/', unified_logout, name='unified_logout'),

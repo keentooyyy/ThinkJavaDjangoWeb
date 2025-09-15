@@ -1,5 +1,7 @@
 from functools import wraps
+
 from django.shortcuts import redirect, get_object_or_404
+
 from StudentManagementSystem.models import Student, Teacher, SimpleAdmin
 from StudentManagementSystem.models.roles import Role
 

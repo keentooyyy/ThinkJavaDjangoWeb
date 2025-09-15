@@ -1,11 +1,11 @@
 from django.http import JsonResponse
 from django.shortcuts import render
 
+from GameProgress.models import AchievementDefinition, LevelDefinition
+from GameProgress.services.ranking import get_section_rankings
 from StudentManagementSystem.decorators.custom_decorators import session_login_required
 from StudentManagementSystem.models import Student, Teacher, SimpleAdmin
 from StudentManagementSystem.models.roles import Role
-from GameProgress.models import AchievementDefinition, LevelDefinition
-from GameProgress.services.ranking import get_section_rankings
 from StudentManagementSystem.models.section import Section
 
 

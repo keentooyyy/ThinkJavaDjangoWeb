@@ -8,7 +8,7 @@ from django.shortcuts import redirect, get_object_or_404
 from StudentManagementSystem.decorators.custom_decorators import session_login_required
 from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.models.section_code import SectionJoinCode
-from StudentManagementSystem.models.teachers import HandledSection, Teacher
+from StudentManagementSystem.models.teachers import HandledSection
 from StudentManagementSystem.views.logger import create_log
 
 

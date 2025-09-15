@@ -3,9 +3,7 @@ from django.http.response import JsonResponse
 from django.shortcuts import redirect, get_object_or_404
 
 from GameProgress.models import LevelDefinition, AchievementDefinition
-from GameProgress.services.progress import sync_all_students_with_all_progress
 from StudentManagementSystem.decorators.custom_decorators import session_login_required
-from StudentManagementSystem.models import SimpleAdmin
 from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.views.logger import create_log
 from StudentManagementSystem.views.sync_all_progress import run_sync_in_background
