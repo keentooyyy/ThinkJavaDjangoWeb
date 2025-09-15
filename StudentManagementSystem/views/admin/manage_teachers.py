@@ -16,19 +16,43 @@ from StudentManagementSystem.models.year_level import YearLevel
 from StudentManagementSystem.views.logger import create_log
 
 
+from django.db.models import Value
+from django.db.models.functions import Concat, Cast
+from django.db.models import CharField
+
 def get_teacher_context(admin, search_query=None, per_page=25, page_number=1):
     departments = Department.objects.all()
     teachers = Teacher.objects.all()
 
-    # ✅ Apply search filter if query exists
     if search_query:
-        teachers = teachers.filter(
+        name_parts = search_query.split()
+        q = (
             Q(teacher_id__icontains=search_query) |
             Q(first_name__icontains=search_query) |
-            Q(last_name__icontains=search_query) |
-            Q(first_name__icontains=search_query.split(" ")[0],
-              last_name__icontains=search_query.split(" ")[-1])
+            Q(last_name__icontains=search_query)
         )
+
+        # ✅ If query looks like "First Last"
+        if len(name_parts) > 1:
+            q |= Q(first_name__icontains=name_parts[0], last_name__icontains=name_parts[-1])
+
+        # ✅ Section search (combine Department + YearLevel + Letter)
+        q |= Q(
+            handled_sections__section__department__name__icontains=search_query
+        ) | Q(
+            handled_sections__section__year_level__year__icontains=search_query
+        ) | Q(
+            handled_sections__section__letter__icontains=search_query
+        )
+
+        # Special case: search for combined like "CS1A" (without spaces)
+        q |= Q(
+            handled_sections__section__department__name__icontains=search_query[:-2],
+            handled_sections__section__year_level__year__icontains=search_query[-2:-1],
+            handled_sections__section__letter__icontains=search_query[-1],
+        )
+
+        teachers = teachers.filter(q).distinct()
 
     teachers_with_sections = [
         {'teacher': t, 'section_names': [str(s.section) for s in t.handled_sections.all()]}
@@ -42,11 +66,12 @@ def get_teacher_context(admin, search_query=None, per_page=25, page_number=1):
         'departments': departments,
         'username': admin.username,
         'role': Role.ADMIN,
-        'teachers_with_sections': page_obj,  # ✅ paginated
+        'teachers_with_sections': page_obj,
         'page_obj': page_obj,
         'per_page': per_page,
         'search_query': search_query,
     }
+
 
 
 
