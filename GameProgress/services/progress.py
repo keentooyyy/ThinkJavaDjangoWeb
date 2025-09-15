@@ -1,5 +1,4 @@
-from concurrent.futures import ThreadPoolExecutor
-
+from django.db import transaction
 from django.shortcuts import get_object_or_404
 
 from GameProgress.models import (
@@ -9,7 +8,6 @@ from GameProgress.models import (
     AchievementProgress
 )
 from StudentManagementSystem.models.student import Student
-from django.db import transaction
 
 
 def sync_all_students_with_all_progress():

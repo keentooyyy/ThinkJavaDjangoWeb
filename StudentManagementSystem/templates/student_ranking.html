@@ -19,8 +19,22 @@
         <div class="row p-5">
             <div class="card">
                 <div class="card-body p-5">
-                    <h6 class="mb-0 text-uppercase">Student Performance Rankings</h6>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0 text-uppercase">STUDENT PERFORMANCE RANKING</h6>
 
+                        {% if role != 'STUDENT' %}
+                            <div>
+                                <a href="{% url 'print_ranking' %}?{{ request.GET.urlencode }}" target="_blank"
+                                   class="btn btn-sm btn-outline-secondary">
+                                    <i class="bx bx-printer"></i> Print
+                                </a>
+                                <a href="{% url 'export_ranking_xls' %}?{{ request.GET.urlencode }}"
+                                   class="btn btn-sm btn-success">
+                                    <i class="bx bx-file"></i> Export XLS
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
                     <div id="create_message">
                         {% if message_container_id == 'create_message' %}
                             {% include 'utility/alert_message.html' %}

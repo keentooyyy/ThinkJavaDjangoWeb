@@ -17,6 +17,7 @@ Including another URLconf
 # from django.contrib import admin
 from django.urls import path, include
 
+from StudentManagementSystem.views.export_rankings import export_ranking_xls, print_ranking
 from StudentManagementSystem.views.ph_locations import provinces, cities, barangays
 
 urlpatterns = [
@@ -28,4 +29,6 @@ urlpatterns = [
     path("provinces/", provinces),
     path("cities/", cities),
     path("barangays/", barangays),
+    path("ranking/export-xls/", export_ranking_xls, name="export_ranking_xls"),
+    path("ranking/print/", print_ranking, name="print_ranking"),
 ]

@@ -1,5 +1,6 @@
-import threading
 import logging
+import threading
+
 from GameProgress.services.progress import sync_all_students_with_all_progress
 
 

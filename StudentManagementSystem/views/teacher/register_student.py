@@ -9,7 +9,7 @@ from StudentManagementSystem.models import Student, SectionJoinCode
 from StudentManagementSystem.models.department import Department
 from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.models.section import Section
-from StudentManagementSystem.models.teachers import HandledSection, Teacher
+from StudentManagementSystem.models.teachers import HandledSection
 from StudentManagementSystem.views.logger import create_log
 from StudentManagementSystem.views.ranking_view import build_ranking_context, paginate_queryset, get_common_params, \
     deduplicate_sections

@@ -8,16 +8,6 @@ from StudentManagementSystem.views.admin.proggress_addition_admin import add_ach
     delete_level, force_sync_everyone
 from StudentManagementSystem.views.admin.student_ranking import admin_student_ranking
 from StudentManagementSystem.views.auth_unified import unified_login, unified_logout
-from django.urls import path
-
-from StudentManagementSystem.views.admin.auth_admin import admin_register
-
-from StudentManagementSystem.views.admin.manage_teachers import create_teacher, get_teacher_details, \
-    edit_teacher, remove_section, delete_teacher
-from StudentManagementSystem.views.admin.proggress_addition_admin import add_achievement, add_level, delete_achievement, \
-    delete_level, force_sync_everyone
-from StudentManagementSystem.views.admin.student_ranking import admin_student_ranking
-from StudentManagementSystem.views.auth_unified import unified_login, unified_logout
 from StudentManagementSystem.views.logger import view_log
 
 urlpatterns = [

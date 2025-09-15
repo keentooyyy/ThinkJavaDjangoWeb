@@ -1,15 +1,16 @@
 from django.http import HttpResponseForbidden
-from django.shortcuts import redirect, render
+from django.shortcuts import render
 
+from GameProgress.services.ranking import get_all_student_rankings
 from StudentManagementSystem.decorators.custom_decorators import session_login_required
 from StudentManagementSystem.models import Student
 from StudentManagementSystem.models.roles import Role
-from GameProgress.services.ranking import get_all_student_rankings
 from StudentManagementSystem.views.ranking_view import (
     get_common_params,
     paginate_queryset,
     build_ranking_context,
 )
+
 
 @session_login_required(role=Role.STUDENT)
 def student_student_ranking(request):

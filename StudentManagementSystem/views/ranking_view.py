@@ -1,5 +1,4 @@
 from django.core.paginator import Paginator
-from GameProgress.services.ranking import get_all_student_rankings
 
 
 def get_common_params(request):

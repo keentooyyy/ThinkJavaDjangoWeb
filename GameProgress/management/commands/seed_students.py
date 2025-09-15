@@ -1,9 +1,10 @@
 import random
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
 from django.contrib.auth.hashers import make_password
 from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import BaseCommand
 from faker import Faker
-from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from GameProgress.models.achievement_definition import AchievementDefinition
 from GameProgress.models.achievement_progress import AchievementProgress
@@ -12,7 +13,6 @@ from GameProgress.models.level_progress import LevelProgress
 from StudentManagementSystem.models import UserProfile
 from StudentManagementSystem.models.section import Section
 from StudentManagementSystem.models.student import Student
-
 
 fake = Faker()
 

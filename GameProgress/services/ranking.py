@@ -1,16 +1,12 @@
 import re
-from collections import defaultdict
 
 from django.db import models
-from django.db.models import Sum, Count, Case, When, F, Q
 from django.db.models import (
-    Sum, Count, Case, When, F, Q, Value, IntegerField, Subquery, OuterRef
+    Sum, Count, Case, When, Value, IntegerField
 )
-from django.db.models.functions import Coalesce
 
-from GameProgress.models import LevelProgress, AchievementProgress, LevelDefinition
+from GameProgress.models import LevelProgress, AchievementProgress
 from StudentManagementSystem.models import Student
-
 
 LEVEL_SCORE_THRESHOLDS = [
     (90, 100),

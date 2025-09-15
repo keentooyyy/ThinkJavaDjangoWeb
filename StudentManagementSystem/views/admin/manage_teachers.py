@@ -1,13 +1,13 @@
+from django.contrib import messages
 from django.contrib.auth.hashers import make_password
 from django.core.paginator import Paginator
 from django.db import IntegrityError  # Import IntegrityError for handling database constraints
 from django.db.models.query_utils import Q
 from django.http.response import JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
-from django.contrib import messages
 
 from StudentManagementSystem.decorators.custom_decorators import session_login_required
-from StudentManagementSystem.models import Teacher, SimpleAdmin
+from StudentManagementSystem.models import Teacher
 from StudentManagementSystem.models.department import Department
 from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.models.section import Section
