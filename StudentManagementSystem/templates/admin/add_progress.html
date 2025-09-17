@@ -1,171 +1,14 @@
+<!-- Current Levels Table -->
 <div class="col-6">
     <div class="card radius-10">
         <div class="card-body p-5">
-
-            <h6 class="card-title text-uppercase">Add Level</h6>
-
-            {% if messages %}
-                {% for message in messages %}
-                    {% if 'level_message' in message.tags %}
-                        {% include 'utility/alert_message.html' %}
-                    {% endif %}
-                {% endfor %}
-            {% endif %}
-
-            <hr>
-
-            <form method="POST" action="{% url 'add_level' %}">
-                {% csrf_token %}
-                <div class="mb-3">
-                    <label for="level_name" class="form-label">Level Name:</label>
-                    <input type="text" class="form-control" id="level_name" name="level_name" required>
-                </div>
-
-                <div class="mb-3 form-check">
-                    <input type="checkbox" class="form-check-input" id="level_unlocked"
-                           name="level_unlocked">
-                    <label class="form-check-label" for="level_unlocked">Unlocked</label>
-                </div>
-
-                <button type="submit" class="btn btn-primary"><i class="bx bx-archive-in"></i>Add Level
-                </button>
-            </form>
-        </div>
-    </div>
-
-
-    <div class="card radius-10">
-        <div class="card-body p-5">
-
-            <div class="row ">
-                <h6 class="card-title text-center">FORCE EVERYONE SYNC</h6>
-
-
-                {% if messages %}
-                    {% for message in messages %}
-                        {% if 'sync_message' in message.tags %}
-                            {% include 'utility/alert_message.html' %}
-                        {% endif %}
-                    {% endfor %}
-                {% endif %}
-
-                <div class="col">
-
-                    <form method="POST" action="{% url 'force_sync' %}">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-primary w-100"><i class="bx bx-sync"></i>Start Syncing
-                        </button>
-                    </form>
-
-
-                </div>
-
-
-            </div>
-
-
-        </div>
-    </div>
-</div>
-
-
-<div class="col-6">
-    <div class="card radius-10">
-        <div class="card-body p-5">
-
-
-            <h6 class="card-title text-uppercase">Add Achievement</h6>
-
-            {% if messages %}
-                {% for message in messages %}
-                    {% if 'achievement_message' in message.tags %}
-                        {% include 'utility/alert_message.html' %}
-                    {% endif %}
-                {% endfor %}
-            {% endif %}
-            <hr>
-
-            <form method="POST" action="{% url 'add_achievement' %}">
-                {% csrf_token %}
-                <div class="mb-3">
-                    <label for="achievement_code" class="form-label">Achievement Code:</label>
-                    <input type="text" class="form-control" id="achievement_code" name="achievement_code"
-                           required>
-                </div>
-
-                <div class="mb-3">
-                    <label for="achievement_title" class="form-label">Title:</label>
-                    <input type="text" class="form-control" id="achievement_title" name="achievement_title"
-                           required>
-                </div>
-
-                <div class="mb-3">
-                    <label for="achievement_description" class="form-label">Description:</label>
-                    <textarea class="form-control" id="achievement_description" name="achievement_description"
-                              required></textarea>
-                </div>
-
-                <div class="mb-3 form-check">
-                    <input type="checkbox" class="form-check-input" id="achievement_is_active"
-                           name="achievement_is_active">
-                    <label class="form-check-label" for="achievement_is_active">Active</label>
-                </div>
-
-                <button type="submit" class="btn btn-primary"><i class="bx bx-trophy"></i>Add Achievement
-                </button>
-            </form>
-
-
-        </div>
-    </div>
-</div>
-
-<div class="col-6">
-    <div class="card radius-10">
-        <div class="card-body">
-            <div class="d-flex align-items-center">
-                <div>
-                    <p class="mb-0 text-secondary">Total Levels</p>
-                    <h4 class="my-1">{{ levels_count }}</h4>
-                </div>
-                <div class="text-primary ms-auto font-35"><i class="bx bx-terminal"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-<div class="col-6">
-    <div class="card radius-10">
-        <div class="card-body">
-            <div class="d-flex align-items-center">
-                <div>
-                    <p class="mb-0 text-secondary">Total Achievements</p>
-                    <h4 class="my-1">{{ achievements_count }}</h4>
-                </div>
-                <div class="text-primary ms-auto font-35"><i class="bx bx-trophy"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-<div class="col-6">
-    <div class="card radius-10">
-        <div class="card-body p-5">
-
-
             <h6 class="card-title text-uppercase">Current Levels</h6>
-
             <hr>
             <table class="table mb-0 table-hover text-center">
                 <thead>
                 <tr>
                     <th scope="col">Level Name</th>
-                    <th scope="col">Level Status</th>
-                    <th scope="col">Actions</th> <!-- Added an Actions column -->
+                    <th scope="col">Actions</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -173,45 +16,28 @@
                     <tr id="level_{{ level.id }}">
                         <td>{{ level.name }}</td>
                         <td>
-        <span class="badge {% if level.unlocked %} bg-success bg-opacity-50 {% else %} bg-dark bg-opacity-50 {% endif %} text-white">
-            {% if level.unlocked %}
-                Unlocked
-            {% else %}
-                Locked
-            {% endif %}
-        </span>
-                        </td>
-                        <td>
-                            <!-- Delete Button for Level -->
                             <button class="btn btn-danger btn-sm" onclick="deleteLevel({{ level.id }})">Delete</button>
                         </td>
                     </tr>
-
                 {% endfor %}
                 </tbody>
             </table>
-
-
         </div>
     </div>
 </div>
+
+<!-- Current Achievements Table -->
 <div class="col-6">
     <div class="card radius-10">
         <div class="card-body p-5">
-
-
             <h6 class="card-title text-uppercase">Current Achievements</h6>
-
             <hr>
-
-
             <table class="table mb-0 table-hover text-center">
                 <thead>
                 <tr>
                     <th scope="col">Achievement Code</th>
                     <th scope="col">Title</th>
-                    <th scope="col">Active Status</th>
-                    <th scope="col">Actions</th> <!-- Added an Actions column -->
+                    <th scope="col">Actions</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -220,30 +46,16 @@
                         <td>{{ achievement.code }}</td>
                         <td>{{ achievement.title }}</td>
                         <td>
-        <span class="badge {% if achievement.is_active %} bg-success bg-opacity-50 {% else %} bg-dark bg-opacity-50 {% endif %} text-white">
-            {% if achievement.is_active %}
-                Obtainable
-            {% else %}
-                Unobtainable
-            {% endif %}
-        </span>
-                        </td>
-                        <td>
-                            <!-- Delete Button for Achievement -->
-                            <button class="btn btn-danger btn-sm" onclick="deleteAchievement({{ achievement.id }})">
-                                Delete
-                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteAchievement({{ achievement.id }})">Delete</button>
                         </td>
                     </tr>
-
                 {% endfor %}
                 </tbody>
             </table>
-
-
         </div>
     </div>
 </div>
+
 
 
 

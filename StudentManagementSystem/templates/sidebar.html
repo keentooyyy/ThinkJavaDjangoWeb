@@ -71,6 +71,7 @@
 
                             {% if request.session.role == 'TEACHER' %}
 
+
                                 <li>
                                     <a href="javascript:;" class="has-arrow">
                                         <div class="parent-icon"><i class="bx bx-edit"></i>
@@ -86,6 +87,14 @@
                                         </li>
 
                                     </ul>
+                                </li>
+
+                                <li>
+                                    <a href="{% url 'progress_control_teacher' %}">
+                                        <div class="parent-icon"><i class="lni lni-game"></i>
+                                        </div>
+                                        <div class="menu-title">Game Controls</div>
+                                    </a>
                                 </li>
 
                             {% endif %}

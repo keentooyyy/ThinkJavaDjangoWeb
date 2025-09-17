@@ -18,6 +18,6 @@ class Section(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.department.name} {self.year_level.year}{self.letter}"  # e.g., "CS 1A"
+        return f"{self.department.name}{self.year_level.year}{self.letter}"  # e.g., "CS 1A"
 
 

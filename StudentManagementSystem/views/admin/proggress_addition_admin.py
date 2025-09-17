@@ -10,7 +10,6 @@ from StudentManagementSystem.views.sync_all_progress import run_sync_in_backgrou
 
 
 # Add Level View
-
 @session_login_required(role=Role.ADMIN)
 def add_level(request):
     message_tag = 'level_message'
@@ -18,24 +17,19 @@ def add_level(request):
 
     if request.method == 'POST':
         level_name = request.POST.get('level_name')
-        level_unlocked = request.POST.get('level_unlocked', False) == 'on'
 
         if level_name:
             level, created = LevelDefinition.objects.get_or_create(
-                name=level_name,
-                defaults={'unlocked': level_unlocked}
+                name=level_name
             )
 
             if created:
                 run_sync_in_background()
                 messages.success(request, f"Level '{level_name}' has been created successfully.", extra_tags=message_tag)
-                create_log(request, "CREATE",
-                           f"Admin {admin.username} created level '{level_name}' "
-                           f"({'Unlocked' if level_unlocked else 'Locked'}).")
+                create_log(request, "CREATE", f"Admin {admin.username} created level '{level_name}'.")
             else:
                 messages.error(request, f"Level '{level_name}' already exists.", extra_tags=message_tag)
-                create_log(request, "UPDATE",
-                           f"Admin {admin.username} attempted to create existing level '{level_name}'.")
+                create_log(request, "UPDATE", f"Admin {admin.username} attempted to create existing level '{level_name}'.")
 
             return redirect('admin_dashboard')
 
@@ -67,24 +61,20 @@ def add_achievement(request):
         ach_code = request.POST.get('achievement_code')
         ach_title = request.POST.get('achievement_title')
         ach_description = request.POST.get('achievement_description')
-        ach_is_active = request.POST.get('achievement_is_active', False) == 'on'
 
         if ach_code and ach_title and ach_description:
             achievement, created = AchievementDefinition.objects.get_or_create(
                 code=ach_code,
-                defaults={'title': ach_title, 'description': ach_description, 'is_active': ach_is_active}
+                defaults={'title': ach_title, 'description': ach_description}
             )
 
             if created:
                 run_sync_in_background()
                 messages.success(request, f"Achievement '{ach_title}' created.", extra_tags=message_tag)
-                create_log(request, "CREATE",
-                           f"Admin {admin.username} created achievement '{ach_title}' "
-                           f"(Active: {'Yes' if ach_is_active else 'No'}).")
+                create_log(request, "CREATE", f"Admin {admin.username} created achievement '{ach_title}'.")
             else:
                 messages.error(request, f"Achievement '{ach_title}' already exists.", extra_tags=message_tag)
-                create_log(request, "UPDATE",
-                           f"Admin {admin.username} attempted to create existing achievement '{ach_title}'.")
+                create_log(request, "UPDATE", f"Admin {admin.username} attempted to create existing achievement '{ach_title}'.")
 
             return redirect('admin_dashboard')
 
@@ -106,7 +96,6 @@ def delete_achievement(request, achievement_id):
     return JsonResponse({'success': False}, status=400)
 
 
-
 @session_login_required(role=Role.ADMIN)
 def force_sync_everyone(request):
     message_tag = 'sync_message'
@@ -119,8 +108,7 @@ def force_sync_everyone(request):
             create_log(request, "UPDATE", f"Admin {admin.username} triggered force sync.")
         except Exception as e:
             messages.error(request, f"Error during sync: {str(e)}", extra_tags=message_tag)
-            create_log(request, "ERROR",
-                       f"Admin {admin.username} attempted force sync but failed: {str(e)}")
+            create_log(request, "ERROR", f"Admin {admin.username} attempted force sync but failed: {str(e)}")
     else:
         messages.error(request, 'Invalid request method.', extra_tags=message_tag)
 
