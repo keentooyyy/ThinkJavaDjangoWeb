@@ -156,6 +156,11 @@ def progress_control_teacher(request):
     if selected_section and not handled_sections.filter(section_id=selected_section).exists():
         selected_section = None
 
+    # ✅ if no section chosen, default to first one
+    if not selected_section and sections:
+        first_section = sections[0]
+        return redirect(f"{reverse('progress_control_teacher')}?filter_by={first_section.id}")
+
     selected_section_obj = next((s for s in sections if str(s.id) == str(selected_section)), None)
 
     if selected_section_obj:
