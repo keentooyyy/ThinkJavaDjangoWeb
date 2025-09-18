@@ -1,5 +1,5 @@
 from datetime import datetime
-from django.utils import timezone
+from django.utils import timezone, formats
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.urls import reverse
@@ -29,6 +29,40 @@ def _get_students_for_action(handled_sections, section_id=None):
             return Student.objects.filter(section_id=section_id)
         return Student.objects.none()
     return Student.objects.filter(section_id__in=handled_sections.values_list("section_id", flat=True))
+
+
+def _parse_schedule_dates(start_date, due_date):
+    """Parse string dates into aware datetimes and validate order."""
+    fmt = "%Y-%m-%d %H:%M:%S"
+    local_tz = timezone.get_current_timezone()
+
+    def parse(dt_str):
+        if not dt_str:
+            return None
+        dt = datetime.strptime(dt_str, fmt)
+        return timezone.make_aware(dt, local_tz)
+
+    start_dt = parse(start_date)
+    due_dt = parse(due_date)
+
+    def fmt_dt(dt):
+        return formats.date_format(dt, "M d, Y h:i A")  # e.g. "Sep 18, 2025 08:00 AM"
+
+    # Validation
+    if start_dt and due_dt:
+        if due_dt < start_dt:
+            raise ValueError(
+                f"Invalid schedule: Due date/time ({fmt_dt(due_dt)}) "
+                f"is earlier than start date/time ({fmt_dt(start_dt)})."
+            )
+        if start_dt.date() == due_dt.date() and due_dt <= start_dt:
+            raise ValueError(
+                f"Invalid schedule: On {fmt_dt(start_dt).split()[0]}, "
+                f"due time ({due_dt.strftime('%I:%M %p')}) "
+                f"cannot be earlier than or equal to start time ({start_dt.strftime('%I:%M %p')})."
+            )
+
+    return start_dt, due_dt
 
 
 def _handle_post_action(
@@ -89,21 +123,10 @@ def _handle_post_action(
         if handled_sections.filter(section_id=section_id).exists():
             section = handled_sections.get(section_id=section_id).section
 
-            # ✅ Parse string → datetime in local timezone
-            fmt = "%Y-%m-%d %H:%M:%S"
-            local_tz = timezone.get_current_timezone()
-
-            start_dt = None
-            due_dt = None
-            if start_date:
-                start_dt = datetime.strptime(start_date, fmt)
-                start_dt = timezone.make_aware(start_dt, local_tz)
-            if due_date:
-                due_dt = datetime.strptime(due_date, fmt)
-                due_dt = timezone.make_aware(due_dt, local_tz)
-
-            print("➡️ start_dt (aware):", start_dt, "tz:", getattr(start_dt, "tzinfo", None))
-            print("➡️ due_dt   (aware):", due_dt, "tz:", getattr(due_dt, "tzinfo", None))
+            try:
+                start_dt, due_dt = _parse_schedule_dates(start_date, due_date)
+            except ValueError as e:
+                return "error", str(e)
 
             success, msg = unlock_level_with_schedule(
                 students,
@@ -228,7 +251,7 @@ def progress_control_teacher(request):
 
             # ⏰ for modal dropdowns
             "hours": list(range(1, 13)),  # 1–12
-            "minutes": [f"{i:02d}" for i in range(0, 60)],  # 00–59
+            "minutes": [f"{i:02d}" for i in range(0, 60, 5)],  # 00–59 step 5
         }
     )
 
