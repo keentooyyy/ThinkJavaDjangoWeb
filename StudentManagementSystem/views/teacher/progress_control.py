@@ -1,5 +1,7 @@
 from django.contrib import messages
 from django.shortcuts import render, redirect
+from django.urls.base import reverse
+
 from GameProgress.models import LevelDefinition, AchievementDefinition, LevelProgress, AchievementProgress
 from GameProgress.services.progress_teacher import (
     sync_students_progress,
@@ -43,10 +45,6 @@ def _handle_post_action(action, students, handled_sections, level_name=None, ach
     def result(msg, danger=False):
         return ("error" if danger else "success", msg)
 
-    if action == "sync":
-        sync_students_progress(students)
-        return result(f"All student progress has been synced {scope}.")
-
     if action == "unlock_levels":
         unlock_levels_for_students(students)
         return result(f"All levels have been unlocked {scope}.")
@@ -62,10 +60,6 @@ def _handle_post_action(action, students, handled_sections, level_name=None, ach
     if action == "disable_achievements":
         disable_all_achievements_for_students(students)
         return result(f"All achievements have been disabled {scope}.", danger=True)
-
-    if action == "reset_progress":
-        reset_progress_for_students(students)
-        return result(f"All student progress has been reset {scope}.", danger=True)
 
     if action in ("disable_single_achievement", "enable_single_achievement") and achievement_code:
         is_active = action == "enable_single_achievement"
@@ -155,23 +149,27 @@ def progress_control_teacher(request):
             handled_sections,
             level_name,
             achievement_code,
-            section_id,  # <-- add this
+            section_id,
         )
 
         if msg_text:
-            # ✅ Always success unless explicitly error
             if msg_type == "error":
                 messages.error(request, msg_text, extra_tags=extra_tags)
             else:
                 messages.success(request, msg_text, extra_tags=extra_tags)
 
-        return redirect("progress_control_teacher")
+        # ✅ Preserve filter_by param on redirect
+        filter_by = request.GET.get("filter_by") or request.POST.get("section_id")
+        redirect_url = reverse("progress_control_teacher")
+        if filter_by:
+            redirect_url += f"?filter_by={filter_by}"
+
+        return redirect(redirect_url)
 
     # ---------------- GET ----------------
     all_levels = list(LevelDefinition.objects.all())
     all_achievements = list(AchievementDefinition.objects.all())
 
-    # Filters
     sections = [hs.section for hs in handled_sections]
     departments = {hs.section.department for hs in handled_sections}
     selected_section = request.GET.get("filter_by")
@@ -184,7 +182,6 @@ def progress_control_teacher(request):
         students = Student.objects.filter(section_id=selected_section_obj.id)
         selected_section_obj = _attach_section_progress(selected_section_obj, students, all_levels, all_achievements)
 
-    # Context
     context = get_teacher_dashboard_context(teacher)
     context.update(
         {
