@@ -460,6 +460,51 @@ $(document).ready(function () {
 
 
     </script>
+
+
+<script>
+$(document).ready(function () {
+    $("#generateCodeBtn").on("click", function () {
+        const sectionId = $("#generate_section_id").val();
+
+        $.ajax({
+            url: "{% url 'check_section_code_exists' %}",
+            type: "POST",
+            dataType: "json",
+            data: {
+                section_id: sectionId,
+                csrfmiddlewaretoken: "{{ csrf_token }}",
+            },
+            success: function (data) {
+                if (data.exists === true) {
+                    // 🔹 Section already has code → wire modal confirm
+                    const modal = new bootstrap.Modal(document.getElementById("generateCodeConfirmModal"));
+                    modal.show();
+
+                    $("#generateCodeConfirmModal_yes")
+                        .off("click")
+                        .on("click", function (e) {
+                            e.preventDefault();
+                            $("#generateSectionForm").submit();
+                            modal.hide();
+                        });
+                } else {
+                    // 🔹 No code exists → submit directly
+                    $("#generateSectionForm").submit();
+                }
+            },
+            error: function (xhr) {
+                let errMsg = "Unknown error";
+                try {
+                    errMsg = JSON.parse(xhr.responseText).error || errMsg;
+                } catch (e) {}
+                alert("Error checking section code: " + errMsg);
+            }
+        });
+    });
+});
+
+</script>
 {% endblock %}
 
 

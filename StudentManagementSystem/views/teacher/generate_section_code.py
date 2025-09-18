@@ -4,6 +4,7 @@ import string
 from django.contrib import messages
 from django.http.response import JsonResponse
 from django.shortcuts import redirect, get_object_or_404
+from django.views.decorators.http import require_POST
 
 from StudentManagementSystem.decorators.custom_decorators import session_login_required
 from StudentManagementSystem.models.roles import Role
@@ -141,3 +142,34 @@ def delete_section_code(request):
         f"for section {handled.department.name}{handled.year_level.year}{handled.section.letter}."
     )
     return JsonResponse({"success": True})
+
+
+
+@session_login_required(role=Role.TEACHER)
+@require_POST
+def check_section_code_exists(request):
+    teacher = request.user_obj
+    raw = request.POST.get("section_id")
+
+    try:
+        section_id, dept_id, year_id = map(int, (raw or "").split("_"))
+    except (ValueError, AttributeError):
+        return JsonResponse({"exists": False, "error": "Invalid format"}, status=400)
+
+    handled = HandledSection.objects.filter(
+        teacher=teacher,
+        section_id=section_id,
+        department_id=dept_id,
+        year_level_id=year_id,
+    ).first()
+
+    if not handled:
+        return JsonResponse({"exists": False, "error": "Not authorized"}, status=403)
+
+    exists = SectionJoinCode.objects.filter(
+        section=handled.section,
+        department=handled.department,
+        year_level=handled.year_level,
+    ).exists()
+
+    return JsonResponse({"exists": exists})

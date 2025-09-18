@@ -102,7 +102,6 @@
             <table class="table mb-0 table-hover">
                 <thead>
                 <tr>
-                    <th scope="col">Level</th>
                     <th scope="col">Name</th>
                     <th scope="col">Best Time</th>
                     <th scope="col">Score</th>
@@ -112,7 +111,6 @@
                 <tbody>
                 {% for level in levels %}
                     <tr>
-                        <th scope="row">{{ level.id }}</th>
                         <td>{{ level.name }}</td>
                         <td>
                             {% if level.best_time %}

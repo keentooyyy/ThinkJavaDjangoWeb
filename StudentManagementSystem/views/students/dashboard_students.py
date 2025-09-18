@@ -71,15 +71,25 @@ def get_game_completion(student):
     return round(level_score + achievement_score, 2)
 
 def get_student_levels(student):
-    progress_qs = LevelProgress.objects.filter(student=student).select_related("level")
+    """Return all levels with student's progress, sorted by LevelDefinition.sort_order."""
+    # Get all levels, ordered by sort_order
+    all_levels = LevelDefinition.objects.all().order_by("sort_order")
 
-    return [
-        {
-            "id": lp.level.id,
-            "name": lp.level.name,
-            "best_time": lp.best_time,
-            "score": calc_level_score(lp.best_time),
-            "stars": calc_level_stars(lp.best_time),
-        }
-        for lp in progress_qs
-    ]
+    # Build a map of progress keyed by level_id
+    progress_qs = LevelProgress.objects.filter(student=student).select_related("level")
+    progress_map = {lp.level_id: lp for lp in progress_qs}
+
+    levels = []
+    for level in all_levels:
+        lp = progress_map.get(level.id)
+        best_time = lp.best_time if lp else None
+
+        levels.append({
+            "id": level.id,
+            "name": level.name,
+            "best_time": best_time,
+            "score": calc_level_score(best_time) if best_time else None,
+            "stars": calc_level_stars(best_time) if best_time else 0,
+        })
+
+    return levels
