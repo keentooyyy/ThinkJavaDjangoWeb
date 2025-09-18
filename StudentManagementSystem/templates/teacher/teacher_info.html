@@ -7,9 +7,12 @@
 
 
                 <div class="row">
-                    <div class="col d-flex justify-content-between align-items-center">
-                        <span class="font-24">Handled Sections</span>
-                        <ul class="">
+                    <div class="col d-flex align-items-center mb-3">
+                        <span class="font-20">Teacher ID: <span class="badge bg-primary px-3 py-2 text-center">{{ teacher.teacher_id}}</span></span>
+                    </div>
+                    <div class="col-12 d-flex justify-content-between align-items-center">
+                        <span class="font-20">Handled Sections: </span>
+                        <ul class="m-0">
                             {% for hs in handled_sections %}
                                 <span class="badge bg-primary px-3 py-2 text-center">{{ hs.department.name }}{{ hs.year_level.year }}{{ hs.section.letter }}</span>
                             {% empty %}
@@ -35,9 +38,6 @@
         </div>
     </div>
     <div class="col-6">
-
-
-
 
 
         <div class="row">

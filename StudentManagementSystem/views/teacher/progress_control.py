@@ -1,15 +1,14 @@
 from django.contrib import messages
 from django.shortcuts import render, redirect
-from django.urls.base import reverse
+from django.urls import reverse
 
 from GameProgress.models import LevelDefinition, AchievementDefinition, LevelProgress, AchievementProgress
 from GameProgress.services.progress_teacher import (
-    sync_students_progress,
     unlock_levels_for_students,
     lock_levels_for_students,
     enable_all_achievements_for_students,
     disable_all_achievements_for_students,
-    reset_progress_for_students,
+
     set_achievement_active_for_students,
 )
 from StudentManagementSystem.decorators.custom_decorators import session_login_required
@@ -24,24 +23,24 @@ from StudentManagementSystem.views.teacher.dashboard_teacher import get_teacher_
 def _get_students_for_action(handled_sections, section_id=None):
     """Return only the students for this teacher, optionally filtered by section."""
     if section_id:
-        return Student.objects.filter(section_id=section_id)
+        # 🚨 Only allow if section_id is in handled_sections
+        if handled_sections.filter(section_id=section_id).exists():
+            return Student.objects.filter(section_id=section_id)
+        return Student.objects.none()
     return Student.objects.filter(section_id__in=handled_sections.values_list("section_id", flat=True))
 
 
 def _handle_post_action(action, students, handled_sections, level_name=None, achievement_code=None, section_id=None):
     """Handle teacher progress actions and return (msg_type, msg_text)."""
 
-    # helper: resolve section label
+    # helper: resolve section label safely
     section_label = None
-    if section_id:
-        section_obj = next((hs.section for hs in handled_sections if str(hs.section.id) == str(section_id)), None)
-        if section_obj:
-            section_label = f"{section_obj.department.name}{section_obj.year_level.year}{section_obj.letter}"
+    if section_id and handled_sections.filter(section_id=section_id).exists():
+        hs = handled_sections.get(section_id=section_id)
+        section_label = f"{hs.section.department.name}{hs.section.year_level.year}{hs.section.letter}"
 
-    # determine scope
     scope = f"for section {section_label}" if section_label else "for your handled sections"
 
-    # ✅ Always default to success unless specified as danger
     def result(msg, danger=False):
         return ("error" if danger else "success", msg)
 
@@ -65,10 +64,7 @@ def _handle_post_action(action, students, handled_sections, level_name=None, ach
         is_active = action == "enable_single_achievement"
         set_achievement_active_for_students(students, achievement_code, is_active)
         state = "enabled" if is_active else "disabled"
-        return result(
-            f"Achievement '{achievement_code}' has been {state} {scope}.",
-            danger=not is_active,
-        )
+        return result(f"Achievement '{achievement_code}' has been {state} {scope}.", danger=not is_active)
 
     if action in ("lock_single_level", "unlock_single_level") and level_name:
         is_unlock = action == "unlock_single_level"
@@ -94,35 +90,21 @@ def _handle_post_action(action, students, handled_sections, level_name=None, ach
         is_active = action == "enable_single_achievement_global"
         set_achievement_active_for_students(global_students, achievement_code, is_active)
         state = "enabled" if is_active else "disabled"
-        return result(
-            f"Achievement '{achievement_code}' has been {state} across all your handled sections.",
-            danger=not is_active,
-        )
+        return result(f"Achievement '{achievement_code}' has been {state} across all your handled sections.", danger=not is_active)
 
     return "error", "Unknown action. Please try again."
 
 
 def _attach_section_progress(section, students, all_levels, all_achievements):
     """Annotate a section with its levels and achievements progress."""
-    levels_with_status = [
-        {
-            "name": lvl.name,
-            "unlocked": LevelProgress.objects.filter(student__in=students, level=lvl, unlocked=True).exists(),
-        }
+    section.levels = [
+        {"name": lvl.name, "unlocked": LevelProgress.objects.filter(student__in=students, level=lvl, unlocked=True).exists()}
         for lvl in all_levels
     ]
-
-    achievements_with_status = [
-        {
-            "code": ach.code,
-            "title": ach.title,
-            "is_active": AchievementProgress.objects.filter(student__in=students, achievement=ach, is_active=True).exists(),
-        }
+    section.achievements = [
+        {"code": ach.code, "title": ach.title, "is_active": AchievementProgress.objects.filter(student__in=students, achievement=ach, is_active=True).exists()}
         for ach in all_achievements
     ]
-
-    section.levels = levels_with_status
-    section.achievements = achievements_with_status
     return section
 
 
@@ -143,14 +125,7 @@ def progress_control_teacher(request):
         achievement_code = request.POST.get("achievement_code")
 
         students = _get_students_for_action(handled_sections, section_id)
-        msg_type, msg_text = _handle_post_action(
-            action,
-            students,
-            handled_sections,
-            level_name,
-            achievement_code,
-            section_id,
-        )
+        msg_type, msg_text = _handle_post_action(action, students, handled_sections, level_name, achievement_code, section_id)
 
         if msg_text:
             if msg_type == "error":
@@ -158,8 +133,11 @@ def progress_control_teacher(request):
             else:
                 messages.success(request, msg_text, extra_tags=extra_tags)
 
-        # ✅ Preserve filter_by param on redirect
-        filter_by = request.GET.get("filter_by") or request.POST.get("section_id")
+        # ✅ Preserve filter_by param safely
+        filter_by = request.GET.get("filter_by") or section_id
+        if filter_by and not handled_sections.filter(section_id=filter_by).exists():
+            filter_by = None  # 🚨 ignore invalid tampered values
+
         redirect_url = reverse("progress_control_teacher")
         if filter_by:
             redirect_url += f"?filter_by={filter_by}"
@@ -173,10 +151,12 @@ def progress_control_teacher(request):
     sections = [hs.section for hs in handled_sections]
     departments = {hs.section.department for hs in handled_sections}
     selected_section = request.GET.get("filter_by")
-    selected_section_obj = None
 
-    if selected_section:
-        selected_section_obj = next((s for s in sections if str(s.id) == selected_section), None)
+    # 🚨 enforce scope on GET
+    if selected_section and not handled_sections.filter(section_id=selected_section).exists():
+        selected_section = None
+
+    selected_section_obj = next((s for s in sections if str(s.id) == str(selected_section)), None)
 
     if selected_section_obj:
         students = Student.objects.filter(section_id=selected_section_obj.id)
