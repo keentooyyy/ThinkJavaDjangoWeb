@@ -1,3 +1,5 @@
+from datetime import datetime
+from django.utils import timezone
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.urls import reverse
@@ -8,8 +10,8 @@ from GameProgress.services.progress_teacher import (
     lock_levels_for_students,
     enable_all_achievements_for_students,
     disable_all_achievements_for_students,
-
     set_achievement_active_for_students,
+    unlock_level_with_schedule,
 )
 from StudentManagementSystem.decorators.custom_decorators import session_login_required
 from StudentManagementSystem.models import Student
@@ -23,14 +25,22 @@ from StudentManagementSystem.views.teacher.dashboard_teacher import get_teacher_
 def _get_students_for_action(handled_sections, section_id=None):
     """Return only the students for this teacher, optionally filtered by section."""
     if section_id:
-        # 🚨 Only allow if section_id is in handled_sections
         if handled_sections.filter(section_id=section_id).exists():
             return Student.objects.filter(section_id=section_id)
         return Student.objects.none()
     return Student.objects.filter(section_id__in=handled_sections.values_list("section_id", flat=True))
 
 
-def _handle_post_action(action, students, handled_sections, level_name=None, achievement_code=None, section_id=None):
+def _handle_post_action(
+    action,
+    students,
+    handled_sections,
+    level_name=None,
+    achievement_code=None,
+    section_id=None,
+    start_date=None,
+    due_date=None,
+):
     """Handle teacher progress actions and return (msg_type, msg_text)."""
 
     # helper: resolve section label safely
@@ -75,6 +85,35 @@ def _handle_post_action(action, students, handled_sections, level_name=None, ach
             lock_levels_for_students(students, level_name=level_name)
             return result(f"Level '{level_name}' has been locked {scope}.", danger=True)
 
+    if action == "unlock_single_level_with_schedule" and level_name and section_id:
+        if handled_sections.filter(section_id=section_id).exists():
+            section = handled_sections.get(section_id=section_id).section
+
+            # ✅ Parse string → datetime in local timezone
+            fmt = "%Y-%m-%d %H:%M:%S"
+            local_tz = timezone.get_current_timezone()
+
+            start_dt = None
+            due_dt = None
+            if start_date:
+                start_dt = datetime.strptime(start_date, fmt)
+                start_dt = timezone.make_aware(start_dt, local_tz)
+            if due_date:
+                due_dt = datetime.strptime(due_date, fmt)
+                due_dt = timezone.make_aware(due_dt, local_tz)
+
+            print("➡️ start_dt (aware):", start_dt, "tz:", getattr(start_dt, "tzinfo", None))
+            print("➡️ due_dt   (aware):", due_dt, "tz:", getattr(due_dt, "tzinfo", None))
+
+            success, msg = unlock_level_with_schedule(
+                students,
+                level_name=level_name,
+                section=section,
+                start_date=start_dt,
+                due_date=due_dt,
+            )
+            return ("success" if success else "error", msg)
+
     # 🔹 Global single-level / single-achievement actions
     global_students = _get_students_for_action(handled_sections)
     if action in ("lock_single_level_global", "unlock_single_level_global") and level_name:
@@ -90,7 +129,8 @@ def _handle_post_action(action, students, handled_sections, level_name=None, ach
         is_active = action == "enable_single_achievement_global"
         set_achievement_active_for_students(global_students, achievement_code, is_active)
         state = "enabled" if is_active else "disabled"
-        return result(f"Achievement '{achievement_code}' has been {state} across all your handled sections.", danger=not is_active)
+        return result(f"Achievement '{achievement_code}' has been {state} across all your handled sections.",
+                      danger=not is_active)
 
     return "error", "Unknown action. Please try again."
 
@@ -98,11 +138,14 @@ def _handle_post_action(action, students, handled_sections, level_name=None, ach
 def _attach_section_progress(section, students, all_levels, all_achievements):
     """Annotate a section with its levels and achievements progress."""
     section.levels = [
-        {"name": lvl.name, "unlocked": LevelProgress.objects.filter(student__in=students, level=lvl, unlocked=True).exists()}
+        {"name": lvl.name,
+         "unlocked": LevelProgress.objects.filter(student__in=students, level=lvl, unlocked=True).exists()}
         for lvl in all_levels
     ]
     section.achievements = [
-        {"code": ach.code, "title": ach.title, "is_active": AchievementProgress.objects.filter(student__in=students, achievement=ach, is_active=True).exists()}
+        {"code": ach.code, "title": ach.title,
+         "is_active": AchievementProgress.objects.filter(student__in=students, achievement=ach,
+                                                         is_active=True).exists()}
         for ach in all_achievements
     ]
     return section
@@ -124,8 +167,15 @@ def progress_control_teacher(request):
         level_name = request.POST.get("level_name")
         achievement_code = request.POST.get("achievement_code")
 
+        start_date = request.POST.get("start_date")
+        due_date = request.POST.get("due_date")
+
         students = _get_students_for_action(handled_sections, section_id)
-        msg_type, msg_text = _handle_post_action(action, students, handled_sections, level_name, achievement_code, section_id)
+        msg_type, msg_text = _handle_post_action(
+            action, students, handled_sections,
+            level_name, achievement_code, section_id,
+            start_date=start_date, due_date=due_date
+        )
 
         if msg_text:
             if msg_type == "error":
@@ -136,7 +186,7 @@ def progress_control_teacher(request):
         # ✅ Preserve filter_by param safely
         filter_by = request.GET.get("filter_by") or section_id
         if filter_by and not handled_sections.filter(section_id=filter_by).exists():
-            filter_by = None  # 🚨 ignore invalid tampered values
+            filter_by = None
 
         redirect_url = reverse("progress_control_teacher")
         if filter_by:
@@ -152,11 +202,9 @@ def progress_control_teacher(request):
     departments = {hs.section.department for hs in handled_sections}
     selected_section = request.GET.get("filter_by")
 
-    # 🚨 enforce scope on GET
     if selected_section and not handled_sections.filter(section_id=selected_section).exists():
         selected_section = None
 
-    # ✅ if no section chosen, default to first one
     if not selected_section and sections:
         first_section = sections[0]
         return redirect(f"{reverse('progress_control_teacher')}?filter_by={first_section.id}")
@@ -177,6 +225,10 @@ def progress_control_teacher(request):
             "sections": sections,
             "selected_section": selected_section,
             "selected_section_obj": selected_section_obj,
+
+            # ⏰ for modal dropdowns
+            "hours": list(range(1, 13)),  # 1–12
+            "minutes": [f"{i:02d}" for i in range(0, 60)],  # 00–59
         }
     )
 

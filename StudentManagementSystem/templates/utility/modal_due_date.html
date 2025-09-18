@@ -13,16 +13,52 @@
 
             <!-- Body -->
             <div class="modal-body p-4">
+                <!-- Start Date -->
                 <div class="mb-3">
                     <label for="{{ modal_id }}_start_date" class="form-label">Start Date</label>
-                    <input type="date" class="form-control" id="{{ modal_id }}_start_date" name="start_date">
+                    <input type="date" class="form-control mb-2" id="{{ modal_id }}_start_date" name="start_date">
+
+                    <div class="d-flex gap-2">
+                        <select id="{{ modal_id }}_start_hour" class="form-select" style="max-width:90px;">
+                            {% for h in hours %}
+                                <option value="{{ h }}">{{ h }}</option>
+                            {% endfor %}
+                        </select>
+                        <select id="{{ modal_id }}_start_minute" class="form-select" style="max-width:90px;">
+                            {% for m in minutes %}
+                                <option value="{{ m }}">{{ m }}</option>
+                            {% endfor %}
+                        </select>
+                        <select id="{{ modal_id }}_start_ampm" class="form-select" style="max-width:90px;">
+                            <option value="AM">AM</option>
+                            <option value="PM">PM</option>
+                        </select>
+                    </div>
                 </div>
+
+                <!-- Due Date -->
                 <div class="mb-3">
                     <label for="{{ modal_id }}_due_date" class="form-label">Due Date</label>
-                    <input type="date" class="form-control" id="{{ modal_id }}_due_date" name="due_date">
+                    <input type="date" class="form-control mb-2" id="{{ modal_id }}_due_date" name="due_date">
+
+                    <div class="d-flex gap-2">
+                        <select id="{{ modal_id }}_due_hour" class="form-select" style="max-width:90px;">
+                            {% for h in hours %}
+                                <option value="{{ h }}">{{ h }}</option>
+                            {% endfor %}
+                        </select>
+                        <select id="{{ modal_id }}_due_minute" class="form-select" style="max-width:90px;">
+                            {% for m in minutes %}
+                                <option value="{{ m }}">{{ m }}</option>
+                            {% endfor %}
+                        </select>
+                        <select id="{{ modal_id }}_due_ampm" class="form-select" style="max-width:90px;">
+                            <option value="AM">AM</option>
+                            <option value="PM">PM</option>
+                        </select>
+                    </div>
                 </div>
             </div>
-
 
             <!-- Footer -->
             <div class="modal-footer">

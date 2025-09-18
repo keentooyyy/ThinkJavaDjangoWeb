@@ -72,25 +72,76 @@ def enable_all_achievements_for_students(student_qs):
 def disable_all_achievements_for_students(student_qs):
     AchievementProgress.objects.filter(student__in=student_qs).update(is_active=False)
 
-def auto_update_lock_states(student_qs):
-    """Batch update unlock states for all students in queryset based on schedules."""
-    current_time = now()
+from django.utils.timezone import now
+from GameProgress.models.level_schedule import SectionLevelSchedule
+from GameProgress.models.level_progress import LevelProgress
 
-    # Preload schedules per section
+def auto_update_lock_states(student_qs):
+    current_time = now()
     section_ids = student_qs.values_list("section_id", flat=True).distinct()
     schedules = SectionLevelSchedule.objects.filter(section_id__in=section_ids)
 
     for sched in schedules:
-        # Unlock students in this section if start_date passed
-        if sched.start_date and sched.start_date <= current_time:
-            LevelProgress.objects.filter(
-                student__section=sched.section,
-                level=sched.level
-            ).update(unlocked=True)
+        print(
+            f"[AUTO-UPDATE] Now={current_time} | Start={sched.start_date} | Due={sched.due_date} "
+            f"| Section={sched.section_id} | Level={sched.level_id}",
+            flush=True
+        )
 
-        # Lock students in this section if due_date passed
+        # 🔓 Unlock students in this section if start_date passed
+        if sched.start_date and sched.start_date <= current_time:
+            updated = LevelProgress.objects.filter(
+                student__section_id=sched.section_id,
+                level_id=sched.level_id
+            ).update(unlocked=True)
+            if updated:
+                print(f"   🔓 Unlocked {updated} rows", flush=True)
+
+        # 🔒 Lock students if due_date passed
         if sched.due_date and sched.due_date <= current_time:
-            LevelProgress.objects.filter(
-                student__section=sched.section,
-                level=sched.level
+            updated = LevelProgress.objects.filter(
+                student__section_id=sched.section_id,
+                level_id=sched.level_id
             ).update(unlocked=False)
+            if updated:
+                print(f"   🔒 Locked {updated} rows", flush=True)
+
+            # 🗑️ Remove the schedule once it's expired
+            sched.delete()
+            print(f"   🗑️ Deleted expired schedule (Section={sched.section_id}, Level={sched.level_id})", flush=True)
+
+
+
+def unlock_level_with_schedule(student_qs, level_name, section, start_date=None, due_date=None):
+    """
+    Unlock a specific level for the given students, and optionally apply a due date (and start date)
+    via SectionLevelSchedule for that section.
+    """
+    try:
+        level = LevelDefinition.objects.get(name=level_name)
+    except LevelDefinition.DoesNotExist:
+        return False, f"Level '{level_name}' does not exist."
+
+    with transaction.atomic():
+        # 🔓 Unlock for students
+        LevelProgress.objects.filter(
+            student__in=student_qs,
+            level=level
+        ).update(unlocked=True)
+
+        # 📅 Create or update schedule entry
+        sched, created = SectionLevelSchedule.objects.get_or_create(
+            section=section,
+            level=level,
+            defaults={"start_date": start_date or now(), "due_date": due_date},
+        )
+
+        if not created:
+            # Update schedule if already exists
+            if start_date:
+                sched.start_date = start_date
+            if due_date:
+                sched.due_date = due_date
+            sched.save()
+
+    return True, f"Level '{level_name}' unlocked for section {section} with schedule applied."
