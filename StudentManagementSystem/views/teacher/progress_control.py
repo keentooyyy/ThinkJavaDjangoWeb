@@ -97,7 +97,9 @@ def progress_control_teacher(request):
 
     # 📌 Reload fresh status after POST
     all_levels = list(LevelDefinition.objects.all())
+    print(all_levels)
     all_achievements = list(AchievementDefinition.objects.all())
+    print(all_achievements)
 
     for hs in handled_sections:
         students = Student.objects.filter(section_id=hs.section_id)

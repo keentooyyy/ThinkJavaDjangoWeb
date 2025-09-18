@@ -6,5 +6,10 @@ class AchievementDefinition(models.Model):
     description = models.TextField()
     is_active = models.BooleanField(default=True)  # ✅ This is the only control you need
 
+    class Meta:
+        ordering = ["code"]
+
     def __str__(self):
         return self.code
+
+
