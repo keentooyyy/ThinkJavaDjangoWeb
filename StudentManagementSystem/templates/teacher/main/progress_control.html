@@ -180,8 +180,10 @@
                                                                         class="btn btn-sm btn-danger">Lock
                                                                 </button>
                                                             {% else %}
-                                                                <button name="action" value="unlock_single_level"
-                                                                        class="btn btn-sm btn-primary">Unlock
+                                                                <button type="button"
+                                                                        class="btn btn-sm btn-primary"
+                                                                        onclick="openAssignTaskModal('{{ selected_section_obj.id }}', '{{ level.name }}')">
+                                                                    Unlock
                                                                 </button>
                                                             {% endif %}
                                                         </form>
@@ -266,8 +268,67 @@
         </div>
 
     </div>
+
+    {% include "utility/modal_due_date.html" with modal_id="assignTaskModal" modal_title="Assign Task" modal_width="600px" modal_buttons="['Save','Cancel']" modal_classes="['btn btn-primary','btn btn-secondary']" %}
+
+
+
 {% endblock %}
+
+
+{% block scripts %}
+    <script>
+        function openAssignTaskModal(sectionId, levelName) {
+    // Store info inside the modal
+    $("#assignTaskModal").data("section-id", sectionId);
+    $("#assignTaskModal").data("level-name", levelName);
+
+    // Prefill start date with today's date
+    let today = new Date().toISOString().split("T")[0];
+    $("#assignTaskModal_start_date").val(today);
+
+    // Reset due date
+    $("#assignTaskModal_due_date").val("");
+
+    // Show modal
+    $("#assignTaskModal").modal("show");
+
+    // Handle Save
+    $("#assignTaskModal_save").off("click").on("click", function () {
+        var startDate = $("#assignTaskModal_start_date").val() || today;
+        var dueDate = $("#assignTaskModal_due_date").val();
+        var sectionId = $("#assignTaskModal").data("section-id");
+        var levelName = $("#assignTaskModal").data("level-name");
+
+        if (dueDate) {
+            console.log("➡️ Unlocking level:", levelName, "for section:", sectionId);
+            console.log("   Start Date:", startDate);
+            console.log("   Due Date:", dueDate);
+        } else {
+            console.log("➡️ Unlocking level:", levelName, "for section:", sectionId);
+            console.log("   Start Date:", startDate);
+            console.log("   Due Date: NONE (No Due Date)");
+        }
+
+        $("#assignTaskModal").modal("hide");
+    });
+
+    // Handle Cancel
+    $("#assignTaskModal_cancel").off("click").on("click", function () {
+        $("#assignTaskModal").modal("hide");
+    });
+}
+
+
+
+    </script>
+
+{% endblock %}
+
+
 
 {% block footer %}
     {% include 'footer.html' %}
 {% endblock %}
+
+

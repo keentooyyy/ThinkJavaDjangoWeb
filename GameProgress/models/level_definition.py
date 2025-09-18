@@ -5,6 +5,7 @@ class LevelDefinition(models.Model):
     unlocked = models.BooleanField(default=False)
     sort_order = models.IntegerField(default=999)
 
+
     class Meta:
         ordering = ["sort_order"]
 

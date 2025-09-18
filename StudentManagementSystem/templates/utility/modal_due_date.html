@@ -1,0 +1,43 @@
+{% load list_extras %}
+
+<div class="modal fade" id="{{ modal_id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered"
+         style="{% if modal_width %}--bs-modal-width: {{ modal_width }};{% endif %}">
+        <div class="modal-content">
+
+            <!-- Header -->
+            <div class="modal-header">
+                <h5 class="modal-title">{{ modal_title }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <!-- Body -->
+            <div class="modal-body p-4">
+                <div class="mb-3">
+                    <label for="{{ modal_id }}_start_date" class="form-label">Start Date</label>
+                    <input type="date" class="form-control" id="{{ modal_id }}_start_date" name="start_date">
+                </div>
+                <div class="mb-3">
+                    <label for="{{ modal_id }}_due_date" class="form-label">Due Date</label>
+                    <input type="date" class="form-control" id="{{ modal_id }}_due_date" name="due_date">
+                </div>
+            </div>
+
+
+            <!-- Footer -->
+            <div class="modal-footer">
+                {% zip_lists modal_buttons|to_list modal_classes|to_list as btn_pairs %}
+                {% for btn, cls in btn_pairs %}
+                    {% with btn_id=btn|lower|slugify %}
+                        <button type="button"
+                                class="{{ cls|default:'btn btn-primary' }}"
+                                id="{{ modal_id }}_{{ btn_id }}"
+                                {% if btn|lower == "cancel" %}data-bs-dismiss="modal"{% endif %}>
+                            {{ btn|title }}
+                        </button>
+                    {% endwith %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>

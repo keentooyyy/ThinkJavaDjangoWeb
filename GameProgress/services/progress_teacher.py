@@ -1,10 +1,13 @@
 from django.db import transaction
+from django.utils.timezone import now
+
 from GameProgress.models import (
     LevelDefinition,
     AchievementDefinition,
     LevelProgress,
     AchievementProgress
 )
+from GameProgress.models.level_schedule import SectionLevelSchedule
 
 
 def sync_students_progress(student_qs):
@@ -68,3 +71,26 @@ def enable_all_achievements_for_students(student_qs):
 
 def disable_all_achievements_for_students(student_qs):
     AchievementProgress.objects.filter(student__in=student_qs).update(is_active=False)
+
+def auto_update_lock_states(student_qs):
+    """Batch update unlock states for all students in queryset based on schedules."""
+    current_time = now()
+
+    # Preload schedules per section
+    section_ids = student_qs.values_list("section_id", flat=True).distinct()
+    schedules = SectionLevelSchedule.objects.filter(section_id__in=section_ids)
+
+    for sched in schedules:
+        # Unlock students in this section if start_date passed
+        if sched.start_date and sched.start_date <= current_time:
+            LevelProgress.objects.filter(
+                student__section=sched.section,
+                level=sched.level
+            ).update(unlocked=True)
+
+        # Lock students in this section if due_date passed
+        if sched.due_date and sched.due_date <= current_time:
+            LevelProgress.objects.filter(
+                student__section=sched.section,
+                level=sched.level
+            ).update(unlocked=False)
