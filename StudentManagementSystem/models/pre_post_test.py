@@ -15,6 +15,8 @@ class TestDefinition(models.Model):
     name = models.CharField(max_length=150)
     test_type = models.CharField(max_length=10, choices=TEST_TYPE_CHOICES)
     description = models.TextField(blank=True, null=True)
+    shuffle_questions = models.BooleanField(default=False)  # 🔹 option to randomize question order
+    shuffle_choices = models.BooleanField(default=True)     # 🔹 option to randomize choices
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -22,25 +24,8 @@ class TestDefinition(models.Model):
 
 
 class TestQuestion(models.Model):
-    MULTIPLE_CHOICE = "mcq"
-    CHECKBOX = "checkbox"
-    DROPDOWN = "dropdown"
-    SHORT = "short"
-    PARAGRAPH = "paragraph"
-    ENUMERATION = "enum"
-
-    QUESTION_TYPES = [
-        (MULTIPLE_CHOICE, "Multiple Choice"),
-        (CHECKBOX, "Checkboxes"),
-        (DROPDOWN, "Dropdown"),
-        (SHORT, "Short Answer"),
-        (PARAGRAPH, "Paragraph"),
-        (ENUMERATION, "Enumeration"),
-    ]
-
     test = models.ForeignKey(TestDefinition, on_delete=models.CASCADE, related_name="questions")
     text = models.TextField()
-    question_type = models.CharField(max_length=20, choices=QUESTION_TYPES)
     points = models.FloatField(default=1.0)
     required = models.BooleanField(default=True)
     sort_order = models.IntegerField(default=0)
@@ -64,8 +49,7 @@ class TestChoice(models.Model):
 class StudentAnswer(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     question = models.ForeignKey(TestQuestion, on_delete=models.CASCADE)
-    selected_choices = models.ManyToManyField(TestChoice, blank=True)  # MCQ / Checkbox / Dropdown
-    text_answer = models.TextField(blank=True, null=True)  # Short / Paragraph / Enum
+    choice = models.ForeignKey(TestChoice, on_delete=models.CASCADE)  # 🔹 only one choice (MCQ)
     is_correct = models.BooleanField(default=False)
     answered_at = models.DateTimeField(auto_now_add=True)
 
@@ -75,17 +59,10 @@ class StudentAnswer(models.Model):
     def __str__(self):
         return f"{self.student} - {self.question}"
 
-    def check_correctness(self):
-        """Auto-check correctness for objective questions"""
-        if self.question.question_type in [TestQuestion.MULTIPLE_CHOICE, TestQuestion.CHECKBOX, TestQuestion.DROPDOWN]:
-            correct_choices = set(self.question.choices.filter(is_correct=True).values_list("id", flat=True))
-            selected = set(self.selected_choices.values_list("id", flat=True))
-            self.is_correct = (correct_choices == selected)
-        else:
-            # For short/paragraph/enum → correctness can be manual or left False by default
-            self.is_correct = False
-        self.save()
-        return self.is_correct
+    def save(self, *args, **kwargs):
+        # 🔹 correctness auto-check for MCQ
+        self.is_correct = self.choice.is_correct
+        super().save(*args, **kwargs)
 
 
 class StudentTest(models.Model):
@@ -102,18 +79,14 @@ class StudentTest(models.Model):
         return f"{self.student} - {self.test.name} ({self.score})"
 
     def grade_test(self):
-        """Calculate score based on student's answers"""
-        total_score = 0.0
-        max_score = 0.0
-
+        """Calculate score based on student's MCQ answers"""
         answers = StudentAnswer.objects.filter(student=self.student, question__test=self.test)
-        for ans in answers:
-            ans.check_correctness()
-            if ans.is_correct:
-                total_score += ans.question.points
-            max_score += ans.question.points
 
-        self.score = total_score
+        total_score = sum(ans.question.points for ans in answers)
+        score = sum(ans.question.points for ans in answers if ans.is_correct)
+
+        self.score = score
         self.completed = True
         self.save()
-        return {"score": total_score, "max_score": max_score}
+
+        return {"score": score, "max_score": total_score}
