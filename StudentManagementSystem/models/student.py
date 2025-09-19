@@ -1,14 +1,10 @@
 from django.db import models
 
-from StudentManagementSystem.models.pre_post_test import StudentTest, TestDefinition
 from StudentManagementSystem.models.roles import Role
-from StudentManagementSystem.models.section import Section
-from StudentManagementSystem.models.year_level import YearLevel
+from StudentManagementSystem.models.section import Section, YearLevel
 from StudentManagementSystem.views.login_key import make_login_key
 
-# 🔹 import test + level models
-from GameProgress.models.level_progress import LevelProgress
-from GameProgress.models.level_definition import LevelDefinition
+# GameProgress models will be imported lazily inside methods to avoid circular import
 
 
 class Student(models.Model):
@@ -52,7 +48,7 @@ class Student(models.Model):
 
     @property
     def has_taken_pretest(self):
-        """True if student has a completed Pre-Test"""
+        from StudentManagementSystem.models.pre_post_test import StudentTest, TestDefinition
         return StudentTest.objects.filter(
             student=self,
             test__test_type=TestDefinition.PRE,
@@ -61,7 +57,7 @@ class Student(models.Model):
 
     @property
     def has_taken_posttest(self):
-        """True if student has a completed Post-Test"""
+        from StudentManagementSystem.models.pre_post_test import StudentTest, TestDefinition
         return StudentTest.objects.filter(
             student=self,
             test__test_type=TestDefinition.POST,
@@ -70,23 +66,18 @@ class Student(models.Model):
 
     @property
     def all_levels_completed(self):
-        """True if student has completed all levels in the game"""
+        from GameProgress.models.level_progress import LevelProgress
+        from GameProgress.models.level_definition import LevelDefinition
         total_levels = LevelDefinition.objects.count()
         completed_levels = LevelProgress.objects.filter(student=self, unlocked=True).count()
         return total_levels > 0 and completed_levels == total_levels
 
     @property
     def can_take_posttest(self):
-        """Only allowed if:
-        1. Pre-test taken
-        2. All levels completed
-        3. Post-test not yet taken
-        """
         return self.has_taken_pretest and self.all_levels_completed and not self.has_taken_posttest
 
     @property
     def test_status(self):
-        """Return a dictionary for API response"""
         return {
             "student_id": self.student_id,
             "has_taken_pretest": self.has_taken_pretest,

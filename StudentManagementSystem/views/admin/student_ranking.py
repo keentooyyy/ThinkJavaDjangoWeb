@@ -2,9 +2,8 @@ from django.shortcuts import render
 
 from GameProgress.services.ranking import get_all_student_rankings
 from StudentManagementSystem.decorators.custom_decorators import session_login_required
-from StudentManagementSystem.models.department import Department
 from StudentManagementSystem.models.roles import Role
-from StudentManagementSystem.models.section import Section
+from StudentManagementSystem.models.section import Section, Department
 from StudentManagementSystem.views.ranking_view import (
     get_common_params,
     deduplicate_sections,

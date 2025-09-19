@@ -1,9 +1,8 @@
 from django.shortcuts import redirect
 
-from StudentManagementSystem.models.department import Department
-from StudentManagementSystem.models.section import Section
+
+from StudentManagementSystem.models.section import Section, Department, YearLevel
 from StudentManagementSystem.models.student import Student
-from StudentManagementSystem.models.year_level import YearLevel
 
 
 def dummy_login_and_test(request):

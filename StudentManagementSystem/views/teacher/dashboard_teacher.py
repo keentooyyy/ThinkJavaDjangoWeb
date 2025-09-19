@@ -3,9 +3,9 @@ from django.shortcuts import render
 from GameProgress.models import LevelDefinition, AchievementDefinition
 from GameProgress.services.ranking import get_all_student_rankings
 from StudentManagementSystem.decorators.custom_decorators import session_login_required
-from StudentManagementSystem.models.department import Department
+
 from StudentManagementSystem.models.roles import Role
-from StudentManagementSystem.models.section import Section
+from StudentManagementSystem.models.section import Section, Department
 from StudentManagementSystem.models.student import Student
 from StudentManagementSystem.models.teachers import HandledSection
 

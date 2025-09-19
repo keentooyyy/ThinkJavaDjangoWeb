@@ -1,5 +1,3 @@
-# GameProgress/models/pre_post_test.py
-
 from django.db import models
 from StudentManagementSystem.models.student import Student
 
@@ -15,8 +13,8 @@ class TestDefinition(models.Model):
     name = models.CharField(max_length=150)
     test_type = models.CharField(max_length=10, choices=TEST_TYPE_CHOICES)
     description = models.TextField(blank=True, null=True)
-    shuffle_questions = models.BooleanField(default=False)  # 🔹 option to randomize question order
-    shuffle_choices = models.BooleanField(default=True)     # 🔹 option to randomize choices
+    shuffle_questions = models.BooleanField(default=False)
+    shuffle_choices = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -49,7 +47,7 @@ class TestChoice(models.Model):
 class StudentAnswer(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     question = models.ForeignKey(TestQuestion, on_delete=models.CASCADE)
-    choice = models.ForeignKey(TestChoice, on_delete=models.CASCADE)  # 🔹 only one choice (MCQ)
+    choice = models.ForeignKey(TestChoice, on_delete=models.CASCADE)
     is_correct = models.BooleanField(default=False)
     answered_at = models.DateTimeField(auto_now_add=True)
 
@@ -60,7 +58,7 @@ class StudentAnswer(models.Model):
         return f"{self.student} - {self.question}"
 
     def save(self, *args, **kwargs):
-        # 🔹 correctness auto-check for MCQ
+        # ✅ correctness auto-check for MCQ
         self.is_correct = self.choice.is_correct
         super().save(*args, **kwargs)
 
@@ -79,7 +77,6 @@ class StudentTest(models.Model):
         return f"{self.student} - {self.test.name} ({self.score})"
 
     def grade_test(self):
-        """Calculate score based on student's MCQ answers"""
         answers = StudentAnswer.objects.filter(student=self.student, question__test=self.test)
 
         total_score = sum(ans.question.points for ans in answers)

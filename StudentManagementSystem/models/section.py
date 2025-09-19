@@ -2,8 +2,30 @@
 
 from django.db import models
 
-from StudentManagementSystem.models.department import Department
-from StudentManagementSystem.models.year_level import YearLevel
+
+class Department(models.Model):
+    name = models.CharField(max_length=50, unique=True)  # e.g. "CS", "IT"
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['name']),  # Index for department name
+        ]
+
+    def __str__(self):
+        return self.name
+
+
+
+class YearLevel(models.Model):
+    year = models.PositiveSmallIntegerField(unique=True)  # e.g. 1, 2, 3, 4
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['year']),  # Index for year_level year field
+        ]
+
+    def __str__(self):
+        return f"{self.year}"
 
 
 class Section(models.Model):
@@ -19,5 +41,4 @@ class Section(models.Model):
 
     def __str__(self):
         return f"{self.department.name}{self.year_level.year}{self.letter}"  # e.g., "CS 1A"
-
 

@@ -2,10 +2,8 @@
 
 from django.db import models
 
-from StudentManagementSystem.models.department import Department
 from StudentManagementSystem.models.roles import Role
-from StudentManagementSystem.models.section import Section
-from StudentManagementSystem.models.year_level import YearLevel
+from StudentManagementSystem.models.section import Section, Department, YearLevel
 from StudentManagementSystem.views.login_key import make_login_key
 
 

@@ -8,17 +8,12 @@ from django.shortcuts import redirect, render, get_object_or_404
 
 from StudentManagementSystem.decorators.custom_decorators import session_login_required
 from StudentManagementSystem.models import Teacher
-from StudentManagementSystem.models.department import Department
+
 from StudentManagementSystem.models.roles import Role
-from StudentManagementSystem.models.section import Section
+from StudentManagementSystem.models.section import Section, Department, YearLevel
 from StudentManagementSystem.models.teachers import HandledSection
-from StudentManagementSystem.models.year_level import YearLevel
 from StudentManagementSystem.views.logger import create_log
 
-
-from django.db.models import Value
-from django.db.models.functions import Concat, Cast
-from django.db.models import CharField
 
 def get_teacher_context(admin, search_query=None, per_page=25, page_number=1):
     departments = Department.objects.all()

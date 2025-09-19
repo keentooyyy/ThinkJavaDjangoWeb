@@ -6,9 +6,9 @@ from django.shortcuts import redirect, render, get_object_or_404
 
 from StudentManagementSystem.decorators.custom_decorators import session_login_required
 from StudentManagementSystem.models import Student, SectionJoinCode
-from StudentManagementSystem.models.department import Department
+
 from StudentManagementSystem.models.roles import Role
-from StudentManagementSystem.models.section import Section
+from StudentManagementSystem.models.section import Section, Department
 from StudentManagementSystem.models.teachers import HandledSection
 from StudentManagementSystem.views.logger import create_log
 from StudentManagementSystem.views.ranking_view import build_ranking_context, paginate_queryset, get_common_params, \
