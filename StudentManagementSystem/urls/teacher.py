@@ -5,6 +5,7 @@ from StudentManagementSystem.views.teacher.dashboard_teacher import teacher_dash
 # from StudentManagementSystem.views.teacher.edit_profile import edit_profile
 from StudentManagementSystem.views.teacher.generate_section_code import generate_section_code_view, delete_section_code, \
     check_section_code_exists
+from StudentManagementSystem.views.teacher.pre_post_test import pre_post_test_view
 from StudentManagementSystem.views.teacher.progress_control import progress_control_teacher
 from StudentManagementSystem.views.teacher.register_student import register_student, edit_student, delete_student
 from StudentManagementSystem.views.teacher.student_ranking import teacher_student_ranking
@@ -27,5 +28,9 @@ urlpatterns = [  # path('login/', teacher_login, name='teacher_login'),
 
     # Game Progress Control Routes
     path('progress-control/', progress_control_teacher, name='progress_control_teacher'),
+
+
+    # Pre Post Test Routes
+    path('pre-post-test/', pre_post_test_view, name='pre_post_test_view'),
 
 ]
