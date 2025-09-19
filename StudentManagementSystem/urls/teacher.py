@@ -5,7 +5,8 @@ from StudentManagementSystem.views.teacher.dashboard_teacher import teacher_dash
 # from StudentManagementSystem.views.teacher.edit_profile import edit_profile
 from StudentManagementSystem.views.teacher.generate_section_code import generate_section_code_view, delete_section_code, \
     check_section_code_exists
-from StudentManagementSystem.views.teacher.pre_post_test import pre_post_test_view
+from StudentManagementSystem.views.teacher.pre_post_test import pre_post_test_view, manage_test_view, \
+    update_choice_ajax, update_question_ajax, delete_question_ajax, delete_choice_ajax
 from StudentManagementSystem.views.teacher.progress_control import progress_control_teacher
 from StudentManagementSystem.views.teacher.register_student import register_student, edit_student, delete_student
 from StudentManagementSystem.views.teacher.student_ranking import teacher_student_ranking
@@ -29,8 +30,24 @@ urlpatterns = [  # path('login/', teacher_login, name='teacher_login'),
     # Game Progress Control Routes
     path('progress-control/', progress_control_teacher, name='progress_control_teacher'),
 
-
     # Pre Post Test Routes
     path('pre-post-test/', pre_post_test_view, name='pre_post_test_view'),
+    path('pre-post-test/<int:test_id>/', manage_test_view, name='manage_test_view'),
+
+    path("pre-post-test/<int:test_id>/<int:question_id>/update/", update_question_ajax,
+         name="update_question_ajax"),
+    path("pre-post-test/<int:test_id>/<int:question_id>/<int:choice_id>/update/", update_choice_ajax,
+         name="update_choice_ajax"),
+
+    path(
+        "pre-post-test/<int:test_id>/<int:question_id>/delete/",
+        delete_question_ajax,
+        name="delete_question_ajax"
+    ),
+    path(
+        "pre-post-test/<int:test_id>/<int:question_id>/<int:choice_id>/delete/",
+        delete_choice_ajax,
+        name="delete_choice_ajax"
+    ),
 
 ]

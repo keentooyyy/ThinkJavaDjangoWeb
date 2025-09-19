@@ -1,83 +1,83 @@
 {% extends 'base.html' %}
 {% load static %}
 
-
 {% block title %}Manage Students{% endblock %}
-
-
-{% block sidebar %}{% include 'sidebar.html' %} {% endblock %}
-
-
-{% block header %} {% include 'header.html' %} {% endblock %}
-
-
+{% block sidebar %}{% include 'sidebar.html' %}{% endblock %}
+{% block header %}{% include 'header.html' %}{% endblock %}
 
 {% block content %}
-    <div class="page-wrapper">
-        <div class="row ps-5 pt-5 pe-5">
-            <div class="col p-0">
-                <div class="card mb-0">
-                    <div class="card-body p-5"> TEST SETTING</div>
+    <div class="page-wrapper p-5">
+        <!-- Create Test -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="fw-bold mb-3">🆕 Create New Test</h5>
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Test Name</label>
+                                    <input type="text" name="name" class="form-control" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Type</label>
+                                    <select name="test_type" class="form-select">
+                                        <option value="pre">Pre-Test</option>
+                                        <option value="post">Post-Test</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Shuffle</label><br>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" name="shuffle_questions"
+                                               id="sq">
+                                        <label class="form-check-label" for="sq">Questions</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" name="shuffle_choices" id="sc"
+                                               checked>
+                                        <label class="form-check-label" for="sc">Choices</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Description</label>
+                                <textarea name="description" class="form-control" rows="2"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bx bx-plus"></i> Create Test
+                            </button>
+                        </form>
+                    </div>
                 </div>
-
             </div>
         </div>
-        <div class="row p-5">
 
-            <div class="col-7">
-                <div class="row justify-content-center flex-column align-items-center">
-                    <div class="card">
-                        <div class="card-body p-5"> test</div>
+        <!-- Existing Tests -->
+        <div class="row">
+            <div class="col-12">
+                {% for test in tests %}
+                    <div class="card shadow-sm mb-3">
+                        <div class="card-body">
+                            <h6 class="fw-bold">{{ test.name }}
+                                <span class="badge bg-info">{{ test.get_test_type_display }}</span>
+                            </h6>
+                            <p class="text-muted">{{ test.description|default:"No description" }}</p>
+                            <div class="small text-muted">
+                                Created at {{ test.created_at|date:"M d, Y H:i" }}
+                            </div>
+                            <a href="{% url 'manage_test_view' test.id %}"
+                               class="btn btn-outline-secondary btn-sm mt-2">
+                                <i class="bx bx-edit"></i> Manage Questions
+                            </a>
+                        </div>
                     </div>
-                    <div class="p-0">
-                        <button class="btn btn-outline-primary w-100 "><i class="bx bx-plus"></i> Add More Question
-                        </button>
-                    </div>
-
-                </div>
-            </div>
-
-
-            <div class="col">
-                <div class="row ps-5">
-                    <div class="card">
-                        <div class="card-body p-5"> Results for each sections</div>
-                    </div>
-
-                </div>
+                {% empty %}
+                    <div class="alert alert-info">No tests created yet.</div>
+                {% endfor %}
             </div>
         </div>
-
-
     </div>
-
-
-
-
-
-
 {% endblock %}
-
-
-
-
-{% block footer %}
-    {% include 'footer.html' %}
-{% endblock %}
-
-
-
-
-
-
-
-
-{% block register_student %}
-
-{% endblock %}
-
-
-
-
-
-
+{% block footer %}{% include 'footer.html' %}{% endblock %}

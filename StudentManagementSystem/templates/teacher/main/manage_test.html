@@ -1,0 +1,249 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Manage Test - {{ test.name }}{% endblock %}
+{% block sidebar %}{% include 'sidebar.html' %}{% endblock %}
+{% block header %}{% include 'header.html' %}{% endblock %}
+
+{% block content %}
+<div class="page-wrapper p-5">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold mb-0">📝 Manage MCQ Test: {{ test.name }}</h5>
+                    <a href="{% url 'pre_post_test_view' %}" class="btn btn-outline-secondary btn-sm">← Back</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Questions List -->
+    <div class="row">
+        <div class="col-12">
+            {% for q in questions %}
+            <div class="card shadow-sm mb-3 question-card" data-question-id="{{ q.id }}">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="fw-bold mb-0">{{ forloop.counter }}. {{ q.text }}</h6>
+                        <div>
+                            <span class="badge bg-success me-2">{{ q.points }} pts</span>
+                            <button class="btn btn-sm btn-outline-primary toggle-edit">✏ Edit</button>
+                            <button class="btn btn-sm btn-outline-danger delete-question" data-qid="{{ q.id }}">🗑 Delete</button>
+                        </div>
+                    </div>
+
+                    <!-- Question text -->
+                    <div class="mb-2">
+                        <textarea class="form-control question-text" disabled>{{ q.text }}</textarea>
+                    </div>
+
+                    <!-- Points -->
+                    <div class="mb-2">
+                        <label>Points</label>
+                        <input type="number" class="form-control question-points w-25" value="{{ q.points }}" disabled>
+                    </div>
+
+                    <!-- Choices -->
+                    <label>Choices</label>
+                    <ul class="list-group">
+                    {% for c in q.choices.all %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center choice-row"
+                        data-choice-id="{{ c.id }}">
+                        <div class="d-flex align-items-center w-100">
+                            <span class="me-2"><b>{{ c.label }}</b>.</span>
+                            <input type="text" class="form-control choice-text" value="{{ c.text }}" disabled>
+                        </div>
+                        <div class="d-flex align-items-center ms-2">
+                            <div class="form-check me-2">
+                                <input type="radio" name="correct_choice_{{ q.id }}" class="form-check-input choice-correct"
+                                       {% if c.is_correct %}checked{% endif %} disabled>
+                                <label class="form-check-label">Correct</label>
+                            </div>
+                            <button class="btn btn-sm btn-outline-danger delete-choice" data-qid="{{ q.id }}" data-cid="{{ c.id }}">✕</button>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+
+
+                    <!-- Save / Cancel (hidden until editing) -->
+                    <div class="mt-3 d-none action-buttons">
+                        <button class="btn btn-success btn-sm save-question">💾 Save</button>
+                        <button class="btn btn-secondary btn-sm cancel-edit">✖ Cancel</button>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="alert alert-info">No questions yet.</div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Add New Question -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3">➕ Add MCQ Question (with choices)</h6>
+                    <form method="post" id="question-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="add_question">
+
+                        <!-- Question Text -->
+                        <div class="mb-3">
+                            <label class="form-label">Question Text</label>
+                            <textarea name="question_text" class="form-control" rows="2" required></textarea>
+                        </div>
+
+                        <!-- Points -->
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label class="form-label">Points</label>
+                                <input type="number" name="points" class="form-control" value="1" step="0.5">
+                            </div>
+                            <div class="col-md-3 d-flex align-items-center">
+                                <div class="form-check mt-3">
+                                    <input type="checkbox" class="form-check-input" name="required" id="required_q">
+                                    <label class="form-check-label" for="required_q">Required</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Choices -->
+                        <div id="choices-wrapper" class="mt-4"></div>
+
+                        <button type="button" id="add-choice" class="btn btn-outline-primary btn-sm mt-2">
+                            <i class="bx bx-plus"></i> Add Choice
+                        </button>
+
+                        <!-- Submit -->
+                        <button class="btn btn-primary mt-3">
+                            <i class="bx bx-save"></i> Save Question
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(function () {
+    // Toggle Edit
+    $(document).on("click", ".toggle-edit", function () {
+        let card = $(this).closest(".card-body");
+        card.find("textarea, input").prop("disabled", false);
+        card.find(".action-buttons").removeClass("d-none");
+        $(this).addClass("d-none");
+    });
+
+    // Cancel Edit
+    $(document).on("click", ".cancel-edit", function () {
+        location.reload();
+    });
+
+    // Delete Question
+    $(document).on("click", ".delete-question", function () {
+        if (!confirm("Delete this question?")) return;
+        let qid = $(this).data("qid");
+        $.post("{% url 'delete_question_ajax' test.id 0 %}".replace("0", qid), {
+            csrfmiddlewaretoken: "{{ csrf_token }}"
+        }).done(function (resp) {
+            if (resp.status === "ok") {
+                $(`.question-card[data-question-id='${qid}']`).remove();
+            }
+        });
+    });
+
+    // Delete Choice
+    $(document).on("click", ".delete-choice", function () {
+        if (!confirm("Delete this choice?")) return;
+        let qid = $(this).data("qid");
+        let cid = $(this).data("cid");
+        $.post("{% url 'delete_choice_ajax' test.id 0 0 %}".replace("0/0", qid + "/" + cid), {
+            csrfmiddlewaretoken: "{{ csrf_token }}"
+        }).done(function (resp) {
+            if (resp.status === "ok") {
+                $(`.choice-row[data-choice-id='${cid}']`).remove();
+            }
+        });
+    });
+
+    // Save Question (wait for all AJAX requests before reload)
+    $(document).on("click", ".save-question", function () {
+        let card = $(this).closest(".card-body");
+        let qid = card.closest(".question-card").data("question-id");
+        let text = card.find(".question-text").val();
+        let points = card.find(".question-points").val();
+        let choices = [];
+
+        card.find(".choice-row").each(function () {
+            let cid = $(this).data("choice-id");
+            let ctext = $(this).find(".choice-text").val();
+            let correct = $(this).find(".choice-correct").is(":checked");
+            choices.push({id: cid, text: ctext, is_correct: correct});
+        });
+
+        let requests = [];
+
+        requests.push($.post("{% url 'update_question_ajax' test.id 0 %}".replace("0", qid), {
+            text: text,
+            points: points,
+            csrfmiddlewaretoken: "{{ csrf_token }}"
+        }));
+
+        choices.forEach(function (c) {
+            requests.push($.post("{% url 'update_choice_ajax' test.id 0 0 %}".replace("0/0", qid + "/" + c.id), {
+                text: c.text,
+                is_correct: c.is_correct ? "true" : "false",
+                csrfmiddlewaretoken: "{{ csrf_token }}"
+            }));
+        });
+
+        $.when.apply($, requests).done(function () {
+            location.reload();
+        });
+    });
+
+    // Add Choice (new question form)
+    $('#add-choice').click(function () {
+        let choiceCount = $("#choices-wrapper .choice-item").length;
+        let label = String.fromCharCode(65 + choiceCount);
+        let choiceHtml = `
+        <div class="input-group mb-2 choice-item">
+            <div class="input-group-text"><span class="me-2">${label}</span>
+                <input type="radio" name="is_correct" value="${choiceCount}">
+            </div>
+            <input type="text" name="choice_text[]" class="form-control" placeholder="Choice ${label}" required>
+            <button type="button" class="btn btn-outline-danger remove-choice">✕</button>
+        </div>`;
+        $('#choices-wrapper').append(choiceHtml);
+        reindexChoices();
+    });
+
+    // Remove choice (new question form)
+    $(document).on('click', '.remove-choice', function () {
+        $(this).closest('.choice-item').remove();
+        reindexChoices();
+    });
+
+    // Re-index choices
+    function reindexChoices() {
+        $("#choices-wrapper .choice-item").each(function (i) {
+            let label = String.fromCharCode(65 + i);
+            $(this).find(".input-group-text").html(
+                `<span class="me-2">${label}</span>
+                 <input type="radio" name="is_correct" value="${i}">`
+            );
+            $(this).find("input[type='text']").attr("placeholder", `Choice ${label}`);
+        });
+    }
+});
+</script>
+{% endblock %}
+
+{% block footer %}{% include 'footer.html' %}{% endblock %}
