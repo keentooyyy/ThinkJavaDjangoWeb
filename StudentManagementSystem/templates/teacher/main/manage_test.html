@@ -47,26 +47,33 @@
 
                     <!-- Choices -->
                     <label>Choices</label>
-                    <ul class="list-group">
-                    {% for c in q.choices.all %}
-                    <li class="list-group-item d-flex justify-content-between align-items-center choice-row"
-                        data-choice-id="{{ c.id }}">
-                        <div class="d-flex align-items-center w-100">
-                            <span class="me-2"><b>{{ c.label }}</b>.</span>
-                            <input type="text" class="form-control choice-text" value="{{ c.text }}" disabled>
-                        </div>
-                        <div class="d-flex align-items-center ms-2">
-                            <div class="form-check me-2">
-                                <input type="radio" name="correct_choice_{{ q.id }}" class="form-check-input choice-correct"
-                                       {% if c.is_correct %}checked{% endif %} disabled>
-                                <label class="form-check-label">Correct</label>
+                    <ul class="list-group choices-list">
+                        {% for c in q.choices.all %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center choice-row"
+                            data-choice-id="{{ c.id }}">
+                            <div class="d-flex align-items-center w-100">
+                                <span class="me-2"><b>{{ c.label }}</b>.</span>
+                                <input type="text" class="form-control choice-text" value="{{ c.text }}" disabled>
                             </div>
-                            <button class="btn btn-sm btn-outline-danger delete-choice" data-qid="{{ q.id }}" data-cid="{{ c.id }}">✕</button>
-                        </div>
-                    </li>
-                    {% endfor %}
-                </ul>
+                            <div class="d-flex align-items-center ms-2">
+                                <div class="form-check me-2">
+                                    <input type="radio" name="correct_choice_{{ q.id }}" class="form-check-input choice-correct"
+                                           {% if c.is_correct %}checked{% endif %} disabled>
+                                    <label class="form-check-label">Correct</label>
+                                </div>
+                                <!-- hidden until edit mode -->
+                                <button class="btn btn-sm btn-outline-danger delete-choice d-none"
+                                        data-qid="{{ q.id }}" data-cid="{{ c.id }}">✕</button>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
 
+                    <!-- Add new choice (hidden until edit mode) -->
+                    <button class="btn btn-outline-primary btn-sm mt-2 add-choice-existing d-none"
+                            data-qid="{{ q.id }}">
+                        ➕ Add Choice
+                    </button>
 
                     <!-- Save / Cancel (hidden until editing) -->
                     <div class="mt-3 d-none action-buttons">
@@ -138,11 +145,16 @@ $(function () {
         let card = $(this).closest(".card-body");
         card.find("textarea, input").prop("disabled", false);
         card.find(".action-buttons").removeClass("d-none");
+        card.find(".delete-choice").removeClass("d-none"); // show delete buttons
+        card.find(".add-choice-existing").removeClass("d-none"); // show add button
         $(this).addClass("d-none");
     });
 
     // Cancel Edit
     $(document).on("click", ".cancel-edit", function () {
+        let card = $(this).closest(".card-body");
+        card.find(".delete-choice").addClass("d-none");
+        card.find(".add-choice-existing").addClass("d-none");
         location.reload();
     });
 
@@ -225,13 +237,36 @@ $(function () {
         reindexChoices();
     });
 
+    // Add Choice (existing question in edit mode)
+    $(document).on("click", ".add-choice-existing", function () {
+        let qid = $(this).data("qid");
+        let list = $(this).closest(".card-body").find(".choices-list");
+        let choiceCount = list.find(".choice-row").length;
+        let label = String.fromCharCode(65 + choiceCount);
+        let newHtml = `
+        <li class="list-group-item d-flex justify-content-between align-items-center choice-row new-choice">
+            <div class="d-flex align-items-center w-100">
+                <span class="me-2"><b>${label}</b>.</span>
+                <input type="text" class="form-control choice-text" value="">
+            </div>
+            <div class="d-flex align-items-center ms-2">
+                <div class="form-check me-2">
+                    <input type="radio" name="correct_choice_${qid}" class="form-check-input choice-correct">
+                    <label class="form-check-label">Correct</label>
+                </div>
+                <button class="btn btn-sm btn-outline-danger delete-choice">✕</button>
+            </div>
+        </li>`;
+        list.append(newHtml);
+    });
+
     // Remove choice (new question form)
     $(document).on('click', '.remove-choice', function () {
         $(this).closest('.choice-item').remove();
         reindexChoices();
     });
 
-    // Re-index choices
+    // Re-index choices (only for add-question form)
     function reindexChoices() {
         $("#choices-wrapper .choice-item").each(function (i) {
             let label = String.fromCharCode(65 + i);
