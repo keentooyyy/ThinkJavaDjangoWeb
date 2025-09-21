@@ -7,19 +7,63 @@
 
 {% block content %}
 <div class="page-wrapper p-5">
+
     <!-- Header -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="card shadow-sm">
                 <div class="card-body d-flex justify-content-between align-items-center">
-                    <h5 class="fw-bold mb-0">📝 Manage MCQ Test: {{ test.name }}</h5>
-                    <a href="{% url 'pre_post_test_view' %}" class="btn btn-outline-secondary btn-sm">← Back</a>
+                    <div>
+                        <h5 class="fw-bold mb-1">Manage MCQ Test: {{ test.name }}</h5>
+                        <p class="mb-0 text-muted small">
+                            {{ test.get_test_type_display|upper }} • Created: {{ test.created_at|date:"M d, Y" }}
+                        </p>
+                    </div>
+                    <div>
+                        <a href="{% url 'pre_post_test_view' %}" class="btn btn-outline-secondary btn-sm">← Back</a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Questions List -->
+    <!-- 🔹 Test Settings -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span class="fw-bold">Test Settings</span>
+                    <form method="post" action="{% url 'delete_test' test.id %}"
+                          onsubmit="return confirm('Delete this test permanently?')">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-danger btn-sm">🗑 Delete Test</button>
+                    </form>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'update_test_settings' test.id %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea name="description" class="form-control" rows="2">{{ test.description }}</textarea>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input type="checkbox" name="shuffle_questions" class="form-check-input"
+                                   id="shuffle_questions" {% if test.shuffle_questions %}checked{% endif %}>
+                            <label for="shuffle_questions" class="form-check-label">Shuffle Questions</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input type="checkbox" name="shuffle_choices" class="form-check-input"
+                                   id="shuffle_choices" {% if test.shuffle_choices %}checked{% endif %}>
+                            <label for="shuffle_choices" class="form-check-label">Shuffle Choices</label>
+                        </div>
+                        <button class="btn btn-primary btn-sm mt-2">💾 Save Settings</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🔹 Questions List -->
     <div class="row">
         <div class="col-12">
             {% for q in questions %}
@@ -46,36 +90,29 @@
                     </div>
 
                     <!-- Choices -->
-                    <label>Choices</label>
-                    <ul class="list-group choices-list">
+                    <label>Choices (drag to reorder)</label>
+                    <div class="choices-wrapper-existing sortable-choices" data-qid="{{ q.id }}">
                         {% for c in q.choices.all %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center choice-row"
-                            data-choice-id="{{ c.id }}">
-                            <div class="d-flex align-items-center w-100">
-                                <span class="me-2"><b>{{ c.label }}</b>.</span>
-                                <input type="text" class="form-control choice-text" value="{{ c.text }}" disabled>
+                        <div class="input-group mb-2 choice-item" data-choice-id="{{ c.id }}">
+                            <div class="input-group-text handle">
+                                <i class="bx bx-grid-vertical"></i>
                             </div>
-                            <div class="d-flex align-items-center ms-2">
-                                <div class="form-check me-2">
-                                    <input type="radio" name="correct_choice_{{ q.id }}" class="form-check-input choice-correct"
-                                           {% if c.is_correct %}checked{% endif %} disabled>
-                                    <label class="form-check-label">Correct</label>
-                                </div>
-                                <!-- hidden until edit mode -->
-                                <button class="btn btn-sm btn-outline-danger delete-choice d-none"
-                                        data-qid="{{ q.id }}" data-cid="{{ c.id }}">✕</button>
-                            </div>
-                        </li>
+                            <input type="radio" name="correct_choice_{{ q.id }}" class="mx-3 choice-correct"
+                                   {% if c.is_correct %}checked{% endif %} disabled>
+                            <input type="text" class="form-control choice-text" value="{{ c.text }}" disabled>
+                            <button type="button" class="btn btn-outline-danger remove-choice d-none"
+                                    data-qid="{{ q.id }}" data-cid="{{ c.id }}">✕</button>
+                        </div>
                         {% endfor %}
-                    </ul>
+                    </div>
 
-                    <!-- Add new choice (hidden until edit mode) -->
+                    <!-- Add new choice -->
                     <button class="btn btn-outline-primary btn-sm mt-2 add-choice-existing d-none"
                             data-qid="{{ q.id }}">
                         ➕ Add Choice
                     </button>
 
-                    <!-- Save / Cancel (hidden until editing) -->
+                    <!-- Save / Cancel -->
                     <div class="mt-3 d-none action-buttons">
                         <button class="btn btn-success btn-sm save-question">💾 Save</button>
                         <button class="btn btn-secondary btn-sm cancel-edit">✖ Cancel</button>
@@ -88,7 +125,7 @@
         </div>
     </div>
 
-    <!-- Add New Question -->
+    <!-- 🔹 Add New Question -->
     <div class="row mt-4">
         <div class="col-12">
             <div class="card shadow-sm">
@@ -112,7 +149,7 @@
                             </div>
                             <div class="col-md-3 d-flex align-items-center">
                                 <div class="form-check mt-3">
-                                    <input type="checkbox" class="form-check-input" name="required" id="required_q">
+                                    <input type="checkbox" class="form-check-input" name="required" id="required_q" checked>
                                     <label class="form-check-label" for="required_q">Required</label>
                                 </div>
                             </div>
@@ -135,26 +172,35 @@
         </div>
     </div>
 </div>
+
+<!-- 🔹 Choice Template (hidden, cloned for both new & existing) -->
+<div id="choice-template" class="d-none">
+    <div class="input-group mb-2 choice-item">
+        <div class="input-group-text handle"><i class="bx bx-grid-vertical"></i></div>
+        <input type="radio" class="mx-3 choice-correct">
+        <input type="text" class="form-control choice-text" placeholder="Choice" required>
+        <button type="button" class="btn btn-outline-danger remove-choice">✕</button>
+    </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 <script>
 $(function () {
+
     // Toggle Edit
     $(document).on("click", ".toggle-edit", function () {
         let card = $(this).closest(".card-body");
         card.find("textarea, input").prop("disabled", false);
         card.find(".action-buttons").removeClass("d-none");
-        card.find(".delete-choice").removeClass("d-none"); // show delete buttons
-        card.find(".add-choice-existing").removeClass("d-none"); // show add button
+        card.find(".remove-choice").removeClass("d-none");
+        card.find(".add-choice-existing").removeClass("d-none");
         $(this).addClass("d-none");
     });
 
     // Cancel Edit
     $(document).on("click", ".cancel-edit", function () {
-        let card = $(this).closest(".card-body");
-        card.find(".delete-choice").addClass("d-none");
-        card.find(".add-choice-existing").addClass("d-none");
         location.reload();
     });
 
@@ -171,111 +217,129 @@ $(function () {
         });
     });
 
-    // Delete Choice
-    $(document).on("click", ".delete-choice", function () {
+    // Delete Choice (existing questions only)
+    $(document).on("click", ".remove-choice", function () {
+        let cid = $(this).data("cid");
+        if (!cid) {
+            // UI-only removal (new question form)
+            $(this).closest(".choice-item").remove();
+            return;
+        }
+
         if (!confirm("Delete this choice?")) return;
         let qid = $(this).data("qid");
-        let cid = $(this).data("cid");
         $.post("{% url 'delete_choice_ajax' test.id 0 0 %}".replace("0/0", qid + "/" + cid), {
             csrfmiddlewaretoken: "{{ csrf_token }}"
         }).done(function (resp) {
             if (resp.status === "ok") {
-                $(`.choice-row[data-choice-id='${cid}']`).remove();
+                $(`.choice-item[data-choice-id='${cid}']`).remove();
             }
         });
     });
 
-    // Save Question (wait for all AJAX requests before reload)
+$(function () {
+    // Save Question (only this question)
     $(document).on("click", ".save-question", function () {
         let card = $(this).closest(".card-body");
         let qid = card.closest(".question-card").data("question-id");
         let text = card.find(".question-text").val();
         let points = card.find(".question-points").val();
-        let choices = [];
 
-        card.find(".choice-row").each(function () {
-            let cid = $(this).data("choice-id");
+        // build choices array
+        let choices = [];
+        let correctId = null;
+        card.find(".choice-item").each(function (i) {
+            let cid = $(this).data("choice-id") || "";
             let ctext = $(this).find(".choice-text").val();
             let correct = $(this).find(".choice-correct").is(":checked");
-            choices.push({id: cid, text: ctext, is_correct: correct});
+            choices.push((cid ? cid : "") + "::" + ctext);
+            if (correct) correctId = cid;
         });
 
-        let requests = [];
-
-        requests.push($.post("{% url 'update_question_ajax' test.id 0 %}".replace("0", qid), {
+        $.post("{% url 'save_question_ajax' test.id 0 %}".replace("0", qid), {
+            csrfmiddlewaretoken: "{{ csrf_token }}",
             text: text,
             points: points,
-            csrfmiddlewaretoken: "{{ csrf_token }}"
-        }));
-
-        choices.forEach(function (c) {
-            requests.push($.post("{% url 'update_choice_ajax' test.id 0 0 %}".replace("0/0", qid + "/" + c.id), {
-                text: c.text,
-                is_correct: c.is_correct ? "true" : "false",
-                csrfmiddlewaretoken: "{{ csrf_token }}"
-            }));
-        });
-
-        $.when.apply($, requests).done(function () {
+            "choices[]": choices,
+            correct_id: correctId
+        }).done(function () {
             location.reload();
         });
     });
+});
 
     // Add Choice (new question form)
     $('#add-choice').click(function () {
-        let choiceCount = $("#choices-wrapper .choice-item").length;
-        let label = String.fromCharCode(65 + choiceCount);
-        let choiceHtml = `
-        <div class="input-group mb-2 choice-item">
-            <div class="input-group-text"><span class="me-2">${label}</span>
-                <input type="radio" name="is_correct" value="${choiceCount}">
-            </div>
-            <input type="text" name="choice_text[]" class="form-control" placeholder="Choice ${label}" required>
-            <button type="button" class="btn btn-outline-danger remove-choice">✕</button>
-        </div>`;
-        $('#choices-wrapper').append(choiceHtml);
-        reindexChoices();
+        let wrapper = $("#choices-wrapper");
+        let newChoice = $("#choice-template .choice-item").clone();
+
+        // set proper name for radios in new form
+        let index = wrapper.find(".choice-item").length;
+        newChoice.find("input.choice-correct")
+            .attr("name", "is_correct")
+            .val(index);
+        newChoice.find("input.choice-text")
+            .attr("name", "choice_text[]")
+            .attr("placeholder", "Choice " + (index + 1));
+
+        // mark delete as UI-only
+        newChoice.find(".remove-choice")
+            .addClass("remove-choice-new")
+            .removeAttr("data-qid data-cid");
+
+        wrapper.append(newChoice);
     });
 
     // Add Choice (existing question in edit mode)
     $(document).on("click", ".add-choice-existing", function () {
         let qid = $(this).data("qid");
-        let list = $(this).closest(".card-body").find(".choices-list");
-        let choiceCount = list.find(".choice-row").length;
-        let label = String.fromCharCode(65 + choiceCount);
-        let newHtml = `
-        <li class="list-group-item d-flex justify-content-between align-items-center choice-row new-choice">
-            <div class="d-flex align-items-center w-100">
-                <span class="me-2"><b>${label}</b>.</span>
-                <input type="text" class="form-control choice-text" value="">
-            </div>
-            <div class="d-flex align-items-center ms-2">
-                <div class="form-check me-2">
-                    <input type="radio" name="correct_choice_${qid}" class="form-check-input choice-correct">
-                    <label class="form-check-label">Correct</label>
-                </div>
-                <button class="btn btn-sm btn-outline-danger delete-choice">✕</button>
-            </div>
-        </li>`;
-        list.append(newHtml);
+        let wrapper = $(this).closest(".card-body").find(".choices-wrapper-existing");
+        let newChoice = $("#choice-template .choice-item").clone();
+
+        // set proper radio name for this question
+        newChoice.find("input.choice-correct")
+            .attr("name", "correct_choice_" + qid);
+
+        newChoice.find("input.choice-text").attr("placeholder", "New Choice");
+
+        wrapper.append(newChoice);
     });
 
-    // Remove choice (new question form)
-    $(document).on('click', '.remove-choice', function () {
-        $(this).closest('.choice-item').remove();
-        reindexChoices();
-    });
-
-    // Re-index choices (only for add-question form)
-    function reindexChoices() {
-        $("#choices-wrapper .choice-item").each(function (i) {
-            let label = String.fromCharCode(65 + i);
-            $(this).find(".input-group-text").html(
-                `<span class="me-2">${label}</span>
-                 <input type="radio" name="is_correct" value="${i}">`
-            );
-            $(this).find("input[type='text']").attr("placeholder", `Choice ${label}`);
+    // Enable SortableJS on each question's choices (existing)
+    $(".sortable-choices").each(function () {
+        let qid = $(this).data("qid");
+        new Sortable(this, {
+            animation: 150,
+            handle: ".handle",
+            onEnd: function (evt) {
+                let order = [];
+                $(evt.to).find(".choice-item").each(function () {
+                    order.push($(this).data("choice-id"));
+                });
+                $.post("{% url 'reorder_choices_ajax' test.id 0 %}".replace("0", qid), {
+                    csrfmiddlewaretoken: "{{ csrf_token }}",
+                    "order[]": order
+                });
+            }
         });
+    });
+
+    // ✅ Enable Sortable for Add Question form
+    new Sortable(document.getElementById("choices-wrapper"), {
+        animation: 150,
+        handle: ".handle",
+        onEnd: function () {
+            // reindex radios + placeholders
+            $("#choices-wrapper .choice-item").each(function (i) {
+                $(this).find("input[type='radio']").val(i);
+                $(this).find("input[type='text']").attr("placeholder", "Choice " + (i+1));
+            });
+        }
+    });
+
+    // Pre-populate 3 choices for new question
+    for (let i = 0; i < 3; i++) {
+        $('#add-choice').click();
     }
 });
 </script>

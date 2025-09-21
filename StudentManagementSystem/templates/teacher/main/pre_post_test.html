@@ -12,7 +12,7 @@
             <div class="col-12">
                 <div class="card shadow-sm">
                     <div class="card-body">
-                        <h5 class="fw-bold mb-3">🆕 Create New Test</h5>
+                        <h5 class="fw-bold mb-3">Create New Test</h5>
                         <form method="post">
                             {% csrf_token %}
                             <div class="row mb-3">
@@ -23,8 +23,9 @@
                                 <div class="col-md-3">
                                     <label class="form-label">Type</label>
                                     <select name="test_type" class="form-select">
-                                        <option value="pre">Pre-Test</option>
-                                        <option value="post">Post-Test</option>
+                                        {% for value, label in test_types %}
+                                            <option value="{{ value }}">{{ label|upper }}</option>
+                                        {% endfor %}
                                     </select>
                                 </div>
                                 <div class="col-md-3">
