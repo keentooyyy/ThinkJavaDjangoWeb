@@ -12,7 +12,6 @@ class TestDefinition(models.Model):
 
     name = models.CharField(max_length=150)
     test_type = models.CharField(max_length=10, choices=TEST_TYPE_CHOICES)
-    description = models.TextField(blank=True, null=True)
     shuffle_questions = models.BooleanField(default=False)
     shuffle_choices = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)

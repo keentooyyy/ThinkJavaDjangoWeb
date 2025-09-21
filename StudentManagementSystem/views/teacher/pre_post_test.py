@@ -18,7 +18,6 @@ def pre_post_test_view(request):
     if request.method == "POST":
         name = request.POST.get("name")
         test_type = request.POST.get("test_type")
-        description = request.POST.get("description")
         shuffle_q = bool(request.POST.get("shuffle_questions"))
         shuffle_c = bool(request.POST.get("shuffle_choices"))
 
@@ -28,7 +27,6 @@ def pre_post_test_view(request):
             test = TestDefinition.objects.create(
                 name=name,
                 test_type=test_type,
-                description=description,
                 shuffle_questions=shuffle_q,
                 shuffle_choices=shuffle_c,
             )
@@ -106,10 +104,9 @@ def _handle_add_question(request, test):
 @require_POST
 def update_test_settings(request, test_id):
     test = get_object_or_404(TestDefinition, id=test_id)
-    test.description = request.POST.get("description", "")
     test.shuffle_questions = bool(request.POST.get("shuffle_questions"))
     test.shuffle_choices = bool(request.POST.get("shuffle_choices"))
-    test.save(update_fields=["description", "shuffle_questions", "shuffle_choices"])
+    test.save(update_fields=["shuffle_questions", "shuffle_choices"])
     messages.success(request, f"Settings updated for {test.name}")
     return redirect("manage_test_view", test_id=test.id)
 

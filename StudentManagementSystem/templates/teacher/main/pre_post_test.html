@@ -1,35 +1,47 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Manage Students{% endblock %}
+{% block title %}Manage Tests{% endblock %}
 {% block sidebar %}{% include 'sidebar.html' %}{% endblock %}
 {% block header %}{% include 'header.html' %}{% endblock %}
 
 {% block content %}
+    <style>
+        #tests-list .test-item {
+            display: none;
+        }
+
+        #tests-list.ready .test-item {
+            display: block;
+        }
+    </style>
     <div class="page-wrapper p-5">
-        <!-- Create Test -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="card shadow-sm">
-                    <div class="card-body">
-                        <h5 class="fw-bold mb-3">Create New Test</h5>
+
+
+        <div class="row">
+            <div class="col-7">
+                <div class="card">
+                    <div class="card-body p-5">
+                        <h6>CREATE NEW TEST</h6>
+                        <hr>
+
                         <form method="post">
                             {% csrf_token %}
                             <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label class="form-label">Test Name</label>
+                                <div class="col-6">
+                                    <label class="form-label">TEST NAME</label>
                                     <input type="text" name="name" class="form-control" required>
                                 </div>
-                                <div class="col-md-3">
-                                    <label class="form-label">Type</label>
+                                <div class="col-6">
+                                    <label class="form-label">TEST TYPE</label>
                                     <select name="test_type" class="form-select">
                                         {% for value, label in test_types %}
                                             <option value="{{ value }}">{{ label|upper }}</option>
                                         {% endfor %}
                                     </select>
                                 </div>
-                                <div class="col-md-3">
-                                    <label class="form-label">Shuffle</label><br>
+                                <div class="col mt-3">
+                                    <label class="form-label">SETTINGS</label><br>
                                     <div class="form-check form-check-inline">
                                         <input class="form-check-input" type="checkbox" name="shuffle_questions"
                                                id="sq">
@@ -42,43 +54,129 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="mb-3">
-                                <label class="form-label">Description</label>
-                                <textarea name="description" class="form-control" rows="2"></textarea>
-                            </div>
                             <button type="submit" class="btn btn-primary">
-                                <i class="bx bx-plus"></i> Create Test
+                                <i class="bx bx-plus"></i> CREATE
                             </button>
                         </form>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Existing Tests -->
-        <div class="row">
-            <div class="col-12">
-                {% for test in tests %}
-                    <div class="card shadow-sm mb-3">
-                        <div class="card-body">
-                            <h6 class="fw-bold">{{ test.name }}
-                                <span class="badge bg-info">{{ test.get_test_type_display }}</span>
-                            </h6>
-                            <p class="text-muted">{{ test.description|default:"No description" }}</p>
-                            <div class="small text-muted">
-                                Created at {{ test.created_at|date:"M d, Y H:i" }}
-                            </div>
-                            <a href="{% url 'manage_test_view' test.id %}"
-                               class="btn btn-outline-secondary btn-sm mt-2">
-                                <i class="bx bx-edit"></i> Manage Questions
-                            </a>
+            <div class="col">
+                <div class="card">
+                    <div class="card-body p-5">
+                        <h6>TESTS CREATED</h6>
+                        <hr>
+                        <div id="tests-list" style="min-height: 168px;">
+                            {% for test in tests %}
+                                <div class="test-item mt-3">
+                                    <h6 class="fw-bold">
+                                        {{ test.name }}
+                                        <span class="badge bg-info">{{ test.get_test_type_display }}</span>
+                                    </h6>
+                                    <div class="small text-muted">
+                                        Created at {{ test.created_at|date:"M d, Y H:i" }}
+                                    </div>
+                                    <a href="{% url 'manage_test_view' test.id %}"
+                                       class="btn btn-outline-secondary btn-sm mt-2">
+                                        <i class="bx bx-edit"></i> Manage Questions
+                                    </a>
+                                </div>
+                            {% empty %}
+                                <div class="text-muted">No tests created yet.</div>
+                            {% endfor %}
                         </div>
+
+                        <!-- Pagination UI -->
+                        <div id="tests-pagination"
+                             class="d-flex justify-content-center mt-4 flex-column align-center"></div>
                     </div>
-                {% empty %}
-                    <div class="alert alert-info">No tests created yet.</div>
-                {% endfor %}
+                </div>
+            </div>
+
+
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="card">
+                    <div class="card-body p-5">
+                        <h6>TEST RESULTS</h6>
+                        <hr>
+
+                        all student result
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 {% endblock %}
+
 {% block footer %}{% include 'footer.html' %}{% endblock %}
+
+{% block scripts %}
+    <script>
+        $(function () {
+            const itemsPerPage = 2;
+            const $list = $("#tests-list");
+            const $items = $list.find(".test-item");
+            const $pagination = $("#tests-pagination");
+            const totalItems = $items.length;
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+            if (totalItems <= itemsPerPage) {
+                $list.addClass("ready"); // show all if no pagination needed
+                return;
+            }
+
+            let currentPage = 1;
+
+            function showPage(page) {
+                $items.hide();
+                const start = (page - 1) * itemsPerPage;
+                const end = start + itemsPerPage;
+                $items.slice(start, end).show();
+
+                renderPagination(page);
+            }
+
+            function renderPagination(page) {
+                let html = `<ul class="pagination justify-content-center mb-0">`;
+
+                // Prev button
+                html += `<li class="page-item ${page === 1 ? "disabled" : ""}">
+                    <a class="page-link" href="#" data-page="${page - 1}">«</a>
+                 </li>`;
+
+                // Page numbers
+                for (let i = 1; i <= totalPages; i++) {
+                    html += `<li class="page-item ${i === page ? "active" : ""}">
+                        <a class="page-link" href="#" data-page="${i}">${i}</a>
+                     </li>`;
+                }
+
+                // Next button
+                html += `<li class="page-item ${page === totalPages ? "disabled" : ""}">
+                    <a class="page-link" href="#" data-page="${page + 1}">»</a>
+                 </li>`;
+
+                html += `</ul><div class="text-center mt-1">Page ${page} of ${totalPages}</div>`;
+                $pagination.html(html);
+            }
+
+            // Handle clicks
+            $pagination.on("click", "a[data-page]", function (e) {
+                e.preventDefault();
+                const targetPage = parseInt($(this).data("page"));
+                if (targetPage >= 1 && targetPage <= totalPages) {
+                    currentPage = targetPage;
+                    showPage(currentPage);
+                }
+            });
+
+            // Init + reveal
+            showPage(currentPage);
+            $list.addClass("ready"); // reveal only after pagination is set
+        });
+    </script>
+
+{% endblock %}
