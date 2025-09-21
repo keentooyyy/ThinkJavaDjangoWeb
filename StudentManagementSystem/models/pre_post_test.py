@@ -91,3 +91,59 @@ class StudentTest(models.Model):
         self.save()
 
         return {"score": score, "max_score": total_score}
+
+class StudentProgress(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    test = models.ForeignKey(TestDefinition, on_delete=models.CASCADE)
+
+    current_page = models.PositiveIntegerField(default=0)
+    page_size = models.PositiveIntegerField(default=25)  # default like Google Forms
+
+    question_order = models.JSONField(default=list)   # [5, 2, 7, 1...]
+    choice_orders = models.JSONField(default=dict)    # {"5": [12,13,14]}
+
+    answers = models.JSONField(default=dict)          # {"5": 14, "2": 22}
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ("student", "test")
+
+    def init_order(self):
+        if not self.question_order:
+            questions = list(self.test.questions.values_list("id", flat=True))
+            if self.test.shuffle_questions:
+                import random
+                random.shuffle(questions)
+            self.question_order = list(questions)
+
+            choice_map = {}
+            for qid in questions:
+                q = TestQuestion.objects.get(id=qid)
+                choices = list(q.choices.values_list("id", flat=True))
+                if self.test.shuffle_choices:
+                    import random
+                    random.shuffle(choices)
+                choice_map[str(qid)] = list(choices)
+            self.choice_orders = choice_map
+            self.save(update_fields=["question_order", "choice_orders"])
+
+    def get_page_questions(self):
+        """Return questions for current page"""
+        start = self.current_page * self.page_size
+        end = start + self.page_size
+        qids = self.question_order[start:end]
+        return list(TestQuestion.objects.filter(id__in=qids).order_by(
+            models.Case(*[models.When(id=qid, then=pos) for pos, qid in enumerate(qids)])
+        ))
+
+    def get_choices_for_question(self, question):
+        """Return ordered choices for a given question"""
+        choice_ids = self.choice_orders.get(str(question.id), [])
+        return list(TestChoice.objects.filter(id__in=choice_ids).order_by(
+            models.Case(*[models.When(id=cid, then=pos) for pos, cid in enumerate(choice_ids)])
+        ))
+
+    def next_page(self):
+        self.current_page += 1
+        self.save(update_fields=["current_page"])
+        return self.get_page_questions()
