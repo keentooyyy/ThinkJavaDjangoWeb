@@ -146,3 +146,14 @@ class StudentProgress(models.Model):
         self.current_page += 1
         self.save(update_fields=["current_page"])
         return self.get_page_questions()
+
+class TestAssignment(models.Model):
+    test = models.ForeignKey(TestDefinition, on_delete=models.CASCADE, related_name="assignments")
+    section = models.ForeignKey("StudentManagementSystem.Section", on_delete=models.CASCADE, related_name="assigned_tests")
+    assigned_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("test", "section")
+
+    def __str__(self):
+        return f"{self.test.name} → {self.section}"

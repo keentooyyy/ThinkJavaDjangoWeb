@@ -8,8 +8,7 @@ from StudentManagementSystem.views.teacher.generate_section_code import (
     delete_section_code,
     check_section_code_exists,
 )
-from StudentManagementSystem.views.teacher.pre_post_test import (
-    pre_post_test_view,
+from StudentManagementSystem.views.teacher.manage_test import (
     manage_test_view,
     delete_test,
     save_question_ajax,
@@ -18,6 +17,7 @@ from StudentManagementSystem.views.teacher.pre_post_test import (
     reorder_choices_ajax,
     update_test,
 )
+from StudentManagementSystem.views.teacher.pre_post_test import pre_post_test_view
 from StudentManagementSystem.views.teacher.progress_control import progress_control_teacher
 from StudentManagementSystem.views.teacher.register_student import (
     register_student,
@@ -25,6 +25,9 @@ from StudentManagementSystem.views.teacher.register_student import (
     delete_student,
 )
 from StudentManagementSystem.views.teacher.student_ranking import teacher_student_ranking
+
+# import the new view
+from StudentManagementSystem.views.teacher.manage_test import assign_test
 
 urlpatterns = [
     # Authentication
@@ -46,21 +49,23 @@ urlpatterns = [
     path("progress-control/", progress_control_teacher, name="progress_control_teacher"),
 
     # Pre Post Test Routes
-    # 📌 Test main pages
     path("pre-post-test/", pre_post_test_view, name="pre_post_test_view"),
     path("pre-post-test/<int:test_id>/", manage_test_view, name="manage_test_view"),
 
-    # 📌 Test update + delete
+    # Test update + delete
     path("tests/<int:test_id>/update-meta/", update_test, name="update_test"),
     path("pre-post-test/<int:test_id>/delete/", delete_test, name="delete_test"),
 
-    # 📌 Unified Question & Choice save
+    # Unified Question & Choice save
     path("pre-post-test/<int:test_id>/<int:question_id>/save/", save_question_ajax, name="save_question_ajax"),
 
-    # 📌 Reorder + Delete
+    # Reorder + Delete
     path("pre-post-test/<int:test_id>/<int:question_id>/choices/reorder/", reorder_choices_ajax,
          name="reorder_choices_ajax"),
     path("pre-post-test/<int:test_id>/<int:question_id>/delete/", delete_question_ajax, name="delete_question_ajax"),
     path("pre-post-test/<int:test_id>/<int:question_id>/<int:choice_id>/delete/", delete_choice_ajax,
          name="delete_choice_ajax"),
+
+    # New Assign Test route
+    path("pre-post-test/<int:test_id>/assign/", assign_test, name="assign_test"),
 ]

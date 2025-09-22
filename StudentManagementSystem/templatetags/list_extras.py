@@ -17,3 +17,8 @@ def to_list(value):
 def zip_lists(list1, list2):
     """Zip two lists together for template iteration."""
     return zip(list1, list2)
+
+
+@register.filter
+def get_item(dictionary, key):
+    return dictionary.get(key, [])

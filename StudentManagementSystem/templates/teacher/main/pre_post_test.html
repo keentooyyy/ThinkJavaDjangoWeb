@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load list_extras %}
 {% load static %}
 
 {% block title %}Manage Tests{% endblock %}
@@ -68,7 +69,58 @@
                         <h6>TESTS CREATED</h6>
                         <hr>
                         <div id="tests-list" style="min-height: 168px;">
+
                             {% for test in tests %}
+                                <div class="modal fade" id="assignModal{{ test.id }}" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content">
+
+                                            <!-- Header -->
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Give Test Sections</h5>
+                                                <button type="button" class="btn-close"
+                                                        data-bs-dismiss="modal"></button>
+                                            </div>
+
+                                            <!-- Body -->
+                                            <form method="post" action="{% url 'assign_test' test.id %}">
+                                                {% csrf_token %}
+                                                <div class="modal-body">
+                                                    <label class="form-label">Assign Sections</label>
+                                                    {% with assigned_ids=assigned_map|get_item:test.id %}
+                                                        {% for hs in request.user_obj.handled_sections.all %}
+                                                            <div class="form-check form-switch mb-2">
+                                                                <input class="form-check-input"
+                                                                       type="checkbox"
+                                                                       id="sectionSwitch{{ test.id }}_{{ hs.section.id }}"
+                                                                       name="section_ids"
+                                                                       value="{{ hs.section.id }}"
+                                                                       {% if hs.section.id in assigned_ids %}checked{% endif %}>
+                                                                <label class="form-check-label"
+                                                                       for="sectionSwitch{{ test.id }}_{{ hs.section.id }}">
+                                                                    {{ hs.section.department.name }}{{ hs.section.year_level.year }}{{ hs.section.letter }}
+                                                                </label>
+                                                            </div>
+                                                        {% endfor %}
+                                                    {% endwith %}
+                                                    <small class="text-muted">Toggle ON to assign this test to a
+                                                        section.</small>
+                                                </div>
+
+
+                                                <!-- Footer -->
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary"
+                                                            data-bs-dismiss="modal">Cancel
+                                                    </button>
+                                                    <button type="submit" class="btn btn-primary">Save Assignment
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div class="test-item mt-3">
                                     <h6 class="fw-bold">
                                         {{ test.name }}
@@ -77,11 +129,40 @@
                                     <div class="small text-muted">
                                         Created at {{ test.created_at|date:"M d, Y H:i" }}
                                     </div>
-                                    <a href="{% url 'manage_test_view' test.id %}"
-                                       class="btn btn-outline-secondary btn-sm mt-2">
-                                        <i class="bx bx-edit"></i> Manage Questions
-                                    </a>
+
+                                    <!-- Assigned Sections info -->
+                                    <div class="mt-1">
+                                        {% with assigned_ids=assigned_map|get_item:test.id %}
+                                            {% if assigned_ids %}
+                                                <span class="small">Assigned to:</span>
+                                                {% for hs in request.user_obj.handled_sections.all %}
+                                                    {% if hs.section.id in assigned_ids %}
+                                                        <span class="badge bg-primary">
+                            {{ hs.section.department.name }}{{ hs.section.year_level.year }}{{ hs.section.letter }}
+                        </span>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% else %}
+                                                <span class="small text-muted">Not assigned to any section</span>
+                                            {% endif %}
+                                        {% endwith %}
+                                    </div>
+
+                                    <!-- Action buttons -->
+                                    <div class="mt-2 d-flex gap-2">
+                                        <a href="{% url 'manage_test_view' test.id %}"
+                                           class="btn btn-outline-secondary btn-sm">
+                                            <i class="bx bx-edit"></i> Manage Questions
+                                        </a>
+
+                                        <button type="button" class="btn btn-outline-primary btn-sm"
+                                                data-bs-toggle="modal" data-bs-target="#assignModal{{ test.id }}">
+                                            <i class="bx bx-link"></i> Section Assignment
+                                        </button>
+                                    </div>
                                 </div>
+
+
                             {% empty %}
                                 <div class="text-muted">No tests created yet.</div>
                             {% endfor %}
@@ -223,6 +304,27 @@
             showPage(currentPage);
             $list.addClass("ready"); // reveal only after pagination is set
         });
-    </script>
+        $(function () {
+            $(".assign-form").on("submit", function (e) {
+                e.preventDefault();
+                const $form = $(this);
+                const url = $form.attr("action");
+                const data = $form.serialize();
 
+                $.post(url, data)
+                    .done(function (res) {
+                        // show a toast or success message
+                        alert("✅ Assignment saved!");
+                        // close modal
+                        $form.closest(".modal").modal("hide");
+
+                        // Optional: update "Assigned to" badges in card without reload
+                        // You could return JSON of assigned sections and update DOM here
+                    })
+                    .fail(function () {
+                        alert("❌ Failed to save assignment.");
+                    });
+            });
+        });
+    </script>
 {% endblock %}
