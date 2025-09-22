@@ -1,14 +1,18 @@
 import string
 from django.db import transaction
 from django.db.models import Prefetch, Sum
+from django.db.models.functions.comparison import Coalesce
 from django.http.response import JsonResponse, HttpResponseForbidden
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.views.decorators.http import require_POST
 
 from StudentManagementSystem.decorators.custom_decorators import session_login_required
-from StudentManagementSystem.models.pre_post_test import TestDefinition, TestQuestion, TestChoice
+from StudentManagementSystem.models import Student
+from StudentManagementSystem.models.pre_post_test import TestDefinition, TestQuestion, TestChoice, StudentTest
 from StudentManagementSystem.models.roles import Role
+from StudentManagementSystem.models.section import Section
+from StudentManagementSystem.models.teachers import HandledSection
 
 
 # -----------------------------
@@ -84,6 +88,52 @@ def pre_post_test_view(request):
             "role": teacher.role,
             "tests": tests,
             "test_types": TestDefinition.TEST_TYPE_CHOICES,
+        },
+    )
+
+
+@session_login_required(role=Role.TEACHER)
+def all_test_results_view(request):
+    teacher = request.user_obj
+
+    # ✅ Get sections this teacher handles
+    handled_sections = Section.objects.filter(
+        id__in=HandledSection.objects.filter(teacher=teacher).values("section_id")
+    )
+
+    # ✅ Students in those sections
+    students = Student.objects.filter(section__in=handled_sections)
+
+    # ✅ Results for those students
+    results = (
+        StudentTest.objects.filter(student__in=students)
+        .select_related("student", "test")
+        .order_by("test__created_at", "student__last_name", "student__first_name")
+    )
+
+    # ✅ Pre-calc max points per test
+    max_points_map = {
+        t["test"]: t["total_points"]
+        for t in TestQuestion.objects.values("test").annotate(total_points=Sum("points"))
+    }
+
+    # ✅ Group results by test
+    grouped = {}
+    for r in results:
+        if r.test_id not in grouped:
+            grouped[r.test_id] = {
+                "test": r.test,
+                "max_points": max_points_map.get(r.test_id, 0),
+                "rows": []
+            }
+        grouped[r.test_id]["rows"].append(r)
+
+    return render(
+        request,
+        "teacher/main/pre_post_test.html",
+        {
+            "grouped_results": grouped,
+            "handled_sections": handled_sections,
         },
     )
 

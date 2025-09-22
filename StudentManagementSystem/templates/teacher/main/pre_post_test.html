@@ -100,10 +100,56 @@
             <div class="col">
                 <div class="card">
                     <div class="card-body p-5">
-                        <h6>TEST RESULTS</h6>
+                        <h6>ALL TEST RESULTS</h6>
                         <hr>
+                        <form method="get">
+                            <select name="test_id" class="form-select w-auto d-inline" onchange="this.form.submit()">
+                                <option value="">All Tests</option>
+                                {% for tid, group in grouped_results.items %}
+                                    <option value="{{ tid }}"
+                                            {% if request.GET.test_id == tid|stringformat:"s" %}selected{% endif %}>
+                                        {{ group.test.name }} ({{ group.test.get_test_type_display }})
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </form>
 
-                        all student result
+                        {% if grouped_results %}
+                            {% for tid, group in grouped_results.items %}
+                                <div class="mb-4">
+                                    <h6 class="fw-bold">
+                                        {{ group.test.name }}
+                                        <span class="badge bg-info">{{ group.test.get_test_type_display }}</span>
+                                    </h6>
+                                    <table class="table table-sm table-bordered">
+                                        <thead>
+                                        <tr>
+                                            <th>Student</th>
+                                            <th>Section</th>
+                                            <th>Score</th>
+                                            <th>Out of</th>
+                                            <th>Taken At</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for st in group.rows %}
+                                            <tr>
+                                                <td>{{ st.student.first_name }} {{ st.student.last_name }}</td>
+                                                <td>{{ st.student.full_section }}</td>
+                                                <td>{{ st.score|default:"-" }}</td>
+                                                <td>{{ group.max_points }}</td>
+                                                <td>{{ st.taken_at|date:"M d, Y H:i" }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="text-muted">No results yet.</div>
+                        {% endif %}
+
+
                     </div>
                 </div>
             </div>
