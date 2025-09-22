@@ -93,24 +93,22 @@
 
 {% block scripts %}
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const preBtn = document.getElementById("start-pre-btn");
-            const preContainer = document.getElementById("pre-test-container");
-            if (preBtn) {
-                preBtn.addEventListener("click", function () {
-                    preBtn.classList.add("d-none");
-                    preContainer.classList.remove("d-none");
-                });
-            }
+        $(function () {
+            const $preBtn = $("#start-pre-btn");
+            const $preContainer = $("#pre-test-container");
 
-            const postBtn = document.getElementById("start-post-btn");
-            const postContainer = document.getElementById("post-test-container");
-            if (postBtn) {
-                postBtn.addEventListener("click", function () {
-                    postBtn.classList.add("d-none");
-                    postContainer.classList.remove("d-none");
-                });
-            }
+            $preBtn.on("click", function () {
+                $preBtn.addClass("d-none");
+                $preContainer.removeClass("d-none");
+            });
+
+            const $postBtn = $("#start-post-btn");
+            const $postContainer = $("#post-test-container");
+
+            $postBtn.on("click", function () {
+                $postBtn.addClass("d-none");
+                $postContainer.removeClass("d-none");
+            });
         });
     </script>
 {% endblock %}

@@ -188,18 +188,21 @@
                     <div class="card-body p-5">
                         <h6>ALL TEST RESULTS</h6>
                         <hr>
-                        <form method="get">
+
+                        <!-- Filter dropdown -->
+                        <form method="get" class="mb-3">
                             <select name="test_id" class="form-select w-auto d-inline" onchange="this.form.submit()">
                                 <option value="">All Tests</option>
                                 {% for tid, group in grouped_results.items %}
                                     <option value="{{ tid }}"
-                                            {% if request.GET.test_id == tid|stringformat:"s" %}selected{% endif %}>
+                                            {% if selected_test_id == tid|stringformat:"s" %}selected{% endif %}>
                                         {{ group.test.name }} ({{ group.test.get_test_type_display }})
                                     </option>
                                 {% endfor %}
                             </select>
                         </form>
 
+                        <!-- Results Table(s) -->
                         {% if grouped_results %}
                             {% for tid, group in grouped_results.items %}
                                 <div class="mb-4">
@@ -207,6 +210,7 @@
                                         {{ group.test.name }}
                                         <span class="badge bg-info">{{ group.test.get_test_type_display }}</span>
                                     </h6>
+
                                     <table class="table table-sm table-bordered">
                                         <thead>
                                         <tr>
@@ -234,12 +238,12 @@
                         {% else %}
                             <div class="text-muted">No results yet.</div>
                         {% endif %}
-
-
                     </div>
                 </div>
             </div>
         </div>
+
+
     </div>
 {% endblock %}
 
