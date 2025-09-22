@@ -9,14 +9,14 @@ from StudentManagementSystem.views.teacher.generate_section_code import (
     check_section_code_exists,
 )
 from StudentManagementSystem.views.teacher.pre_post_test import (
-    update_test_settings,
     pre_post_test_view,
     manage_test_view,
     delete_test,
-    save_question_ajax,  # ✅ new unified endpoint
+    save_question_ajax,
     delete_question_ajax,
     delete_choice_ajax,
-    reorder_choices_ajax, update_test,
+    reorder_choices_ajax,
+    update_test,
 )
 from StudentManagementSystem.views.teacher.progress_control import progress_control_teacher
 from StudentManagementSystem.views.teacher.register_student import (
@@ -50,11 +50,11 @@ urlpatterns = [
     path("pre-post-test/", pre_post_test_view, name="pre_post_test_view"),
     path("pre-post-test/<int:test_id>/", manage_test_view, name="manage_test_view"),
 
-    # 📌 Test settings
-    path("pre-post-test/<int:test_id>/settings/update/", update_test_settings, name="update_test_settings"),
+    # 📌 Test update + delete
+    path("tests/<int:test_id>/update-meta/", update_test, name="update_test"),
     path("pre-post-test/<int:test_id>/delete/", delete_test, name="delete_test"),
 
-    # 📌 Unified Question & choice save
+    # 📌 Unified Question & Choice save
     path("pre-post-test/<int:test_id>/<int:question_id>/save/", save_question_ajax, name="save_question_ajax"),
 
     # 📌 Reorder + Delete
@@ -63,6 +63,4 @@ urlpatterns = [
     path("pre-post-test/<int:test_id>/<int:question_id>/delete/", delete_question_ajax, name="delete_question_ajax"),
     path("pre-post-test/<int:test_id>/<int:question_id>/<int:choice_id>/delete/", delete_choice_ajax,
          name="delete_choice_ajax"),
-    path("tests/<int:test_id>/update-meta/", update_test, name="update_test"),
-
 ]

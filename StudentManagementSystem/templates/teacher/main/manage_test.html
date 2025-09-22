@@ -14,61 +14,60 @@
 {% block content %}
     <div class="page-wrapper p-5">
 
+        <!-- CSRF once -->
+        <input type="hidden" id="csrf-token" value="{{ csrf_token }}">
+
         <!-- Test Info -->
         <div class="row">
             <div class="col">
-                <div class="card mx-auto" style="width: 65%;">
+                <div class="card mx-auto" style="width: 65%;" data-test-id="{{ test.id }}">
                     <div class="card-body p-5">
-                        <form id="test-form" method="post" action="{% url 'update_test' test.id %}">
-                            {% csrf_token %}
 
-                            <!-- Header -->
-                            <div class="d-flex justify-content-between align-items-center">
-                                <!-- View Mode -->
-                                <div id="test-view">
-                                    <h6>Manage Test: {{ test.name }}</h6>
-                                    <p class="mb-0 text-muted small">
-                                        {{ test.get_test_type_display|upper }} •
-                                        Created: {{ test.created_at|date:"M d, Y" }}
-                                    </p>
+                        <!-- Header -->
+                        <div class="d-flex justify-content-between align-items-center">
+                            <!-- View Mode -->
+                            <div id="test-view" class="">
+                                <h6>{{ test.name }}</h6>
+                                <p class="mb-0 text-muted small">
+                                    {{ test.get_test_type_display|upper }} •
+                                    Created: {{ test.created_at|date:"M d, Y" }}
+                                </p>
+                            </div>
+
+                            <!-- Edit Mode Fields -->
+                            <div id="test-edit-fields" class="d-none">
+                                <!-- Wider name input -->
+                                <div class="col-12">
+                                    <input type="text" id="test-name" class="form-control"
+                                           value="{{ test.name }}" required>
                                 </div>
 
-                                <!-- Edit Mode Fields -->
-                                <div id="test-edit-fields" class="d-none">
-                                    <div class="mb-2">
-                                        <input type="text" name="name" class="form-control"
-                                               value="{{ test.name }}" required>
-                                    </div>
-                                    <div class="mb-2">
-                                        <select name="test_type" class="form-select">
-                                            {% for val,label in test.TEST_TYPE_CHOICES %}
-                                                <option value="{{ val }}"
-                                                        {% if test.test_type == val %}selected{% endif %}>
-                                                    {{ label }}
-                                                </option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <!-- Back/Delete -->
-                                <div class="d-flex flex-column">
-                                    <div class="d-flex justify-content-end gap-2">
-                                        <a href="{% url 'pre_post_test_view' %}"
-                                           class="btn btn-outline-secondary btn-sm">
-                                            <i class="bx bx-arrow-back"></i>Back
-                                        </a>
-                                        <form method="post" action="{% url 'delete_test' test.id %}"
-                                              onsubmit="return confirm('Delete this test permanently?')">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn btn-outline-danger btn-sm">
-                                                <i class="bx bxs-trash"></i>Delete Test
-                                            </button>
-                                        </form>
-                                    </div>
+                                <!-- Smaller dropdown -->
+                                <div class="col-6">
+                                    <select id="test-type" class="form-select">
+                                        {% for val,label in test.TEST_TYPE_CHOICES %}
+                                            <option value="{{ val }}" {% if test.test_type == val %}selected{% endif %}>
+                                                {{ label|upper }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
                                 </div>
                             </div>
-                        </form>
+
+                            <!-- Back/Delete -->
+                            <div class="d-flex flex-column">
+                                <div class="d-flex justify-content-end gap-2">
+                                    <a href="{% url 'pre_post_test_view' %}"
+                                       class="btn btn-outline-secondary btn-sm">
+                                        <i class="bx bx-arrow-back"></i>Back
+                                    </a>
+                                    <button id="delete-test-btn" class="btn btn-outline-danger btn-sm"
+                                            data-test-id="{{ test.id }}">
+                                        <i class="bx bxs-trash"></i>Delete Test
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
 
                         <hr>
 
@@ -78,13 +77,13 @@
                             <div class="d-flex gap-4">
                                 <div class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox"
-                                           id="shuffle_questions" name="shuffle_questions"
+                                           id="shuffle_questions"
                                            {% if test.shuffle_questions %}checked{% endif %}>
                                     <label class="form-check-label" for="shuffle_questions">Shuffle Questions</label>
                                 </div>
                                 <div class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox"
-                                           id="shuffle_choices" name="shuffle_choices"
+                                           id="shuffle_choices"
                                            {% if test.shuffle_choices %}checked{% endif %}>
                                     <label class="form-check-label" for="shuffle_choices">Shuffle Choices</label>
                                 </div>
@@ -98,7 +97,6 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>
@@ -111,21 +109,20 @@
                     <div class="card mx-auto question-card" style="width: 65%"
                          data-test-id="{{ test.id }}" data-question-id="{{ q.id }}">
                         <div class="card-body p-5">
-
                             <!-- Question + Points -->
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="w-75">
+                            <div class="row d-flex">
+                                <div class="col-8 mb-3">
                                     <!-- view mode -->
                                     <h6 class="mb-0 view-mode">{{ forloop.counter }}. {{ q.text }}</h6>
                                     <!-- edit mode -->
                                     <input type="text" class="form-control question-text d-none"
                                            value="{{ q.text }}" disabled>
                                 </div>
-                                <div class="text-end">
+                                <div class="col-4 text-end">
                                     <!-- view mode -->
                                     <p class="m-0 text-muted view-mode">{{ q.points|floatformat:"0" }} point(s)</p>
                                     <!-- edit mode -->
-                                    <input type="number" class="form-control form-control-sm question-points d-none"
+                                    <input type="number" class="form-control question-points d-none"
                                            value="{{ q.points }}" step="1" disabled>
                                 </div>
                             </div>
@@ -152,7 +149,6 @@
                                 {% endfor %}
                             </div>
 
-                            <hr>
                             <div class="d-flex justify-content-end gap-3 mt-4">
                                 <button class="btn btn-sm btn-outline-primary toggle-edit">
                                     <i class="bx bx-edit"></i>
@@ -176,43 +172,41 @@
             </div>
         </div>
 
-        <!-- New Question Form -->
+        <!-- New Question Section -->
         <div class="row">
             <div class="col">
                 <div class="card mx-auto" style="width: 65%;">
-                    <div class="card-body p-5">
-                        <form method="post" id="question-form">
-                            {% csrf_token %}
-                            <input type="hidden" name="action" value="add_question">
+                    <div class="card-body p-5" data-test-id="{{ test.id }}">
+                        <h6 class="mb-3">ADD NEW QUESTION</h6>
+                        <hr>
 
-                            <!-- Question text -->
-                            <div class="mb-3">
-                                <input type="text" name="question_text" class="form-control"
-                                       placeholder="Untitled Question" required>
+                        <!-- Question text -->
+                        <div class="mb-3">
+                            <input type="text" id="new-question-text" class="form-control"
+                                   placeholder="Untitled Question" required>
+                        </div>
+
+                        <!-- Choices -->
+                        <div id="choices-wrapper" class="mt-4"></div>
+                        <button type="button" id="add-choice" class="btn btn-outline-primary btn-sm mt-2">
+                            <i class="bx bx-plus"></i> Add Choice
+                        </button>
+
+                        <hr>
+
+                        <!-- Points -->
+                        <div class="row">
+                            <div class="col-3">
+                                <label class="form-label">Points</label>
+                                <input type="number" id="new-question-points" class="form-control" value="1" step="1">
                             </div>
+                            <input type="hidden" id="new-question-required" value="1">
+                        </div>
 
-                            <!-- Choices -->
-                            <div id="choices-wrapper" class="mt-4"></div>
-                            <button type="button" id="add-choice" class="btn btn-outline-primary btn-sm mt-2">
-                                <i class="bx bx-plus"></i> Add Choice
-                            </button>
-
-                            <hr>
-
-                            <!-- Points -->
-                            <div class="row">
-                                <div class="col-3">
-                                    <label class="form-label">Points</label>
-                                    <input type="number" name="points" class="form-control" value="1" step="1">
-                                </div>
-                                <input type="hidden" class="form-check-input" name="required" id="required_q" checked>
-                            </div>
-
-                            <!-- Submit -->
-                            <button class="btn btn-primary mt-3">
-                                <i class="bx bx-save"></i> Save Question
-                            </button>
-                        </form>
+                        <!-- Submit -->
+                        <button id="save-new-question" class="btn btn-primary mt-3">
+                            <i class="bx bx-save"></i> Save Question
+                        </button>
                     </div>
                 </div>
             </div>
