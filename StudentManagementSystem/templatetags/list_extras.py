@@ -22,3 +22,10 @@ def zip_lists(list1, list2):
 @register.filter
 def get_item(dictionary, key):
     return dictionary.get(key, [])
+
+@register.filter
+def dict_get(d, key):
+    """Safe dict lookup in templates"""
+    if d is None:
+        return []
+    return d.get(key, [])

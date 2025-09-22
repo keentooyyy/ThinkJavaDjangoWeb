@@ -1,8 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from StudentManagementSystem.models.department import Department
-from StudentManagementSystem.models.section import Section
-from StudentManagementSystem.models.year_level import YearLevel
+from StudentManagementSystem.models.section import Department, YearLevel, Section
 
 
 class Command(BaseCommand):

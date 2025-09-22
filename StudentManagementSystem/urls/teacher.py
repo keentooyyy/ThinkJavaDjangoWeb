@@ -8,6 +8,8 @@ from StudentManagementSystem.views.teacher.generate_section_code import (
     delete_section_code,
     check_section_code_exists,
 )
+# import the new view
+from StudentManagementSystem.views.teacher.manage_test import assign_test
 from StudentManagementSystem.views.teacher.manage_test import (
     manage_test_view,
     delete_test,
@@ -17,7 +19,7 @@ from StudentManagementSystem.views.teacher.manage_test import (
     reorder_choices_ajax,
     update_test,
 )
-from StudentManagementSystem.views.teacher.pre_post_test import pre_post_test_view
+from StudentManagementSystem.views.teacher.pre_post_test import pre_post_test_view, duplicate_test
 from StudentManagementSystem.views.teacher.progress_control import progress_control_teacher
 from StudentManagementSystem.views.teacher.register_student import (
     register_student,
@@ -25,9 +27,6 @@ from StudentManagementSystem.views.teacher.register_student import (
     delete_student,
 )
 from StudentManagementSystem.views.teacher.student_ranking import teacher_student_ranking
-
-# import the new view
-from StudentManagementSystem.views.teacher.manage_test import assign_test
 
 urlpatterns = [
     # Authentication
@@ -68,4 +67,5 @@ urlpatterns = [
 
     # New Assign Test route
     path("pre-post-test/<int:test_id>/assign/", assign_test, name="assign_test"),
+    path("pre-post-test/<int:test_id>/duplicate/", duplicate_test, name="duplicate_test"),
 ]

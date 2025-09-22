@@ -125,6 +125,13 @@
                                 </li>
                             {% elif request.session.role == 'STUDENT' %}
                                 <li>
+                                    <a href="{% url 'take_test_view' %}">
+                                        <div class="parent-icon"><i class="bx bx-test-tube"></i>
+                                        </div>
+                                        <div class="menu-title">Take Test</div>
+                                    </a>
+                                </li>
+                                <li>
                                     <a href="{% url 'student_ranking' %}">
                                         <div class="parent-icon"><i class="bx bx-bar-chart-square"></i>
                                         </div>

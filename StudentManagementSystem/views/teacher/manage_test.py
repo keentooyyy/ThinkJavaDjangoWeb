@@ -59,6 +59,9 @@ def manage_test_view(request, test_id):
     teacher = request.user_obj
     test = _get_test(test_id)
 
+    if request.method == "POST" and request.POST.get("action") == "add_question":
+        return _handle_add_question(request, test)
+
     ordered_choices = TestChoice.objects.order_by("sort_order", "id")
     questions = (
         test.questions.prefetch_related(

@@ -1,9 +1,11 @@
+from django.db.models.aggregates import Sum
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from django.db import transaction
 
 from StudentManagementSystem.decorators.custom_decorators import session_login_required
 from StudentManagementSystem.models import Student
-from StudentManagementSystem.models.pre_post_test import TestDefinition, StudentTest, TestQuestion
+from StudentManagementSystem.models.pre_post_test import TestDefinition, StudentTest, TestQuestion, TestChoice
 from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.models.section import Section
 from StudentManagementSystem.models.teachers import HandledSection
@@ -97,3 +99,36 @@ def all_test_results_view(request):
             "handled_sections": handled_sections,
         },
     )
+
+@session_login_required(role=Role.TEACHER)
+@transaction.atomic
+def duplicate_test(request, test_id):
+    orig = TestDefinition.objects.get(id=test_id)
+
+    # Clone test definition
+    new_test = TestDefinition.objects.create(
+        name=f"{orig.name} (Copy)",
+        test_type=orig.test_type,
+        shuffle_questions=orig.shuffle_questions,
+        shuffle_choices=orig.shuffle_choices,
+    )
+
+    # Clone questions + choices
+    for q in orig.questions.all():
+        new_q = TestQuestion.objects.create(
+            test=new_test,
+            text=q.text,
+            points=q.points,
+            required=q.required,
+            sort_order=q.sort_order,
+        )
+        for c in q.choices.all():
+            TestChoice.objects.create(
+                question=new_q,
+                text=c.text,
+                is_correct=c.is_correct,
+                sort_order=c.sort_order,
+            )
+
+    messages.success(request, f"✅ Test '{orig.name}' duplicated successfully!")
+    return redirect("pre_post_test_view")

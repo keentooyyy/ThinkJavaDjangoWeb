@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% load list_extras %}
+{% load static %}
+
+{% block title %}Take Pre/Post Test{% endblock %}
+
+{% block sidebar %}{% include 'sidebar.html' %}{% endblock %}
+{% block header %}{% include 'header.html' %}{% endblock %}
+
+{% block content %}
+    <div class="page-wrapper p-5">
+        <h4>Welcome, {{ username }}</h4>
+
+        <!-- PRE-TEST -->
+        <h5 class="mt-4">Pre-Test</h5>
+        {% if pre_test %}
+            {% if pre_taken %}
+                <div class="alert alert-success">
+                    ✅ Completed {{ pre_test.name }}<br>
+                    <strong>Your Score:</strong> {{ pre_score }} / {{ pre_max }}
+                </div>
+            {% else %}
+                <button id="start-pre-btn" class="btn btn-primary">
+                    <i class="bx bx-play-circle"></i> Take Pre-Test: {{ pre_test.name }}
+                </button>
+                <div id="pre-test-container" class="mt-4 d-none">
+                    <form method="post" action="{% url 'submit_test' pre_test.id %}">
+                        {% csrf_token %}
+                        {% for q in pre_progress.get_page_questions %}
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <p><strong>{{ forloop.counter }}. {{ q.text }}</strong></p>
+                                    {% for c in pre_choices_map|dict_get:q.id %}
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio"
+                                                   name="q{{ q.id }}" value="{{ c.id }}" id="pre-c{{ c.id }}">
+                                            <label class="form-check-label" for="pre-c{{ c.id }}">{{ c.text }}</label>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                        <button type="submit" class="btn btn-success">Submit Pre-Test</button>
+                    </form>
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="alert alert-info">ℹ️ No Pre-Test assigned to your section yet.</div>
+        {% endif %}
+
+        <!-- POST-TEST -->
+        <h5 class="mt-5">Post-Test</h5>
+        {% if post_test %}
+            {% if post_taken %}
+                <div class="alert alert-success">
+                    ✅ Completed {{ post_test.name }}<br>
+                    <strong>Your Score:</strong> {{ post_score }} / {{ post_max }}
+                </div>
+            {% elif can_take_posttest %}
+                <button id="start-post-btn" class="btn btn-primary">
+                    <i class="bx bx-play-circle"></i> Take Post-Test: {{ post_test.name }}
+                </button>
+                <div id="post-test-container" class="mt-4 d-none">
+                    <form method="post" action="{% url 'submit_test' post_test.id %}">
+                        {% csrf_token %}
+                        {% for q in post_progress.get_page_questions %}
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <p><strong>{{ forloop.counter }}. {{ q.text }}</strong></p>
+                                    {% for c in post_choices_map|dict_get:q.id %}
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio"
+                                                   name="q{{ q.id }}" value="{{ c.id }}" id="post-c{{ c.id }}">
+                                            <label class="form-check-label" for="post-c{{ c.id }}">{{ c.text }}</label>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                        <button type="submit" class="btn btn-success">Submit Post-Test</button>
+                    </form>
+                </div>
+            {% else %}
+                <div class="alert alert-warning">
+                    ⚠️ You can only take the Post-Test after completing the Pre-Test and finishing all levels.
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="alert alert-info">ℹ️ No Post-Test assigned to your section yet.</div>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const preBtn = document.getElementById("start-pre-btn");
+            const preContainer = document.getElementById("pre-test-container");
+            if (preBtn) {
+                preBtn.addEventListener("click", function () {
+                    preBtn.classList.add("d-none");
+                    preContainer.classList.remove("d-none");
+                });
+            }
+
+            const postBtn = document.getElementById("start-post-btn");
+            const postContainer = document.getElementById("post-test-container");
+            if (postBtn) {
+                postBtn.addEventListener("click", function () {
+                    postBtn.classList.add("d-none");
+                    postContainer.classList.remove("d-none");
+                });
+            }
+        });
+    </script>
+{% endblock %}

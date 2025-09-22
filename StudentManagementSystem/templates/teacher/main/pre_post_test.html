@@ -152,13 +152,18 @@
                                     <div class="mt-2 d-flex gap-2">
                                         <a href="{% url 'manage_test_view' test.id %}"
                                            class="btn btn-outline-secondary btn-sm">
-                                            <i class="bx bx-edit"></i> Manage Questions
+                                            <i class="bx bx-edit"></i> Manage
                                         </a>
 
                                         <button type="button" class="btn btn-outline-primary btn-sm"
                                                 data-bs-toggle="modal" data-bs-target="#assignModal{{ test.id }}">
-                                            <i class="bx bx-link"></i> Section Assignment
+                                            <i class="bx bx-link"></i>Assign
                                         </button>
+
+                                        <a href="{% url 'duplicate_test' test.id %}"
+                                           class="btn btn-outline-success btn-sm">
+                                            <i class="bx bx-copy"></i> Duplicate
+                                        </a>
                                     </div>
                                 </div>
 
