@@ -1,6 +1,8 @@
 import string
 from django.db import transaction
 from django.db.models import Prefetch
+from django.db.models.aggregates import Sum
+from django.forms.models import model_to_dict
 from django.http.response import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
@@ -63,12 +65,16 @@ def manage_test_view(request, test_id):
             Prefetch("choices", queryset=ordered_choices)
         ).all()
     )
-
+    total_points = (
+            TestQuestion.objects.filter(test=test)
+            .aggregate(total=Sum("points"))["total"] or 0
+    )
     return render(
         request,
         "teacher/main/manage_test.html",
         {
             "test": test,
+            'total_points': total_points,
             "questions": questions,
             "username": f"{teacher.first_name} {teacher.last_name}",
             "role": teacher.role,
@@ -97,6 +103,18 @@ def _handle_add_question(request, test):
         )
 
     messages.success(request, f"✅ Question with choices added to {test.name}")
+    return redirect("manage_test_view", test_id=test.id)
+
+@session_login_required(role=Role.TEACHER)
+@require_POST
+def update_test(request, test_id):
+    test = get_object_or_404(TestDefinition, id=test_id)
+    test.name = request.POST.get("name", test.name)
+    test.test_type = request.POST.get("test_type", test.test_type)
+    test.shuffle_questions = bool(request.POST.get("shuffle_questions"))
+    test.shuffle_choices = bool(request.POST.get("shuffle_choices"))
+    test.save(update_fields=["name", "test_type", "shuffle_questions", "shuffle_choices"])
+    messages.success(request, f"✅ Test '{test.name}' updated successfully.")
     return redirect("manage_test_view", test_id=test.id)
 
 
