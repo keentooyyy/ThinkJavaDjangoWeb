@@ -80,16 +80,17 @@ class StudentTest(models.Model):
         return f"{self.student} - {self.test.name} ({self.score})"
 
     def grade_test(self):
+        questions = self.test.questions.all()
         answers = StudentAnswer.objects.filter(student=self.student, question__test=self.test)
 
-        total_score = sum(ans.question.points for ans in answers)
+        max_score = sum(q.points for q in questions)
         score = sum(ans.question.points for ans in answers if ans.is_correct)
 
         self.score = score
         self.completed = True
-        self.save()
+        self.save(update_fields=["score", "completed"])
 
-        return {"score": score, "max_score": total_score}
+        return {"score": score, "max_score": max_score}
 
 class StudentProgress(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)

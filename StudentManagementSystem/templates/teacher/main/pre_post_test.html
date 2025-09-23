@@ -189,14 +189,24 @@
                         <h6>ALL TEST RESULTS</h6>
                         <hr>
 
-                        <!-- Filter dropdown -->
-                        <form method="get" class="mb-3">
-                            <select name="test_id" class="form-select w-auto d-inline" onchange="this.form.submit()">
+                        <form method="get" class="mb-3 d-flex gap-2">
+                            <!-- Test type dropdown -->
+                            <select name="test_type" class="form-select w-auto" onchange="this.form.submit()">
+                                <option value="">All Types</option>
+                                <option value="pre" {% if selected_test_type == "pre" %}selected{% endif %}>Pre-Test
+                                </option>
+                                <option value="post" {% if selected_test_type == "post" %}selected{% endif %}>
+                                    Post-Test
+                                </option>
+                            </select>
+
+                            <!-- Test dropdown (depends on test_type) -->
+                            <select name="test_id" class="form-select w-auto" onchange="this.form.submit()">
                                 <option value="">All Tests</option>
-                                {% for tid, group in grouped_results.items %}
-                                    <option value="{{ tid }}"
-                                            {% if selected_test_id == tid|stringformat:"s" %}selected{% endif %}>
-                                        {{ group.test.name }} ({{ group.test.get_test_type_display }})
+                                {% for test in available_tests %}
+                                    <option value="{{ test.id }}"
+                                            {% if selected_test_id == test.id|stringformat:"s" %}selected{% endif %}>
+                                        {{ test.name }}
                                     </option>
                                 {% endfor %}
                             </select>

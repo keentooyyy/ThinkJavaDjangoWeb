@@ -49,33 +49,32 @@ def _get_teacher_test_context(teacher):
 
 
 def _get_teacher_results_context(request, teacher):
-    """Context with PRE-TEST results of students only in teacher's handled sections."""
     context = _get_base_context(teacher)
 
-    # ✅ Sections this teacher handles
     handled_sections = HandledSection.objects.filter(teacher=teacher).values_list("section_id", flat=True)
-
-    # ✅ Students in those sections
     students = Student.objects.filter(section_id__in=handled_sections)
 
-    # ✅ Completed pre-tests only
-    results = (
-        StudentTest.objects.filter(
-            student__in=students,
-            test__test_type=TestDefinition.PRE,
-            completed=True
-        )
-        .select_related("student__section__department", "student__section__year_level", "test")
-        .order_by("test__created_at", "student__last_name", "student__first_name")
-    )
+    selected_type = request.GET.get("test_type")  # "pre", "post", or None
+    selected_test_id = request.GET.get("test_id")
 
-    # 🔹 Pre-calc max points per test
+    query = StudentTest.objects.filter(student__in=students, completed=True)
+
+    if selected_type in [TestDefinition.PRE, TestDefinition.POST]:
+        query = query.filter(test__test_type=selected_type)
+
+    if selected_test_id:
+        query = query.filter(test_id=selected_test_id)
+
+    results = query.select_related(
+        "student__section__department", "student__section__year_level", "test"
+    ).order_by("test__created_at", "student__last_name", "student__first_name")
+
+    # max points
     max_points_map = {
         t["test"]: t["total_points"]
         for t in TestQuestion.objects.values("test").annotate(total_points=Sum("points"))
     }
 
-    # 🔹 Group results by test
     grouped_results = {}
     for r in results:
         if r.test_id not in grouped_results:
@@ -89,7 +88,11 @@ def _get_teacher_results_context(request, teacher):
     context.update({
         "grouped_results": grouped_results,
         "handled_sections": Section.objects.filter(id__in=handled_sections),
-        "selected_test_id": request.GET.get("test_id"),
+        "selected_test_type": selected_type,
+        "selected_test_id": selected_test_id,
+        "available_tests": TestDefinition.objects.filter(
+            test_type=selected_type
+        ) if selected_type else TestDefinition.objects.all(),
     })
     return context
 

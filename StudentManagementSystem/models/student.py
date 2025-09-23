@@ -52,6 +52,7 @@ class Student(models.Model):
         return StudentTest.objects.filter(
             student=self,
             test__test_type=TestDefinition.PRE,
+            test__assignments__section=self.section,
             completed=True
         ).exists()
 
@@ -61,6 +62,7 @@ class Student(models.Model):
         return StudentTest.objects.filter(
             student=self,
             test__test_type=TestDefinition.POST,
+            test__assignments__section=self.section,
             completed=True
         ).exists()
 
@@ -69,7 +71,7 @@ class Student(models.Model):
         from GameProgress.models.level_progress import LevelProgress
         from GameProgress.models.level_definition import LevelDefinition
         total_levels = LevelDefinition.objects.count()
-        completed_levels = LevelProgress.objects.filter(student=self, unlocked=True).count()
+        completed_levels = LevelProgress.objects.filter(student=self, best_time__gt=0).count()
         return total_levels > 0 and completed_levels == total_levels
 
     @property
