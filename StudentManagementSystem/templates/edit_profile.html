@@ -467,12 +467,15 @@
                         }
                     });
 
-                    data.sort((a, b) => a.name.localeCompare(b.name));
+                    // ✅ Use natural sort for cities too (fixes Zone 1, Zone 10, etc.)
+                    data.sort(naturalSort);
+
                     $.each(data, function (i, city) {
                         $("#city").append(`<option value="${city.code}">${city.name}</option>`);
                     });
                 });
             });
+
 
             // City → Barangay
             $("#city").on("change", function () {
