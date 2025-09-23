@@ -1,5 +1,6 @@
 from functools import wraps
 
+from django.http.response import JsonResponse
 from django.shortcuts import redirect, get_object_or_404
 
 from StudentManagementSystem.models import Student, Teacher, SimpleAdmin
@@ -54,14 +55,6 @@ def session_login_required(role=None, lookup_kwarg="id"):
 
         return _wrapped_view
     return decorator
-
-
-from functools import wraps
-from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
-
-from StudentManagementSystem.models import Student, Teacher, SimpleAdmin
-from StudentManagementSystem.models.roles import Role
 
 
 def api_login_required(role=None, lookup_kwarg="id"):
