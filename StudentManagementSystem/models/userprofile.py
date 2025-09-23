@@ -1,8 +1,11 @@
 from datetime import date
 
+from PIL import Image, UnidentifiedImageError
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.core.files.storage import default_storage
 from django.db import models
+from django.templatetags.static import static
 
 
 class UserProfile(models.Model):
@@ -12,7 +15,7 @@ class UserProfile(models.Model):
     user_object = GenericForeignKey('content_type', 'object_id')
 
     # Personal details
-    picture = models.ImageField(upload_to="", null=True, blank=True)
+    picture = models.ImageField(upload_to="profile_pictures/", null=True, blank=True)
     middle_initial = models.CharField(max_length=5, null=True, blank=True)
     suffix = models.CharField(max_length=20, null=True, blank=True)  # Jr., Sr., III
     date_of_birth = models.DateField(null=True, blank=True)
@@ -43,10 +46,49 @@ class UserProfile(models.Model):
         today = date.today()
         age = today.year - self.date_of_birth.year
         if today.month < self.date_of_birth.month or (
-            today.month == self.date_of_birth.month and today.day < self.date_of_birth.day
+                today.month == self.date_of_birth.month and today.day < self.date_of_birth.day
         ):
             age -= 1
         return age
+
+    def save(self, *args, **kwargs):
+        # --- Delete old file if uploading a new one ---
+        try:
+            old = UserProfile.objects.get(pk=self.pk)
+        except UserProfile.DoesNotExist:
+            old = None
+
+        super().save(*args, **kwargs)
+
+        if old and old.picture and old.picture != self.picture:
+            if default_storage.exists(old.picture.name):
+                default_storage.delete(old.picture.name)
+
+        # --- Resize current image safely ---
+        if self.picture:
+            try:
+                with self.picture.open("rb") as f:
+                    img = Image.open(f)
+                    img.load()
+
+                max_size = (1600, 1600)
+                if img.height > 1600 or img.width > 1600:
+                    img.thumbnail(max_size, Image.Resampling.LANCZOS)
+                    img.save(self.picture.path)
+            except UnidentifiedImageError:
+                pass
+
+    def delete(self, *args, **kwargs):
+        # Clean up file from storage
+        if self.picture and default_storage.exists(self.picture.name):
+            default_storage.delete(self.picture.name)
+        super().delete(*args, **kwargs)
+
+    @property
+    def avatar_url(self):
+        if self.picture and default_storage.exists(self.picture.name):
+            return self.picture.url
+        return static("images/avatars/avatar-1.png")
 
 
 class EducationalBackground(models.Model):

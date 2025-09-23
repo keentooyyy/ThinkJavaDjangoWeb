@@ -132,9 +132,8 @@ STATIC_URL = 'static/'
 
 STATICFILES_DIRS = [BASE_DIR / "assets"]
 
-# Media files (user uploads)
-MEDIA_URL = "/media/profile_picture/"
-MEDIA_ROOT = BASE_DIR / "profile_picture"
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 # STATIC_ROOT = BASE_DIR / "staticfiles"
 

@@ -41,21 +41,48 @@
         <div class="row p-5">
             <div class="card w-75 mx-auto border-top border-0 border-4 border-primary">
                 <div class="card-body p-5 ">
-                    <form id="profileForm" method="post">
+                    <form id="profileForm" method="post" enctype="multipart/form-data">
                         {% csrf_token %}
                         <div class="row">
                             <!-- Avatar -->
                             <div class="col-3 d-flex justify-content-center">
                                 <div class="position-relative avatar-wrapper">
-                                    <img src="{% static 'images/avatars/avatar-1.png' %}"
+                                    <img id="avatarPreview"
+                                         src="{{ profile.avatar_url }}"
                                          alt="Profile Pic"
                                          class="rounded-circle p-1 avatar-img">
 
-                                    <!-- Overlay (hidden until edit mode) -->
-                                    <div class="avatar-overlay d-flex align-items-center justify-content-center d-none">
+                                    <!-- Overlay -->
+                                    <div class="avatar-overlay d-flex align-items-center justify-content-center d-none"
+                                         data-bs-toggle="modal" data-bs-target="#avatarModal">
                                         <i class="bx bx-camera fs-3 text-white"></i>
                                     </div>
                                 </div>
+
+                                <!-- 🔹 Modal for cropping -->
+                                <div class="modal fade" id="avatarModal" tabindex="-1">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Update Profile Picture</h5>
+                                                <button type="button" class="btn-close"
+                                                        data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body text-center">
+                                                <input type="file" id="avatarInput" name="picture" accept="image/*"
+                                                       class="form-control mb-3">
+                                                <div>
+                                                    <img id="cropperPreview" style="max-width:100%; display:none;">
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" id="cropSave" class="btn btn-primary">Save
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                             </div>
 
                             <!-- Profile Info -->
@@ -262,7 +289,8 @@
                                     <!-- Street -->
                                     <div class="col-12 mt-3">
                                         <label class="form-label">Street</label>
-                                        <input type="text" name="street" class="form-control editable-input ph-street-only"
+                                        <input type="text" name="street"
+                                               class="form-control editable-input ph-street-only"
                                                value="{{ profile.street }}" disabled>
                                     </div>
                                 </div>
@@ -272,7 +300,64 @@
 
                             <!-- 🔹 Education Tab -->
                             <div class="tab-pane fade" id="primaryeducation" role="tabpanel">
-                                
+                                <div class="fields-wrapper">
+                                    {% for edu in profile.educational_backgrounds.all %}
+                                        <div class="row education-row {% if not forloop.first %}mt-3{% endif %}">
+                                            <div class="col">
+                                                <label class="form-label">Name of School</label>
+                                                <input type="text" name="school[]" class="form-control editable-input"
+                                                       value="{{ edu.institution }}" disabled>
+                                            </div>
+                                            <div class="col-2">
+                                                <label class="form-label">Start</label>
+                                                <input type="text" name="start_date[]"
+                                                       class="form-control editable-input year-only"
+                                                       value="{{ edu.start_date|date:'Y' }}" maxlength="4"
+                                                       pattern="\d{4}" disabled>
+                                            </div>
+                                            <div class="col-2">
+                                                <label class="form-label">Graduated</label>
+                                                <input type="text" name="graduation_date[]"
+                                                       class="form-control editable-input year-only"
+                                                       value="{{ edu.graduation_date|date:'Y' }}" maxlength="4"
+                                                       pattern="\d{4}" disabled>
+                                            </div>
+                                        </div>
+                                    {% empty %}
+                                        <!-- Fallback: if no entries, show one blank row -->
+                                        <div class="row education-row">
+                                            <div class="col">
+                                                <label class="form-label">Name of School</label>
+                                                <input type="text" name="school[]" class="form-control editable-input"
+                                                       disabled>
+                                            </div>
+                                            <div class="col-2">
+                                                <label class="form-label">Start</label>
+                                                <input type="text" name="start_date[]"
+                                                       class="form-control editable-input year-only"
+                                                       value="{{ edu.start_date|date:'Y' }}" maxlength="4"
+                                                       pattern="\d{4}" disabled>
+                                            </div>
+                                            <div class="col-2">
+                                                <label class="form-label">Graduated</label>
+                                                <input type="text" name="graduation_date[]"
+                                                       class="form-control editable-input year-only"
+                                                       value="{{ edu.graduation_date|date:'Y' }}" maxlength="4"
+                                                       pattern="\d{4}" disabled>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+
+
+                                <div class="d-flex justify-content-end mt-3 gap-3 edu-buttons d-none">
+                                    <button type="button" class="btn btn-outline-success btn-sm add-field">
+                                        <i class="bx bx-plus"></i>Add Another Field
+                                    </button>
+                                    <button type="button" class="btn btn-outline-danger btn-sm remove-field">
+                                        <i class="bx bx-minus"></i>Remove Last Field
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </form>
@@ -307,6 +392,9 @@
                         .html('<i class="bx bx-check"></i> Save Profile');
 
                     $(".avatar-overlay").removeClass("d-none");
+
+                    // 🔹 Show education buttons only in edit mode
+                    $(".edu-buttons").removeClass("d-none");
                 }
             });
         });
@@ -371,8 +459,6 @@
                 console.log(brgyName);
             });
         });
-
-
     </script>
 
     <script>
@@ -395,5 +481,78 @@
                 }
             });
         });
+    </script>
+
+    <script>
+        $(function () {
+            // Add another field
+            $(".add-field").on("click", function () {
+                let clone = $(".education-row:first").clone();
+                clone.find("input").val(""); // clear input values
+                clone.addClass("mt-3"); // only added rows get margin
+                $(".fields-wrapper").append(clone);
+            });
+
+            // Remove last field (keep at least one)
+            $(".remove-field").on("click", function () {
+                let rows = $(".fields-wrapper .education-row");
+                if (rows.length > 1) {
+                    rows.last().remove();
+                }
+            });
+        });
+    </script>
+
+    <script>
+        $(function () {
+            let cropper;
+            let image = document.getElementById("cropperPreview");
+
+            // When selecting a new image
+            $("#avatarInput").on("change", function (e) {
+                let file = e.target.files[0];
+                if (!file) return;
+
+                let reader = new FileReader();
+                reader.onload = function (event) {
+                    image.src = event.target.result;
+                    image.style.display = "block";
+
+                    if (cropper) cropper.destroy();
+                    cropper = new Cropper(image, {
+                        aspectRatio: 1,
+                        viewMode: 2,
+                    });
+                };
+                reader.readAsDataURL(file);
+            });
+
+            // Save inside modal (but don't submit yet)
+            $("#cropSave").on("click", function () {
+                if (cropper) {
+                    cropper.getCroppedCanvas({
+                        width: 512,
+                        height: 512,
+                    }).toBlob(function (blob) {
+                        // Create a fake File for the form
+                        let file = new File([blob], "profile.jpg", {type: "image/jpeg"});
+                        let dt = new DataTransfer();
+                        dt.items.add(file);
+
+                        let fileInput = document.getElementById("avatarInput");
+                        fileInput.files = dt.files;
+
+                        // 🔹 Update UI immediately
+                        $("#avatarPreview").attr("src", URL.createObjectURL(blob));
+
+                        // Close modal
+                        $("#avatarModal").modal("hide");
+                    });
+                }
+            });
+
+        });
+
+
     </script>
 {% endblock %}
