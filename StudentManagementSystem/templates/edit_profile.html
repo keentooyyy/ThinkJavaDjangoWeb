@@ -402,8 +402,44 @@
 
     <script>
         $(function () {
-            // Load provinces
-            $.getJSON("/provinces/?region=01", function (data) {
+            // 🔹 Natural sort (numbers sorted numerically, not as text)
+            function naturalSort(a, b) {
+                let ax = [], bx = [];
+
+                a.name.replace(/(\d+)|(\D+)/g, (_, $1, $2) => ax.push([$1 || Infinity, $2 || ""]));
+                b.name.replace(/(\d+)|(\D+)/g, (_, $1, $2) => bx.push([$1 || Infinity, $2 || ""]));
+
+                while (ax.length && bx.length) {
+                    let an = ax.shift();
+                    let bn = bx.shift();
+                    let nn = (an[0] - bn[0]) || an[1].localeCompare(bn[1]);
+                    if (nn) return nn;
+                }
+
+                return ax.length - bx.length;
+            }
+
+            // 🔹 Helper: Load JSON with cache
+            function loadWithCache(key, url, callback) {
+                let cached = localStorage.getItem(key);
+                if (cached) {
+                    try {
+                        let data = JSON.parse(cached);
+                        callback(data, true); // true = from cache
+                        return;
+                    } catch (e) {
+                        console.warn("Cache parse failed for", key, e);
+                    }
+                }
+
+                $.getJSON(url, function (data) {
+                    localStorage.setItem(key, JSON.stringify(data));
+                    callback(data, false);
+                });
+            }
+
+            // 🔹 Load provinces
+            loadWithCache("provinces_region_01", "/provinces/?region=01", function (data) {
                 $("#province").empty().append('<option value="">-- Select Province --</option>');
                 data.sort((a, b) => a.name.localeCompare(b.name));
                 $.each(data, function (i, prov) {
@@ -415,19 +451,22 @@
             $("#province").on("change", function () {
                 let provCode = $(this).val();
                 let provName = $("#province option:selected").text();
-                $("#provinceText").val(provName); // save text instead of code
-                console.log(provName)
+                $("#provinceText").val(provName);
 
                 if (!provCode) return;
-                $.getJSON(`/cities/?province_code=${provCode}`, function (data) {
+                let cacheKey = `cities_${provCode}`;
+
+                loadWithCache(cacheKey, `/cities/?province_code=${provCode}`, function (data) {
                     $("#city").empty().append('<option value="">-- Select City/Municipality --</option>');
                     $("#barangay").empty().append('<option value="">-- Select Barangay --</option>');
+
                     data.forEach(city => {
                         if (city.name.startsWith("City of ")) {
                             let name = city.name.replace("City of ", "");
                             city.name = `${name} City`;
                         }
                     });
+
                     data.sort((a, b) => a.name.localeCompare(b.name));
                     $.each(data, function (i, city) {
                         $("#city").append(`<option value="${city.code}">${city.name}</option>`);
@@ -440,12 +479,16 @@
                 let cityCode = $(this).val();
                 let cityName = $("#city option:selected").text();
                 $("#cityText").val(cityName);
-                console.log(cityName)
 
                 if (!cityCode) return;
-                $.getJSON(`/barangays/?city_code=${cityCode}`, function (data) {
+                let cacheKey = `barangays_${cityCode}`;
+
+                loadWithCache(cacheKey, `/barangays/?city_code=${cityCode}`, function (data) {
                     $("#barangay").empty().append('<option value="">-- Select Barangay --</option>');
-                    data.sort((a, b) => a.name.localeCompare(b.name));
+
+                    // ✅ natural sort here
+                    data.sort(naturalSort);
+
                     $.each(data, function (i, brgy) {
                         $("#barangay").append(`<option value="${brgy.code}">${brgy.name}</option>`);
                     });
@@ -456,9 +499,9 @@
             $("#barangay").on("change", function () {
                 let brgyName = $("#barangay option:selected").text();
                 $("#barangayText").val(brgyName);
-                console.log(brgyName);
             });
         });
+
     </script>
 
     <script>
