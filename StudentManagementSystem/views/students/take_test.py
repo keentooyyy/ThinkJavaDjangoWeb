@@ -1,3 +1,4 @@
+from django.http.response import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 from django.contrib import messages
@@ -33,8 +34,13 @@ def take_test_view(request):
         .first()
     )
     pre_progress = get_progress(pre_test)
-    pre_taken = StudentTest.objects.filter(student=student, test=pre_test, completed=True).first() if pre_test else None
-    pre_score, pre_max = (pre_taken.score, sum(q.points for q in pre_test.questions.all())) if pre_taken else (None, None)
+    pre_taken = StudentTest.objects.filter(
+        student=student, test=pre_test, completed=True
+    ).first() if pre_test else None
+
+    # Always compute max if test exists
+    pre_max = sum(q.points for q in pre_test.questions.all()) if pre_test else None
+    pre_score = pre_taken.score if pre_taken else None
 
     # Build choices map for pre-test
     pre_choices_map = {}
@@ -52,8 +58,13 @@ def take_test_view(request):
         .first()
     )
     post_progress = get_progress(post_test)
-    post_taken = StudentTest.objects.filter(student=student, test=post_test, completed=True).first() if post_test else None
-    post_score, post_max = (post_taken.score, sum(q.points for q in post_test.questions.all())) if post_taken else (None, None)
+    post_taken = StudentTest.objects.filter(
+        student=student, test=post_test, completed=True
+    ).first() if post_test else None
+
+    # Always compute max if test exists
+    post_max = sum(q.points for q in post_test.questions.all()) if post_test else None
+    post_score = post_taken.score if post_taken else None
 
     # Build choices map for post-test
     post_choices_map = {}
@@ -93,7 +104,8 @@ def submit_test(request, test_id):
     # Get or create student test
     stest, _ = StudentTest.objects.get_or_create(student=student, test=test)
 
-    # Save answers
+    # Collect unanswered required questions
+    missing_required = []
     for q in test.questions.all():
         choice_id = request.POST.get(f"q{q.id}")
         if choice_id:
@@ -103,6 +115,17 @@ def submit_test(request, test_id):
                 question=q,
                 defaults={"choice": choice, "is_correct": choice.is_correct},
             )
+        elif q.required:
+            missing_required.append(q)
+
+    # If required questions are missing → block submission
+    if missing_required:
+        messages.error(
+            request,
+            f"❌ You must answer all required questions before submitting. "
+            f"Missing: {len(missing_required)} question(s)."
+        )
+        return redirect("take_test_view")
 
     # Grade it
     result = stest.grade_test()
@@ -113,3 +136,4 @@ def submit_test(request, test_id):
         f"✅ You scored {result['score']} out of {result['max_score']} on {test.name}."
     )
     return redirect("take_test_view")
+
