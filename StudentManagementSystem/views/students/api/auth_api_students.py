@@ -3,8 +3,11 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.hashers import check_password
 
-from StudentManagementSystem.helpers.custom_helpers import encrypt_value
+from GameProgress.models.student_api_key import StudentAPISession
+from StudentManagementSystem.helpers.custom_helpers import make_access_token
 from StudentManagementSystem.models import Student, UserProfile
+
+
 
 
 @csrf_exempt
@@ -32,25 +35,33 @@ def api_student_login(request):
         if not check_password(password, student.password):
             return JsonResponse({"error": "Incorrect password"}, status=401)
 
-        # Encrypt login_key
-        encrypted_key = encrypt_value(student.login_key)
+        # 🔹 Create session (revokes old ones)
+        session = StudentAPISession.create_session(student)
 
-        # Get UserProfile
+        # 🔹 Generate tokens
+        access_token = make_access_token(student.id, ttl_minutes=5)
+        refresh_token = session.refresh_token
+
+        # 🔹 Get UserProfile
         try:
             profile = UserProfile.objects.get(object_id=student.id, content_type__model="student")
         except UserProfile.DoesNotExist:
             profile = None
 
-        # Build response
+        # 🔹 Build response
         section = student.section
         response = {
             "status": "success",
+            "tokens": {
+                "access_token": access_token,
+                "refresh_token": refresh_token,
+                "expires_in": 300,  # 5 minutes
+            },
             "student": {
                 "student_id": student.student_id,
                 "first_name": student.first_name,
                 "last_name": student.last_name,
                 "role": student.role,
-                "login_key": encrypted_key,  # 🔒 AES-256 encrypted
             },
             "section": {
                 "dept": section.department.name if section else None,

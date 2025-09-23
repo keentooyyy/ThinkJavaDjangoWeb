@@ -54,3 +54,67 @@ def session_login_required(role=None, lookup_kwarg="id"):
 
         return _wrapped_view
     return decorator
+
+
+from functools import wraps
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+
+from StudentManagementSystem.models import Student, Teacher, SimpleAdmin
+from StudentManagementSystem.models.roles import Role
+
+
+def api_login_required(role=None, lookup_kwarg="id"):
+    """
+    API variant of session_login_required:
+    - Reads user_id + role from request.session (or headers if you want).
+    - Confirms existence in DB and role match.
+    - Enforces ownership if URL has a user ID param.
+    - Injects the user object into request.user_obj for safe use in views.
+    - Returns JSON errors instead of redirects.
+    """
+
+    def decorator(view_func):
+        @wraps(view_func)
+        def _wrapped_view(request, *args, **kwargs):
+            session_user_id = request.session.get("user_id")
+            session_role = request.session.get("role")
+
+            allowed_roles = (
+                role if isinstance(role, (list, tuple, set))
+                else [role] if role else []
+            )
+
+            # 🚨 No session or role mismatch
+            if not session_user_id or (allowed_roles and session_role not in allowed_roles):
+                return JsonResponse(
+                    {"error": "Authentication required or insufficient role"},
+                    status=401
+                )
+
+            # 🚨 DB validation
+            if session_role == Role.STUDENT:
+                user = get_object_or_404(Student, id=session_user_id)
+            elif session_role == Role.TEACHER:
+                user = get_object_or_404(Teacher, id=session_user_id)
+            elif session_role == Role.ADMIN:
+                user = get_object_or_404(SimpleAdmin, id=session_user_id)
+            else:
+                return JsonResponse({"error": "Invalid role"}, status=403)
+
+            # 🚨 Role mismatch
+            if user.role != session_role:
+                return JsonResponse({"error": "Role mismatch"}, status=403)
+
+            # 🚨 Ownership enforcement
+            requested_id = kwargs.get(lookup_kwarg)
+            if requested_id is not None and str(requested_id) != str(user.id):
+                return JsonResponse({"error": "Forbidden"}, status=403)
+
+            # ✅ Inject user
+            request.user_obj = user
+            return view_func(request, *args, **kwargs)
+
+        return _wrapped_view
+
+    return decorator
