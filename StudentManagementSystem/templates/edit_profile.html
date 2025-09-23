@@ -1,186 +1,289 @@
-{#dasboard.html#}
-
 {% extends 'base.html' %}
-
-
 {% load static %}
 
+{% block title %}Edit Profile{% endblock %}
 
-{% block title %}Edit Profile {% endblock %}
-
-
-{% block sidebar %}{% include 'sidebar.html' %} {% endblock %}
-
-
-{% block header %} {% include 'header.html' %} {% endblock %}
-
-
+{% block sidebar %}{% include 'sidebar.html' %}{% endblock %}
+{% block header %}{% include 'header.html' %}{% endblock %}
 
 {% block content %}
+    <style>
+        .avatar-wrapper {
+            width: 120px;
+            height: 120px;
+        }
+
+        .avatar-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            cursor: pointer;
+        }
+
+        .avatar-wrapper:hover .avatar-overlay {
+            opacity: 1;
+        }
+    </style>
+
     <div class="page-wrapper">
         <div class="row p-5">
+            <div class="card w-75 mx-auto border-top border-0 border-4 border-primary">
+                <div class="card-body p-5 ">
+                    <form id="profileForm" method="post">
+                        {% csrf_token %}
+                        <div class="row">
+                            <!-- Avatar -->
+                            <div class="col-3 d-flex justify-content-center">
+                                <div class="position-relative avatar-wrapper">
+                                    <img src="{% static 'images/avatars/avatar-1.png' %}"
+                                         alt="Profile Pic"
+                                         class="rounded-circle p-1 avatar-img">
 
-            <div class="card">
-                <div class="card-body p-5">
-                    <!-- Action button -->
-                    <div class="d-flex justify-content-end mb-3">
-                        <button id="editBtn" class="btn btn-primary">Edit Profile</button>
-                    </div>
+                                    <!-- Overlay (hidden until edit mode) -->
+                                    <div class="avatar-overlay d-flex align-items-center justify-content-center d-none">
+                                        <i class="bx bx-camera fs-3 text-white"></i>
+                                    </div>
+                                </div>
+                            </div>
 
-                    <!-- Tabs -->
-                    <ul class="nav nav-tabs nav-primary" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <a class="nav-link active" data-bs-toggle="tab" href="#primaryhome" role="tab">
-                                <div class="d-flex align-items-center">
-                                    <div class="tab-icon"><i class="bx bxs-user-account font-18 me-1"></i></div>
-                                    <div class="tab-title">Basic Information</div>
+                            <!-- Profile Info -->
+                            <div class="col-9 d-flex flex-column justify-content-center gap-2">
+                                <h3 class="m-0 p-0">
+                                    {{ user.first_name }}{% if profile.middle_initial %}
+                                        {{ profile.middle_initial }}. {% endif %}
+                                    {% if user.last_name %} {{ user.last_name }}{% endif %}
+                                    {% if profile.suffix %} {{ profile.suffix }}{% endif %}
+                                </h3>
+                                <span class="m-0 p-0 text-muted font-18">Age: {{ profile.age }}</span>
+                                <div class="m-0 p-0 text-muted font-16 d-flex flex-column">
+                                    <p class="m-0 p-0">Bio</p>
+                                    <span>
+                                    {% if profile.bio %}
+                                        {{ profile.bio }}
+                                    {% else %}
+                                        No Bio provided.
+                                    {% endif %}
+                                </span>
                                 </div>
-                            </a>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <a class="nav-link" data-bs-toggle="tab" href="#primaryprofile" role="tab">
-                                <div class="d-flex align-items-center">
-                                    <div class="tab-icon"><i class="bx bxs-notepad font-18 me-1"></i></div>
-                                    <div class="tab-title">Additional Information</div>
-                                </div>
-                            </a>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <a class="nav-link" data-bs-toggle="tab" href="#primarycontact" role="tab">
-                                <div class="d-flex align-items-center">
-                                    <div class="tab-icon"><i class="bx bxs-contact font-18 me-1"></i></div>
-                                    <div class="tab-title">Contact</div>
-                                </div>
-                            </a>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <a class="nav-link" data-bs-toggle="tab" href="#primaryeducation" role="tab">
-                                <div class="d-flex align-items-center">
-                                    <div class="tab-icon"><i class="bx bxs-graduation font-18 me-1"></i></div>
-                                    <div class="tab-title">Educational Background</div>
-                                </div>
-                            </a>
-                        </li>
-                    </ul>
+                            </div>
 
-                    <!-- Tab Content -->
-                    <div class="tab-content py-3">
-                        <!-- 🔹 Home Tab -->
-                        <div class="tab-pane fade show active" id="primaryhome" role="tabpanel">
-                            <div class="mb-3">
-                                <label class="form-label">Full Name</label>
-                                <input type="text" class="form-control editable-input"
-                                       value="{{ user.first_name }} {{ user.last_name }}" disabled>
+                            <!-- Action button -->
+                            <div class="d-flex justify-content-end my-3">
+                                <button type="button" id="editBtn" class="btn btn-primary">
+                                    <i class="bx bx-pencil"></i> Edit Profile
+                                </button>
                             </div>
                         </div>
 
-                        <!-- 🔹 Profile Tab -->
-                        <div class="tab-pane fade" id="primaryprofile" role="tabpanel">
-                            <div class="mb-3">
-                                <label class="form-label">Date of Birth</label>
-                                <input type="text" class="form-control editable-input"
-                                       value="{{ profile.date_of_birth }}" disabled>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Age</label>
-                                <input type="text" class="form-control editable-input" value="{{ profile.age }}"
-                                       disabled>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Father's Name</label>
-                                <input type="text" class="form-control editable-input" value="{{ profile.father_name }}"
-                                       disabled>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Mother's Name</label>
-                                <input type="text" class="form-control editable-input" value="{{ profile.mother_name }}"
-                                       disabled>
-                            </div>
-                        </div>
+                        <!-- Tabs -->
+                        <ul class="nav nav-tabs nav-primary" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" data-bs-toggle="tab" href="#primaryhome" role="tab">
+                                    <div class="d-flex align-items-center">
+                                        <div class="tab-icon"><i class="bx bxs-user-account font-18 me-1"></i></div>
+                                        <div class="tab-title">Basic Information</div>
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-bs-toggle="tab" href="#primaryprofile" role="tab">
+                                    <div class="d-flex align-items-center">
+                                        <div class="tab-icon"><i class="bx bxs-notepad font-18 me-1"></i></div>
+                                        <div class="tab-title">Additional Information</div>
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-bs-toggle="tab" href="#primarycontact" role="tab">
+                                    <div class="d-flex align-items-center">
+                                        <div class="tab-icon"><i class="bx bxs-contact font-18 me-1"></i></div>
+                                        <div class="tab-title">Contact & Address</div>
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-bs-toggle="tab" href="#primaryeducation" role="tab">
+                                    <div class="d-flex align-items-center">
+                                        <div class="tab-icon"><i class="bx bxs-graduation font-18 me-1"></i></div>
+                                        <div class="tab-title">Educational Background</div>
+                                    </div>
+                                </a>
+                            </li>
+                        </ul>
 
-                        <!-- 🔹 Contact Tab -->
-                        <div class="tab-pane fade" id="primarycontact" role="tabpanel">
-                            <div class="mb-3">
-                                <label class="form-label">Phone</label>
-                                <input type="text" class="form-control editable-input" value="{{ profile.phone }}"
-                                       disabled>
+                        <!-- Tab Content -->
+                        <div class="tab-content py-3">
+                            <!-- 🔹 Basic Info -->
+                            <div class="tab-pane fade show active" id="primaryhome" role="tabpanel">
+                                <div class="mb-3 row">
+                                    <div class="col">
+                                        <label class="form-label">First Name</label>
+                                        <input type="text" name="first_name"
+                                               class="form-control editable-input ph-alpha-only"
+                                               value="{{ user.first_name }}" disabled>
+                                    </div>
+                                    <div class="col-2">
+                                        <label class="form-label">Middle Initial</label>
+                                        <input type="text" name="middle_initial"
+                                               class="form-control editable-input ph-alpha-only"
+                                               value="{{ profile.middle_initial }}" disabled>
+                                    </div>
+                                    <div class="col">
+                                        <label class="form-label">Last Name</label>
+                                        <input type="text" name="last_name"
+                                               class="form-control editable-input ph-alpha-only"
+                                               value="{{ user.last_name }}" disabled>
+                                    </div>
+                                    <div class="col-2">
+                                        <label class="form-label">Suffix</label>
+                                        <input type="text" name="suffix"
+                                               class="form-control editable-input ph-alpha-only"
+                                               value="{{ profile.suffix }}" disabled>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <label class="form-label">Bio</label>
+                                        <textarea name="bio" class="form-control editable-input ph-alpha-only" rows="5"
+                                                  disabled>{{ profile.bio }}</textarea>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="mb-3">
-                                <label class="form-label">Street</label>
-                                <input type="text" class="form-control editable-input" value="{{ profile.street }}"
-                                       disabled>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Province</label>
-                                <input type="text" class="form-control editable-input" value="{{ profile.province }}"
-                                       disabled>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Barangay</label>
-                                <input type="text" class="form-control editable-input" value="{{ profile.barangay }}"
-                                       disabled>
-                            </div>
-                        </div>
-                        <!-- 🔹 Educational Background Tab -->
-                        <div class="tab-pane fade" id="primaryeducation" role="tabpanel">
-                            {% for edu in educations %}
-                                <div class="mb-3">
-                                    <label class="form-label">Institution</label>
-                                    <input type="text" class="form-control editable-input"
-                                           value="{{ edu.institution|default_if_none:'None' }}" disabled>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Start Date</label>
-                                    <input type="text" class="form-control editable-input"
-                                           value="{{ edu.start_date|default_if_none:'None' }}" disabled>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Graduation Date</label>
-                                    <input type="text" class="form-control editable-input"
-                                           value="{{ edu.graduation_date|default_if_none:'None' }}" disabled>
-                                </div>
-                                {% if not forloop.last %}
-                                    <hr>
-                                {% endif %}
-                            {% empty %}
-                                <!-- Even if no records, still show empty inputs so UI is consistent -->
-                                <div class="mb-3">
-                                    <label class="form-label">Institution</label>
-                                    <input type="text" class="form-control editable-input" value="" disabled>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Start Date</label>
-                                    <input type="text" class="form-control editable-input" value="" disabled>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Graduation Date</label>
-                                    <input type="text" class="form-control editable-input" value="" disabled>
-                                </div>
-                            {% endfor %}
-                        </div>
 
-                    </div>
+                            <!-- 🔹 Profile Tab -->
+                            <div class="tab-pane fade" id="primaryprofile" role="tabpanel">
+                                <div class="row">
+                                    <div class="col">
+                                        <label class="form-label">Date of Birth</label>
+                                        <input type="date" name="date_of_birth" class="form-control editable-input"
+                                               value="{{ profile.date_of_birth|default_if_none:''|date:'Y-m-d' }}"
+                                               disabled>
+                                    </div>
+                                    <div class="col-3">
+                                        <label class="form-label">Age</label>
+                                        <input type="text" name="age" class="form-control"
+                                               value="{{ profile.age }}" disabled>
+                                    </div>
+
+                                    <div class="col-12 mt-3">
+                                        <p class="">Parents Information</p>
+                                        <hr>
+                                        <div class="mb-3">
+                                            <label class="form-label">Fathers Name</label>
+                                            <input type="text" name="father_name"
+                                                   class="form-control editable-input ph-alpha-only"
+                                                   value="{{ profile.father_name|default_if_none:'' }}" disabled>
+                                        </div>
+                                        <div>
+                                            <label class="form-label">Mothers Name</label>
+                                            <input type="text" name="mother_name"
+                                                   class="form-control editable-input ph-alpha-only"
+                                                   value="{{ profile.mother_name|default_if_none:'' }}" disabled>
+                                        </div>
+
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <!-- 🔹 Contact Tab -->
+                            <div class="tab-pane fade" id="primarycontact" role="tabpanel">
+                                <div class="mb-3">
+                                    <label class="form-label">Phone Number (PH)</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">+63</span>
+                                        <input type="tel" name="phone" class="form-control editable-input"
+                                               placeholder="9123456789"
+                                               pattern="[0-9]{10}"
+                                               maxlength="10" value="{{ profile.phone }}" disabled>
+                                    </div>
+                                    <small class="form-text text-muted">
+                                        Enter your 10-digit mobile number without the leading 0 (e.g., 9123456789).
+                                    </small>
+                                </div>
+
+                                <p>Current Residing Address</p>
+
+                                <div class="row">
+                                    <!-- Province -->
+                                    <div class="col">
+                                        <label class="form-label">Province</label>
+                                        <!-- View only -->
+                                        <input type="text" class="form-control view-only"
+                                               value="{{ profile.province }}" disabled>
+
+                                        <!-- Editable -->
+                                        <select id="province" class="form-select editable-input d-none" disabled>
+                                            <option value="">-- Select Province --</option>
+                                        </select>
+                                        <input type="hidden" name="province" id="provinceText"
+                                               value="{{ profile.province }}">
+                                    </div>
+
+                                    <!-- City -->
+                                    <div class="col">
+                                        <label class="form-label">City/Municipality</label>
+                                        <input type="text" class="form-control view-only"
+                                               value="{{ profile.city }}" disabled>
+
+                                        <select id="city" class="form-select editable-input d-none" disabled>
+                                            <option value="">-- Select City/Municipality --</option>
+                                        </select>
+                                        <input type="hidden" name="city" id="cityText" value="{{ profile.city }}">
+                                    </div>
+
+                                    <!-- Barangay -->
+                                    <div class="col">
+                                        <label class="form-label">Barangay</label>
+                                        <input type="text" class="form-control view-only"
+                                               value="{{ profile.barangay }}" disabled>
+
+                                        <select id="barangay" class="form-select editable-input d-none" disabled>
+                                            <option value="">-- Select Barangay --</option>
+                                        </select>
+                                        <input type="hidden" name="barangay" id="barangayText"
+                                               value="{{ profile.barangay }}">
+                                    </div>
+
+                                    <!-- Street -->
+                                    <div class="col-12 mt-3">
+                                        <label class="form-label">Street</label>
+                                        <input type="text" name="street" class="form-control editable-input ph-street-only"
+                                               value="{{ profile.street }}" disabled>
+                                    </div>
+                                </div>
+
+                            </div>
+
+
+                            <!-- 🔹 Education Tab -->
+                            <div class="tab-pane fade" id="primaryeducation" role="tabpanel">
+                                
+                            </div>
+                        </div>
+                    </form>
                 </div>
             </div>
+
         </div>
-
-
     </div>
-
-
-
-
-
-
 {% endblock %}
 
-
-
-
-{% block footer %}
-    {% include 'footer.html' %}
-{% endblock %}
-
+{% block footer %}{% include 'footer.html' %}{% endblock %}
 
 {% block scripts %}
     <script>
@@ -188,25 +291,109 @@
             let editing = false;
 
             $("#editBtn").on("click", function () {
-                editing = !editing;
-
-                $(".editable-input").prop("disabled", !editing);
-
                 if (editing) {
-                    $(this).text("Save Profile")
-                        .removeClass("btn-primary")
-                        .addClass("btn-success");
+                    // 🔹 Submit the form when "Save Profile" is clicked
+                    $("#profileForm").submit();
                 } else {
-                    $(this).text("Edit Profile")
-                        .removeClass("btn-success")
-                        .addClass("btn-primary");
+                    // 🔹 Switch to edit mode
+                    editing = true;
+                    $(".editable-input").prop("disabled", false);
+                    $(".editable-input").removeClass("d-none");
+                    $(".view-only").addClass("d-none");
+
+                    $(this)
+                        .removeClass("btn-primary")
+                        .addClass("btn-success")
+                        .html('<i class="bx bx-check"></i> Save Profile');
+
+                    $(".avatar-overlay").removeClass("d-none");
                 }
             });
         });
     </script>
 
+    <script>
+        $(function () {
+            // Load provinces
+            $.getJSON("/provinces/?region=01", function (data) {
+                $("#province").empty().append('<option value="">-- Select Province --</option>');
+                data.sort((a, b) => a.name.localeCompare(b.name));
+                $.each(data, function (i, prov) {
+                    $("#province").append(`<option value="${prov.code}">${prov.name}</option>`);
+                });
+            });
+
+            // Province → City
+            $("#province").on("change", function () {
+                let provCode = $(this).val();
+                let provName = $("#province option:selected").text();
+                $("#provinceText").val(provName); // save text instead of code
+                console.log(provName)
+
+                if (!provCode) return;
+                $.getJSON(`/cities/?province_code=${provCode}`, function (data) {
+                    $("#city").empty().append('<option value="">-- Select City/Municipality --</option>');
+                    $("#barangay").empty().append('<option value="">-- Select Barangay --</option>');
+                    data.forEach(city => {
+                        if (city.name.startsWith("City of ")) {
+                            let name = city.name.replace("City of ", "");
+                            city.name = `${name} City`;
+                        }
+                    });
+                    data.sort((a, b) => a.name.localeCompare(b.name));
+                    $.each(data, function (i, city) {
+                        $("#city").append(`<option value="${city.code}">${city.name}</option>`);
+                    });
+                });
+            });
+
+            // City → Barangay
+            $("#city").on("change", function () {
+                let cityCode = $(this).val();
+                let cityName = $("#city option:selected").text();
+                $("#cityText").val(cityName);
+                console.log(cityName)
+
+                if (!cityCode) return;
+                $.getJSON(`/barangays/?city_code=${cityCode}`, function (data) {
+                    $("#barangay").empty().append('<option value="">-- Select Barangay --</option>');
+                    data.sort((a, b) => a.name.localeCompare(b.name));
+                    $.each(data, function (i, brgy) {
+                        $("#barangay").append(`<option value="${brgy.code}">${brgy.name}</option>`);
+                    });
+                });
+            });
+
+            // Barangay → save name
+            $("#barangay").on("change", function () {
+                let brgyName = $("#barangay option:selected").text();
+                $("#barangayText").val(brgyName);
+                console.log(brgyName);
+            });
+        });
 
 
+    </script>
+
+    <script>
+        $(function () {
+            // Attach to all inputs with class "ph-alpha-only"
+            $(document).on("input", ".ph-alpha-only", function () {
+                let clean = $(this).val().replace(/[^A-Za-zÑñ\s]/g, "");
+                if ($(this).val() !== clean) {
+                    $(this).val(clean);
+                }
+            });
+        });
+
+        $(function () {
+            // Attach to all inputs with class "ph-street-only"
+            $(document).on("input", ".ph-street-only", function () {
+                let clean = $(this).val().replace(/[^A-Za-z0-9Ññ\s\-\.,#\/]/g, "");
+                if ($(this).val() !== clean) {
+                    $(this).val(clean);
+                }
+            });
+        });
+    </script>
 {% endblock %}
-
-

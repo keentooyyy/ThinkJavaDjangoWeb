@@ -27,6 +27,7 @@ class UserProfile(models.Model):
     street = models.TextField(null=True, blank=True)
     province = models.CharField(max_length=100, null=True, blank=True)
     barangay = models.CharField(max_length=100, null=True, blank=True)
+    city = models.CharField(max_length=100, null=True, blank=True)
 
     class Meta:
         indexes = [
