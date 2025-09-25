@@ -1,13 +1,9 @@
-import json
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.hashers import check_password
 
-from GameProgress.models.student_api_key import StudentAPISession
 from StudentManagementSystem.helpers.custom_helpers import make_access_token
 from StudentManagementSystem.models import Student, UserProfile
-
-
 
 
 @csrf_exempt
@@ -16,14 +12,14 @@ def api_student_login(request):
         return JsonResponse({"error": "POST required"}, status=405)
 
     try:
-        data = json.loads(request.body)
-        student_id = data.get("student_id")
-        password = data.get("password")
+        #  Accept form-data or x-www-form-urlencoded
+        student_id = request.POST.get("student_id")
+        password = request.POST.get("password")
 
         if not student_id or not password:
             return JsonResponse({"error": "Missing student_id or password"}, status=400)
 
-        # Fetch student
+        #  Fetch student
         try:
             student = Student.objects.select_related(
                 "section__department", "section__year_level"
@@ -31,32 +27,23 @@ def api_student_login(request):
         except Student.DoesNotExist:
             return JsonResponse({"error": "Student not found"}, status=404)
 
-        # Verify password
+        #  Verify password
         if not check_password(password, student.password):
             return JsonResponse({"error": "Incorrect password"}, status=401)
 
-        # 🔹 Create session (revokes old ones)
-        session = StudentAPISession.create_session(student)
 
-        # 🔹 Generate tokens
-        access_token = make_access_token(student.id, ttl_minutes=5)
-        refresh_token = session.refresh_token
-
-        # 🔹 Get UserProfile
+        # Get UserProfile
         try:
             profile = UserProfile.objects.get(object_id=student.id, content_type__model="student")
         except UserProfile.DoesNotExist:
             profile = None
 
-        # 🔹 Build response
+
+        # phone = f"0{profile.phone}"
+        # Build response
         section = student.section
         response = {
             "status": "success",
-            "tokens": {
-                "access_token": access_token,
-                "refresh_token": refresh_token,
-                "expires_in": 300,  # 5 minutes
-            },
             "student": {
                 "student_id": student.student_id,
                 "first_name": student.first_name,
@@ -84,7 +71,7 @@ def api_student_login(request):
                     "city": profile.city if profile else None,
                     "province": profile.province if profile else None,
                 } if profile else None,
-                "avatar_url": profile.avatar_url if profile else None,
+                "profile_picture": request.build_absolute_uri(profile.avatar_url) if (profile and profile.avatar_url) else None,
                 "education": [
                     {
                         "institution": edu.institution,
@@ -99,7 +86,5 @@ def api_student_login(request):
 
         return JsonResponse(response, status=200)
 
-    except json.JSONDecodeError:
-        return JsonResponse({"error": "Invalid JSON"}, status=400)
     except Exception as e:
         return JsonResponse({"error": f"Unexpected error: {str(e)}"}, status=500)

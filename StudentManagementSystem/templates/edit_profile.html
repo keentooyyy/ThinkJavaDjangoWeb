@@ -88,9 +88,9 @@
                             <!-- Profile Info -->
                             <div class="col-9 d-flex flex-column justify-content-center gap-2">
                                 <h3 class="m-0 p-0">
-                                    {{ user.first_name }}{% if profile.middle_initial %}
-                                        {{ profile.middle_initial }}. {% endif %}
-                                    {% if user.last_name %} {{ user.last_name }}{% endif %}
+                                    {{ user.first_name|default_if_none:"" }}
+                                    {% if profile.middle_initial %} {{ profile.middle_initial }}.{% endif %}
+                                    {{ user.last_name|default_if_none:"" }}
                                     {% if profile.suffix %} {{ profile.suffix }}{% endif %}
                                 </h3>
                                 <span class="m-0 p-0 text-muted font-18">Age: {{ profile.age }}</span>

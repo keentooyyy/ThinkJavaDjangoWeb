@@ -85,6 +85,14 @@ class UserProfile(models.Model):
         super().delete(*args, **kwargs)
 
     @property
+    def formatted_phone(self):
+        """Return phone number with leading 0 if available."""
+        if not self.phone:
+            return None
+        phone = str(self.phone).strip()
+        return phone if phone.startswith("0") else f"0{phone}"
+
+    @property
     def avatar_url(self):
         if self.picture and default_storage.exists(self.picture.name):
             return self.picture.url

@@ -8,6 +8,13 @@ from StudentManagementSystem.models import UserProfile, EducationalBackground
 from StudentManagementSystem.models.roles import Role
 
 
+def normalize(value):
+    """Convert '', 'None', or None to actual Python None (→ DB NULL)."""
+    if value in [None, "", "None"]:
+        return None
+    return value
+
+
 @session_login_required(role=[Role.ADMIN, Role.STUDENT, Role.TEACHER])
 def edit_profile(request):
     user = request.user_obj
@@ -28,27 +35,25 @@ def edit_profile(request):
 
     if request.method == "POST":
         # --- Update user ---
-        user.first_name = request.POST.get("first_name", user.first_name)
-        user.last_name = request.POST.get("last_name", user.last_name)
+        user.first_name = normalize(request.POST.get("first_name")) or user.first_name
+        user.last_name = normalize(request.POST.get("last_name")) or user.last_name
         user.save()
 
         # --- Update profile ---
         if "picture" in request.FILES:
             profile.picture = request.FILES["picture"]
 
-
-        # --- Update profile ---
-        profile.middle_initial = request.POST.get("middle_initial", profile.middle_initial)
-        profile.suffix = request.POST.get("suffix", profile.suffix)
-        profile.bio = request.POST.get("bio", profile.bio)
-        profile.date_of_birth = request.POST.get("date_of_birth") or None
-        profile.father_name = request.POST.get("father_name", profile.father_name)
-        profile.mother_name = request.POST.get("mother_name", profile.mother_name)
-        profile.street = request.POST.get("street", profile.street)
-        profile.barangay = request.POST.get("barangay", profile.barangay)
-        profile.city = request.POST.get("city", profile.city)
-        profile.province = request.POST.get("province", profile.province)
-        profile.phone = request.POST.get("phone", profile.phone)
+        profile.middle_initial = normalize(request.POST.get("middle_initial"))
+        profile.suffix = normalize(request.POST.get("suffix"))
+        profile.bio = normalize(request.POST.get("bio"))
+        profile.date_of_birth = normalize(request.POST.get("date_of_birth"))
+        profile.father_name = normalize(request.POST.get("father_name"))
+        profile.mother_name = normalize(request.POST.get("mother_name"))
+        profile.street = normalize(request.POST.get("street"))
+        profile.barangay = normalize(request.POST.get("barangay"))
+        profile.city = normalize(request.POST.get("city"))
+        profile.province = normalize(request.POST.get("province"))
+        profile.phone = normalize(request.POST.get("phone"))
         profile.save()
 
         # --- Update Educational Background ---
@@ -61,6 +66,7 @@ def edit_profile(request):
 
         def parse_year(y):
             """Convert year string into a proper date (YYYY-01-01)."""
+            y = normalize(y)
             if not y:
                 return None
             try:
@@ -69,7 +75,7 @@ def edit_profile(request):
                 return None
 
         for i in range(len(schools)):
-            school = (schools[i] or "").strip()
+            school = normalize(schools[i])
             if not school:
                 continue
 
