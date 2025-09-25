@@ -6,86 +6,83 @@
 {% block content %}
     {#    <div class="section-authentication-signin d-flex align-items-center justify-content-center my-5 my-lg-0">#}
     <div class="section-authentication-signin d-flex">
-    <div class="container-fluid">
+        <div class="container-fluid">
 
-    <div class="row">
+            <div class="row">
 
-        <div class="col-8 d-none d-lg-block"
-             style="background: url('{% static 'images/8-bit-pixel-art-city-2o.jpg' %}'); background-size: cover; height: 100vh;">
-            {#<img src="{% static 'assets/images/8-bit-pixel-art-city-2o.jpg' %}" alt="">#}
-        </div>
+                <div class="col-8 d-none d-lg-block"
+                     style="background: url('{% static 'images/8-bit-pixel-art-city-2o.jpg' %}'); background-size: cover; height: 100vh;">
+                    {#<img src="{% static 'assets/images/8-bit-pixel-art-city-2o.jpg' %}" alt="">#}
+                </div>
 
-        <div class="col-8 col-lg-4 mx-auto d-flex flex-column justify-content-center">
-            <div class="card rounded-4 h-auto h-xl-50">
-                <div class="card-body">
-                    <div class="p-4 rounded">
-                        <div class="text-center">
-                            <h3 class="my-4">Sign in</h3>
-
-
-                            {#                                        <p>Don't have an account yet? <a href="#">Sign up#}
-                            {#                                            here</a>#}
-                            {#                                        </p>#}
+                <div class="col-12 col-lg-4 mx-auto d-flex flex-column justify-content-center">
+                    <div class="card rounded-4 h-auto h-xl-50">
+                        <div class="card-body">
+                            <div class="p-4 rounded">
+                                <div class="text-center">
+                                    <h3 class="my-4">Sign in</h3>
 
 
-                        </div>
+                                    {#                                        <p>Don't have an account yet? <a href="#">Sign up#}
+                                    {#                                            here</a>#}
+                                    {#                                        </p>#}
 
 
-                        {% comment %}error messages here {% endcomment %}
-                        {% include 'utility/alert_message.html' %}
-
-
-
-
-
-                        <div class="form-body">
-                            <form method="post" action="" class="row g-3">
-                                {% csrf_token %}
-                                <div class="col-12">
-                                    <label for="username" class="form-label">ID Number or Username</label>
-                                    <input type="text" class="form-control" id="username" name="username"
-                                           placeholder="ID Number or Username">
                                 </div>
-                                <div class="col-12">
-                                    <label for="password" class="form-label">Enter
-                                        Password</label>
-                                    <div class="input-group" id="show_hide_password">
-                                        <input type="password" class="form-control border-end-0"
-                                               id="password" value=""
-                                               placeholder="Enter Password" name="password"> <a
-                                            href="javascript:;"
-                                            class="input-group-text bg-transparent"><i
-                                            class="bx bx-hide"></i></a>
-                                    </div>
+
+
+                                {% comment %}error messages here {% endcomment %}
+                                {% include 'utility/alert_message.html' %}
+
+
+                                <div class="form-body">
+                                    <form method="post" action="" class="row g-3">
+                                        {% csrf_token %}
+                                        <div class="col-12">
+                                            <label for="username" class="form-label">ID Number or Username</label>
+                                            <input type="text" class="form-control" id="username" name="username"
+                                                   placeholder="ID Number or Username">
+                                        </div>
+                                        <div class="col-12">
+                                            <label for="password" class="form-label">Enter
+                                                Password</label>
+                                            <div class="input-group" id="show_hide_password">
+                                                <input type="password" class="form-control border-end-0"
+                                                       id="password" value=""
+                                                       placeholder="Enter Password" name="password"> <a
+                                                    href="javascript:;"
+                                                    class="input-group-text bg-transparent"><i
+                                                    class="bx bx-hide"></i></a>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            {#                                                <div class="form-check form-switch">#}
+                                            {#                                                    <input class="form-check-input" type="checkbox"#}
+                                            {#                                                           id="flexSwitchCheckChecked" checked="">#}
+                                            {#                                                    <label class="form-check-label" for="flexSwitchCheckChecked">Remember#}
+                                            {#                                                        Me</label>#}
+                                            {#                                                </div>#}
+                                        </div>
+                                        <div class="col-md-6 text-end"><a
+                                                href="#">Forgot Password ?</a>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="d-grid">
+                                                <button type="submit" class="btn btn-primary"><i
+                                                        class="bx bxs-lock-open"></i>Sign in
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="d-grid">
+                                                <button type="submit" class="btn btn-outline-primary"><i
+                                                        class="bx bxs-user"></i>Sign Up
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
                                 </div>
-                                <div class="col-md-6">
-                                    {#                                                <div class="form-check form-switch">#}
-                                    {#                                                    <input class="form-check-input" type="checkbox"#}
-                                    {#                                                           id="flexSwitchCheckChecked" checked="">#}
-                                    {#                                                    <label class="form-check-label" for="flexSwitchCheckChecked">Remember#}
-                                    {#                                                        Me</label>#}
-                                    {#                                                </div>#}
-                                </div>
-                                <div class="col-md-6 text-end"><a
-                                        href="#">Forgot Password ?</a>
-                                </div>
-                                <div class="col-12">
-                                    <div class="d-grid">
-                                        <button type="submit" class="btn btn-primary"><i
-                                                class="bx bxs-lock-open"></i>Sign in
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="col-12">
-                                    <div class="d-grid">
-                                        <button type="submit" class="btn btn-outline-primary"><i
-                                                class="bx bxs-user"></i>Sign Up
-                                        </button>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                        </div>
+                            </div>
                         </div>
                     </div>
                 </div>

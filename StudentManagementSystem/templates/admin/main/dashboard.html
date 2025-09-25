@@ -19,7 +19,6 @@
 {% block content %}
     <div class="page-wrapper">
 
-
         {% include 'admin/stats.html' %}
 
 
@@ -45,64 +44,64 @@
 {% block scripts %}
 
     <script>
-    $(function () {
-        // Section Ranking -> build chart here
-        $.getJSON("{% url 'dashboard_ranking' %}", function (data) {
-            var rankingBySection = data.ranking_by_section;
+        $(function () {
+            // Section Ranking -> build chart here
+            $.getJSON("{% url 'dashboard_ranking' %}", function (data) {
+                var rankingBySection = data.ranking_by_section;
 
-            var sectionNames = rankingBySection.map(function (item) {
-                return item.section;
-            });
+                var sectionNames = rankingBySection.map(function (item) {
+                    return item.section;
+                });
 
-            var averageScores = rankingBySection.map(function (item) {
-                return item.average_score;
-            });
+                var averageScores = rankingBySection.map(function (item) {
+                    return item.average_score;
+                });
 
-            var colors = ['#FF5733', '#33FF57', '#3357FF', '#F5A623', '#8E44AD'];
+                var colors = ['#FF5733', '#33FF57', '#3357FF', '#F5A623', '#8E44AD'];
 
-            Highcharts.chart('section_ranking', {
-                chart: {
-                    type: 'column',
-                    height: '500'
-                },
-                title: {
-                    text: 'Top 5 Sections by Average Score'
-                },
-                subtitle: {
-                    text: 'Based on student performance'
-                },
-                legend: {
-                    enabled: false
-                },
-                xAxis: {
-                    categories: sectionNames,
-                    title: { text: 'Section' }
-                },
-                yAxis: {
-                    min: 0,
-                    title: { text: 'Average Score' }
-                },
-                credits: { enabled: false },
-                series: [{
-                    name: 'Average Score',
-                    data: averageScores,
-                    colorByPoint: true,
-                    colors: colors,
-                    dataLabels: {
-                        enabled: true,
-                        formatter: function () {
-                            return this.y.toFixed(2);
-                        },
-                        style: {
-                            fontWeight: 'bold',
-                            color: 'white'
+                Highcharts.chart('section_ranking', {
+                    chart: {
+                        type: 'column',
+                        height: '500',
+                    },
+                    title: {
+                        text: 'Top 5 Sections by Average Score'
+                    },
+                    subtitle: {
+                        text: 'Based on student performance'
+                    },
+                    legend: {
+                        enabled: false
+                    },
+                    xAxis: {
+                        categories: sectionNames,
+                        title: {text: 'Section'}
+                    },
+                    yAxis: {
+                        min: 0,
+                        title: {text: 'Average Score'}
+                    },
+                    credits: {enabled: false},
+                    series: [{
+                        name: 'Average Score',
+                        data: averageScores,
+                        colorByPoint: true,
+                        colors: colors,
+                        dataLabels: {
+                            enabled: true,
+                            formatter: function () {
+                                return this.y.toFixed(2);
+                            },
+                            style: {
+                                fontWeight: 'bold',
+                                color: 'white'
+                            }
                         }
-                    }
-                }]
+                    }]
+                });
             });
         });
-    });
-</script>
+    </script>
 
 
 

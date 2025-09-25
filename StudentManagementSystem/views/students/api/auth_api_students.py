@@ -1,8 +1,6 @@
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.hashers import check_password
-
-from StudentManagementSystem.helpers.custom_helpers import make_access_token
 from StudentManagementSystem.models import Student, UserProfile
 
 
