@@ -19,21 +19,22 @@
     <div class="page-wrapper p-5">
 
 
-        <div class="row">
-            <div class="col-7">
-                <div class="card">
-                    <div class="card-body p-5">
+        <div class="row gy-4">
+            <!-- Create Test -->
+            <div class="col-12 col-lg-7">
+                <div class="card h-100">
+                    <div class="card-body p-4 p-md-5">
                         <h6>CREATE NEW TEST</h6>
                         <hr>
 
                         <form method="post">
                             {% csrf_token %}
-                            <div class="row mb-3">
-                                <div class="col-6">
+                            <div class="row g-3 mb-3">
+                                <div class="col-12 col-md-6">
                                     <label class="form-label">TEST NAME</label>
                                     <input type="text" name="name" class="form-control" required>
                                 </div>
-                                <div class="col-6">
+                                <div class="col-12 col-md-6">
                                     <label class="form-label">TEST TYPE</label>
                                     <select name="test_type" class="form-select">
                                         {% for value, label in test_types %}
@@ -41,7 +42,7 @@
                                         {% endfor %}
                                     </select>
                                 </div>
-                                <div class="col mt-3">
+                                <div class="col-12">
                                     <label class="form-label">SHUFFLE SETTINGS</label><br>
                                     <div class="form-check form-check-inline">
                                         <input class="form-check-input" type="checkbox" name="shuffle_questions"
@@ -63,26 +64,23 @@
                 </div>
             </div>
 
-            <div class="col">
-                <div class="card">
-                    <div class="card-body p-5">
+            <!-- Tests Created -->
+            <div class="col-12 col-lg-5">
+                <div class="card h-100">
+                    <div class="card-body p-4 p-md-5">
                         <h6>TESTS CREATED</h6>
                         <hr>
                         <div id="tests-list" style="min-height: 168px;">
-
                             {% for test in tests %}
+                                <!-- Assign Modal -->
                                 <div class="modal fade" id="assignModal{{ test.id }}" tabindex="-1" aria-hidden="true">
                                     <div class="modal-dialog modal-dialog-centered">
                                         <div class="modal-content">
-
-                                            <!-- Header -->
                                             <div class="modal-header">
                                                 <h5 class="modal-title">Give Test Sections</h5>
                                                 <button type="button" class="btn-close"
                                                         data-bs-dismiss="modal"></button>
                                             </div>
-
-                                            <!-- Body -->
                                             <form method="post" action="{% url 'assign_test' test.id %}">
                                                 {% csrf_token %}
                                                 <div class="modal-body">
@@ -90,11 +88,9 @@
                                                     {% with assigned_ids=assigned_map|get_item:test.id %}
                                                         {% for hs in request.user_obj.handled_sections.all %}
                                                             <div class="form-check form-switch mb-2">
-                                                                <input class="form-check-input"
-                                                                       type="checkbox"
+                                                                <input class="form-check-input" type="checkbox"
                                                                        id="sectionSwitch{{ test.id }}_{{ hs.section.id }}"
-                                                                       name="section_ids"
-                                                                       value="{{ hs.section.id }}"
+                                                                       name="section_ids" value="{{ hs.section.id }}"
                                                                        {% if hs.section.id in assigned_ids %}checked{% endif %}>
                                                                 <label class="form-check-label"
                                                                        for="sectionSwitch{{ test.id }}_{{ hs.section.id }}">
@@ -106,9 +102,6 @@
                                                     <small class="text-muted">Toggle ON to assign this test to a
                                                         section.</small>
                                                 </div>
-
-
-                                                <!-- Footer -->
                                                 <div class="modal-footer">
                                                     <button type="button" class="btn btn-secondary"
                                                             data-bs-dismiss="modal">Cancel
@@ -121,16 +114,15 @@
                                     </div>
                                 </div>
 
+                                <!-- Test Item -->
                                 <div class="test-item mt-3">
                                     <h6 class="fw-bold">
                                         {{ test.name }}
                                         <span class="badge bg-info">{{ test.get_test_type_display }}</span>
                                     </h6>
-                                    <div class="small text-muted">
-                                        Created at {{ test.created_at|date:"M d, Y H:i" }}
-                                    </div>
+                                    <div class="small text-muted">Created
+                                        at {{ test.created_at|date:"M d, Y H:i" }}</div>
 
-                                    <!-- Assigned Sections info -->
                                     <div class="mt-1">
                                         {% with assigned_ids=assigned_map|get_item:test.id %}
                                             {% if assigned_ids %}
@@ -138,7 +130,7 @@
                                                 {% for hs in request.user_obj.handled_sections.all %}
                                                     {% if hs.section.id in assigned_ids %}
                                                         <span class="badge bg-primary">
-                            {{ hs.section.department.name }}{{ hs.section.year_level.year }}{{ hs.section.letter }}
+                          {{ hs.section.department.name }}{{ hs.section.year_level.year }}{{ hs.section.letter }}
                         </span>
                                                     {% endif %}
                                                 {% endfor %}
@@ -148,71 +140,67 @@
                                         {% endwith %}
                                     </div>
 
-                                    <!-- Action buttons -->
-                                    <div class="mt-2 d-flex gap-2">
+                                    <div class="mt-2 d-flex flex-wrap gap-2">
                                         <a href="{% url 'manage_test_view' test.id %}"
                                            class="btn btn-outline-secondary btn-sm">
                                             <i class="bx bx-edit"></i> Manage
                                         </a>
-
                                         <button type="button" class="btn btn-outline-primary btn-sm"
                                                 data-bs-toggle="modal" data-bs-target="#assignModal{{ test.id }}">
-                                            <i class="bx bx-link"></i>Assign
+                                            <i class="bx bx-link"></i> Assign
                                         </button>
-
                                         <a href="{% url 'duplicate_test' test.id %}"
                                            class="btn btn-outline-success btn-sm">
                                             <i class="bx bx-copy"></i> Duplicate
                                         </a>
                                     </div>
                                 </div>
-
-
                             {% empty %}
                                 <div class="text-muted">No tests created yet.</div>
                             {% endfor %}
                         </div>
 
-                        <!-- Pagination UI -->
-                        <div id="tests-pagination"
-                             class="d-flex justify-content-center mt-4 flex-column align-center"></div>
+                        <div id="tests-pagination" class="d-flex justify-content-center mt-4"></div>
                     </div>
                 </div>
             </div>
-
-
         </div>
-        <div class="row">
-            <div class="col">
+
+        <!-- Results Section -->
+        <div class="row mt-4">
+            <div class="col-12">
                 <div class="card">
-                    <div class="card-body p-5">
+                    <div class="card-body p-4 p-md-5">
                         <h6>ALL TEST RESULTS</h6>
                         <hr>
 
-                        <form method="get" class="mb-3 d-flex gap-2">
-                            <!-- Test type dropdown -->
-                            <select name="test_type" class="form-select w-auto" onchange="this.form.submit()">
-                                <option value="">All Types</option>
-                                <option value="pre" {% if selected_test_type == "pre" %}selected{% endif %}>Pre-Test
-                                </option>
-                                <option value="post" {% if selected_test_type == "post" %}selected{% endif %}>
-                                    Post-Test
-                                </option>
-                            </select>
-
-                            <!-- Test dropdown (depends on test_type) -->
-                            <select name="test_id" class="form-select w-auto" onchange="this.form.submit()">
-                                <option value="">All Tests</option>
-                                {% for test in available_tests %}
-                                    <option value="{{ test.id }}"
-                                            {% if selected_test_id == test.id|stringformat:"s" %}selected{% endif %}>
-                                        {{ test.name }}
+                        <!-- Filters -->
+                        <form method="get" class="row g-2 mb-3">
+                            <div class="col-12 col-md-3">
+                                <select name="test_type" class="form-select" onchange="this.form.submit()">
+                                    <option value="">All Types</option>
+                                    <option value="pre" {% if selected_test_type == "pre" %}selected{% endif %}>
+                                        Pre-Test
                                     </option>
-                                {% endfor %}
-                            </select>
+                                    <option value="post" {% if selected_test_type == "post" %}selected{% endif %}>
+                                        Post-Test
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <select name="test_id" class="form-select" onchange="this.form.submit()">
+                                    <option value="">All Tests</option>
+                                    {% for test in available_tests %}
+                                        <option value="{{ test.id }}"
+                                                {% if selected_test_id == test.id|stringformat:"s" %}selected{% endif %}>
+                                            {{ test.name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
                         </form>
 
-                        <!-- Results Table(s) -->
+                        <!-- Results Tables -->
                         {% if grouped_results %}
                             {% for tid, group in grouped_results.items %}
                                 <div class="mb-4">
@@ -220,29 +208,30 @@
                                         {{ group.test.name }}
                                         <span class="badge bg-info">{{ group.test.get_test_type_display }}</span>
                                     </h6>
-
-                                    <table class="table table-sm table-bordered">
-                                        <thead>
-                                        <tr>
-                                            <th>Student</th>
-                                            <th>Section</th>
-                                            <th>Score</th>
-                                            <th>Out of</th>
-                                            <th>Taken At</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        {% for st in group.rows %}
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-bordered align-middle">
+                                            <thead>
                                             <tr>
-                                                <td>{{ st.student.first_name }} {{ st.student.last_name }}</td>
-                                                <td>{{ st.student.full_section }}</td>
-                                                <td>{{ st.score|default:"-" }}</td>
-                                                <td>{{ group.max_points }}</td>
-                                                <td>{{ st.taken_at|date:"M d, Y H:i" }}</td>
+                                                <th>Student</th>
+                                                <th>Section</th>
+                                                <th>Score</th>
+                                                <th>Out of</th>
+                                                <th>Taken At</th>
                                             </tr>
-                                        {% endfor %}
-                                        </tbody>
-                                    </table>
+                                            </thead>
+                                            <tbody>
+                                            {% for st in group.rows %}
+                                                <tr>
+                                                    <td>{{ st.student.first_name }} {{ st.student.last_name }}</td>
+                                                    <td>{{ st.student.full_section }}</td>
+                                                    <td>{{ st.score|default:"-" }}</td>
+                                                    <td>{{ group.max_points }}</td>
+                                                    <td>{{ st.taken_at|date:"M d, Y H:i" }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             {% endfor %}
                         {% else %}

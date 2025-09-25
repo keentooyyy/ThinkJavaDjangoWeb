@@ -3,23 +3,31 @@
     <div class="col-12">
         <div class="card">
             <div class="card-body p-5">
-                <div class="row d-flex justify-content-center align-items-center">
-                    <div class="col-9">
-                        <h3>Welcome, <span class="text-primary">{{ student.first_name }} {{ student.last_name }}</span>
-                        </h3>
-                        <h6>Student ID: <span class="font-14 badge bg-primary px-3 py-2 text-center">{{ student.student_id }}</span></h6>
+                <h3>
+                    Welcome,
+                    <span class="text-primary">{{ student.first_name }} {{ student.last_name }}</span>
+                </h3>
+                <hr>
+
+                <div class="row gy-3">
+                    <!-- Student ID -->
+                    <div class="col-12 col-sm-6 d-flex flex-column flex-md-row align-items-md-center">
+                        <span class="fw-semibold me-md-2 mb-2 mb-md-0">Student ID:</span>
+                        <span class="badge bg-primary px-3 py-2 text-center w-auto">{{ student.student_id }}</span>
                     </div>
-                    <div class="col-3">
-                        <h6 class="d-inline float-end">Section: <span
-                                class="badge bg-primary px-3 py-2 text-center">{{ student.section }}</span></h6>
+
+                    <!-- Section -->
+                    <div class="col-12 col-sm-6">
+                        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-end">
+                            <span class="fw-semibold me-md-2 mb-2 mb-md-0">Section:</span>
+                            <span class="badge bg-primary px-3 py-2 text-center">{{ student.section }}</span>
+                        </div>
                     </div>
                 </div>
-
-
             </div>
-
         </div>
     </div>
+
 
     {% include 'students/student_performance.html' %}
 
