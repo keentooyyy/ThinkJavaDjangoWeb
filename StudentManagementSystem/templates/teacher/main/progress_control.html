@@ -11,13 +11,12 @@
 
         <div class="row p-5">
             <div class="card w-100">
-                <div class="card-body p-5">
-
+                <div class="card-body p-4 p-md-5">
 
                     <h6 class="mb-3">PROGRESS CONTROL FOR YOUR SECTION</h6>
                     <hr>
 
-
+                    <!-- Messages -->
                     <div id="control_messages">
                         {% if messages %}
                             {% for message in messages %}
@@ -28,43 +27,42 @@
                         {% endif %}
                     </div>
 
-
+                    <!-- Quick Controls -->
                     <form method="post" action="{% url 'progress_control_teacher' %}" class="mb-4">
                         {% csrf_token %}
-                        <div class="row d-flex align-items-center g-2">
-
-                            <div class="col-auto">
-                                <button name="action" value="unlock_levels" class="btn btn-primary">Unlock All Levels
+                        <div class="row g-2">
+                            <div class="col-12 col-sm-6 col-md-3 d-grid">
+                                <button name="action" value="unlock_levels" class="btn btn-primary w-100">
+                                    Unlock All Levels
                                 </button>
                             </div>
-
-                            <div class="col-auto">
-                                <button name="action" value="enable_achievements" class="btn btn-primary">Enable All
-                                    Achievements
+                            <div class="col-12 col-sm-6 col-md-3 d-grid">
+                                <button name="action" value="enable_achievements" class="btn btn-primary w-100">
+                                    Enable All Achievements
                                 </button>
                             </div>
-
-                            <div class="col-auto">
-                                <button name="action" value="lock_levels" class="btn btn-danger">Lock All Levels
+                            <div class="col-12 col-sm-6 col-md-3 d-grid">
+                                <button name="action" value="lock_levels" class="btn btn-danger w-100">
+                                    Lock All Levels
                                 </button>
                             </div>
-
-                            <div class="col-auto">
-                                <button name="action" value="disable_achievements" class="btn btn-danger">Disable All
-                                    Achievements
+                            <div class="col-12 col-sm-6 col-md-3 d-grid">
+                                <button name="action" value="disable_achievements" class="btn btn-danger w-100">
+                                    Disable All Achievements
                                 </button>
                             </div>
                         </div>
                     </form>
 
-                    <div class="row mb-5 text-center">
-                        <!-- 🔹 Global Level Controls -->
-                        <div class="col d-flex flex-column align-items-center">
-                            <h6 class="mt-4">Global Level Controls (All Sections)</h6>
+                    <!-- Global Controls -->
+                    <div class="row mb-5 gy-4 text-center">
+                        <!-- Levels -->
+                        <div class="col-12 col-lg-6">
+                            <h6 class="mb-2">Global Level Controls (All Sections)</h6>
                             <form method="post" action="{% url 'progress_control_teacher' %}"
-                                  class="d-flex flex-wrap gap-2 justify-content-center align-items-center mt-2">
+                                  class="d-flex flex-wrap gap-2 justify-content-center">
                                 {% csrf_token %}
-                                <select name="level_name" class="form-select" style="width: 200px;">
+                                <select name="level_name" class="form-select" style="max-width: 220px;">
                                     <option value="" disabled selected>Select Level</option>
                                     {% for level in all_levels %}
                                         <option value="{{ level.name }}">{{ level.name }}</option>
@@ -72,7 +70,6 @@
                                         <option disabled>No levels defined</option>
                                     {% endfor %}
                                 </select>
-
                                 <button name="action" value="unlock_single_level_global" class="btn btn-primary">
                                     Unlock For All
                                 </button>
@@ -82,13 +79,13 @@
                             </form>
                         </div>
 
-                        <!-- 🔹 Global Achievement Controls -->
-                        <div class="col d-flex flex-column align-items-center">
-                            <h6 class="mt-4">Global Achievement Controls (All Sections)</h6>
+                        <!-- Achievements -->
+                        <div class="col-12 col-lg-6">
+                            <h6 class="mb-2">Global Achievement Controls (All Sections)</h6>
                             <form method="post" action="{% url 'progress_control_teacher' %}"
-                                  class="d-flex flex-wrap gap-2 justify-content-center align-items-center mt-2">
+                                  class="d-flex flex-wrap gap-2 justify-content-center">
                                 {% csrf_token %}
-                                <select name="achievement_code" class="form-select" style="width: 200px;">
+                                <select name="achievement_code" class="form-select" style="max-width: 220px;">
                                     <option value="" disabled selected>Select Achievement</option>
                                     {% for ach in all_achievements %}
                                         <option value="{{ ach.code }}">{{ ach.title }}</option>
@@ -96,7 +93,6 @@
                                         <option disabled>No achievements defined</option>
                                     {% endfor %}
                                 </select>
-
                                 <button name="action" value="enable_single_achievement_global" class="btn btn-primary">
                                     Enable For All
                                 </button>
@@ -109,11 +105,10 @@
 
                     <hr>
 
-                    {#insert table here please also the filters dropdown will be the teacher handled section instead of showing everything #}
                     <!-- Section Filter -->
                     <form method="get" class="mb-4">
-                        <div class="row g-3 align-items-center">
-                            <div class="col-auto">
+                        <div class="row g-2 align-items-center">
+                            <div class="col-12 col-sm-6 col-md-4">
                                 <select name="filter_by" id="filter_by" class="form-select">
                                     <option value="">Select Section</option>
                                     {% for section in sections %}
@@ -122,18 +117,17 @@
                                                     {% if section_key == selected_section %}selected{% endif %}>
                                                 {{ section.department.name }}{{ section.year_level.year }}{{ section.letter }}
                                             </option>
-
                                         {% endwith %}
                                     {% endfor %}
                                 </select>
                             </div>
-                            <div class="col-auto">
-                                <button type="submit" class="btn btn-primary"><i class="bx bx-filter"></i> Filter
+                            <div class="col-12 col-sm-6 col-md-2 d-grid">
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="bx bx-filter"></i> Filter
                                 </button>
                             </div>
                         </div>
                     </form>
-
 
                     <!-- Per Section Tables -->
                     {% if selected_section_obj %}
@@ -142,14 +136,14 @@
                                 {{ selected_section_obj.department.name }}{{ selected_section_obj.year_level.year }}{{ selected_section_obj.letter }}
                             </h5>
 
-                            <div class="row">
-
-                                <div class="col">
+                            <div class="row gy-4">
+                                <!-- Levels Table -->
+                                <div class="col-12 col-lg-6">
                                     <h6>Levels</h6>
-                                    <div class="table-responsive mb-3">
-                                        <table class="table mb-0 table-hover">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover align-middle text-center">
                                             <thead>
-                                            <tr class="text-center">
+                                            <tr>
                                                 <th>Level</th>
                                                 <th>Status</th>
                                                 <th>Action</th>
@@ -159,14 +153,14 @@
                                             {% for level in selected_section_obj.levels %}
                                                 <tr>
                                                     <td>{{ level.name }}</td>
-                                                    <td class="text-center">
+                                                    <td>
                                                         {% if level.unlocked %}
                                                             <span class="badge bg-success">Unlocked</span>
                                                         {% else %}
                                                             <span class="badge bg-secondary">Locked</span>
                                                         {% endif %}
                                                     </td>
-                                                    <td class="text-center">
+                                                    <td>
                                                         <form method="post"
                                                               action="{% url 'progress_control_teacher' %}"
                                                               class="d-inline">
@@ -177,11 +171,11 @@
                                                                    value="{{ level.name }}">
                                                             {% if level.unlocked %}
                                                                 <button name="action" value="lock_single_level"
-                                                                        class="btn btn-sm btn-danger">Lock
+                                                                        class="btn btn-sm btn-danger">
+                                                                    Lock
                                                                 </button>
                                                             {% else %}
-                                                                <button type="button"
-                                                                        class="btn btn-sm btn-primary"
+                                                                <button type="button" class="btn btn-sm btn-primary"
                                                                         onclick="openAssignTaskModal('{{ selected_section_obj.id }}', '{{ level.name }}')">
                                                                     Unlock
                                                                 </button>
@@ -191,8 +185,7 @@
                                                 </tr>
                                             {% empty %}
                                                 <tr>
-                                                    <td colspan="3" class="text-center text-muted">No levels defined.
-                                                    </td>
+                                                    <td colspan="3" class="text-muted">No levels defined.</td>
                                                 </tr>
                                             {% endfor %}
                                             </tbody>
@@ -200,12 +193,13 @@
                                     </div>
                                 </div>
 
-                                <div class="col">
+                                <!-- Achievements Table -->
+                                <div class="col-12 col-lg-6">
                                     <h6>Achievements</h6>
                                     <div class="table-responsive">
-                                        <table class="table mb-0 table-hover">
+                                        <table class="table table-hover align-middle text-center">
                                             <thead>
-                                            <tr class="text-center">
+                                            <tr>
                                                 <th>Code</th>
                                                 <th>Title</th>
                                                 <th>Status</th>
@@ -217,14 +211,14 @@
                                                 <tr>
                                                     <td>{{ ach.code }}</td>
                                                     <td>{{ ach.title }}</td>
-                                                    <td class="text-center">
+                                                    <td>
                                                         {% if ach.is_active %}
                                                             <span class="badge bg-success">Obtainable</span>
                                                         {% else %}
                                                             <span class="badge bg-secondary">Unobtainable</span>
                                                         {% endif %}
                                                     </td>
-                                                    <td class="text-center">
+                                                    <td>
                                                         <form method="post"
                                                               action="{% url 'progress_control_teacher' %}"
                                                               class="d-inline">
@@ -235,11 +229,13 @@
                                                                    value="{{ ach.code }}">
                                                             {% if ach.is_active %}
                                                                 <button name="action" value="disable_single_achievement"
-                                                                        class="btn btn-sm btn-danger">Disable
+                                                                        class="btn btn-sm btn-danger">
+                                                                    Disable
                                                                 </button>
                                                             {% else %}
                                                                 <button name="action" value="enable_single_achievement"
-                                                                        class="btn btn-sm btn-success">Enable
+                                                                        class="btn btn-sm btn-success">
+                                                                    Enable
                                                                 </button>
                                                             {% endif %}
                                                         </form>
@@ -247,24 +243,21 @@
                                                 </tr>
                                             {% empty %}
                                                 <tr>
-                                                    <td colspan="4" class="text-center text-muted">No achievements
-                                                        defined.
-                                                    </td>
+                                                    <td colspan="4" class="text-muted">No achievements defined.</td>
                                                 </tr>
                                             {% endfor %}
                                             </tbody>
                                         </table>
                                     </div>
                                 </div>
-
                             </div>
-
                         </div>
                     {% else %}
                         <p class="text-muted">Please select a section to view progress controls.</p>
                     {% endif %}
                 </div>
             </div>
+
         </div>
 
     </div>
@@ -277,75 +270,8 @@
 
 
 {% block scripts %}
-<script>
-    function openAssignTaskModal(sectionId, levelName) {
-        // Store info in modal
-        $("#assignTaskModal").data("section-id", sectionId);
-        $("#assignTaskModal").data("level-name", levelName);
+    <script src="{% static 'js/progress_control.js' %}"></script>
 
-        // Today’s date
-        let today = new Date();
-        let todayStr = today.toISOString().split("T")[0];
-
-        // Default start: today at 08:00 AM
-        $("#assignTaskModal_start_date").val(todayStr);
-        $("#assignTaskModal_start_hour").val("8");
-        $("#assignTaskModal_start_minute").val("00");
-        $("#assignTaskModal_start_ampm").val("AM");
-
-        // Default due: +7 days at 11:55 PM
-        let due = new Date();
-        due.setDate(today.getDate() + 7);
-        let dueStr = due.toISOString().split("T")[0];
-
-        $("#assignTaskModal_due_date").val(dueStr);
-        $("#assignTaskModal_due_hour").val("11");
-        $("#assignTaskModal_due_minute").val("55");
-        $("#assignTaskModal_due_ampm").val("PM");
-
-        // Show modal
-        $("#assignTaskModal").modal("show");
-    }
-
-    // Build datetime string in 24h format
-    function buildDateTime(prefix) {
-        var date = $(`#assignTaskModal_${prefix}_date`).val();
-        var hour = parseInt($(`#assignTaskModal_${prefix}_hour`).val());
-        var minute = $(`#assignTaskModal_${prefix}_minute`).val();
-        var ampm = $(`#assignTaskModal_${prefix}_ampm`).val();
-
-        if (ampm === "PM" && hour < 12) hour += 12;
-        if (ampm === "AM" && hour === 12) hour = 0;
-
-        return date ? `${date} ${String(hour).padStart(2,"0")}:${minute}:00` : "";
-    }
-
-    // Save handler
-    $("#assignTaskModal_save").off("click").on("click", function () {
-        var sectionId = $("#assignTaskModal").data("section-id");
-        var levelName = $("#assignTaskModal").data("level-name");
-
-        var startDateTime = buildDateTime("start");
-        var dueDateTime = buildDateTime("due");
-
-        // Build hidden form
-        var form = $('<form>', { method: 'POST', action: "{% url 'progress_control_teacher' %}" });
-        form.append('{% csrf_token %}');
-        form.append($('<input>', {type: 'hidden', name: 'action', value: 'unlock_single_level_with_schedule'}));
-        form.append($('<input>', {type: 'hidden', name: 'section_id', value: sectionId}));
-        form.append($('<input>', {type: 'hidden', name: 'level_name', value: levelName}));
-        form.append($('<input>', {type: 'hidden', name: 'start_date', value: startDateTime}));
-        form.append($('<input>', {type: 'hidden', name: 'due_date', value: dueDateTime}));
-
-        $('body').append(form);
-        form.submit();
-    });
-
-    // Cancel handler
-    $("#assignTaskModal_cancel").off("click").on("click", function () {
-        $("#assignTaskModal").modal("hide");
-    });
-</script>
 
 
 {% endblock %}

@@ -15,7 +15,7 @@
 {% block content %}
     <div class="page-wrapper">
         <div class="row p-5">
-            <div class="col-7">
+            <div class="col-12 col-md-7">
 
 
                 <div class="card radius-10">
@@ -41,10 +41,10 @@
 
                             <div class="row">
 
-                                <div class="col-4">
+                                <div class="col-12 col-sm-4">
                                     <p class="font-16">Student ID:</p>
                                 </div>
-                                <div class="col-8">
+                                <div class="col-12 col-sm-8">
                                     <div class="input-group mb-3">
                                         <input name="student_id" id="student_id" class="form-control" type="text"
                                                placeholder="Student ID"
@@ -59,10 +59,10 @@
 
 
                             <div class="row">
-                                <div class="col-4">
+                                <div class="col-12 col-sm-4">
                                     <p class="font-16">Full Name:</p>
                                 </div>
-                                <div class="col-8">
+                                <div class="col-12 col-sm-8">
                                     <div class="row">
                                         <div class="col">
                                             <input name="first_name" id="first_name" class="form-control mb-3"
@@ -82,10 +82,10 @@
 
 
                             <div class="row">
-                                <div class="col-4">
+                                <div class="col-12 col-sm-4">
                                     <p class="font-16">Password:</p>
                                 </div>
-                                <div class="col-8">
+                                <div class="col-12 col-sm-8">
                                     <div class="input-group mb-3">
                                         <input name="password" id="password" class="form-control" type="password"
                                                placeholder="Password"
@@ -103,10 +103,10 @@
 
                             <div class="row">
 
-                                <div class="col-4">
+                                <div class="col-12 col-sm-4">
                                     <label for="section_id">Assign to Section:</label>
                                 </div>
-                                <div class="col-8"><select name="section_id" id="section_id" class="form-select"
+                                <div class="col-12 col-sm-8"><select name="section_id" id="section_id" class="form-select"
                                                            required>
                                     {% for hs in handled_sections %}
                                         <option value="{{ hs.section.id }}">
