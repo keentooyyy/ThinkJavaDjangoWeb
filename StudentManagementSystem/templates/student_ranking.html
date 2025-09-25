@@ -23,7 +23,7 @@
                         <h6 class="mb-0 text-uppercase">STUDENT PERFORMANCE RANKING</h6>
 
                         {% if role != 'STUDENT' %}
-                            <div>
+                            <div class="d-md-block d-flex justify-content-center flex-column gap-3">
                                 <a href="{% url 'print_ranking' %}?{{ request.GET.urlencode }}" target="_blank"
                                    class="btn btn-sm btn-outline-secondary">
                                     <i class="bx bx-printer"></i> Print
@@ -47,11 +47,12 @@
                         <form method="get" class="filter-form">
                             <div class="row g-3 my-2">
 
-                                <div class="col m-0">
-                                    <div class="row">
+                                <!-- Filters -->
+                                <div class="col-12 col-lg mt-0">
+                                    <div class="row row-cols-2 row-cols-md-3 row-cols-lg-3 row-cols-xl-4 row-cols-xxl-6 g-2">
 
                                         {% if departments %}
-                                            <div class="col m-0">
+                                            <div class="col">
                                                 <select name="department" id="department" class="form-select">
                                                     <option value="">DEPARTMENTS</option>
                                                     {% for dept in departments %}
@@ -65,7 +66,7 @@
                                         {% endif %}
 
                                         {% if sections %}
-                                            <div class="col m-0">
+                                            <div class="col">
                                                 <select name="filter_by" id="filter_by" class="form-select">
                                                     <option value="">SECTIONS</option>
                                                     {% for section in sections %}
@@ -80,7 +81,7 @@
                                             </div>
                                         {% endif %}
 
-                                        <div class="col m-0">
+                                        <div class="col">
                                             <select name="sort_by" id="sort_by" class="form-select text-uppercase">
                                                 <option value="" {% if not sort_order %}selected{% endif %}>SORT BY
                                                 </option>
@@ -95,16 +96,16 @@
                                                         {% if sort_by == "achievements" %}selected{% endif %}>
                                                     Achievements
                                                 </option>
-                                                <option value="name" {% if sort_by == "name" %}selected{% endif %}>Name
+                                                <option value="name" {% if sort_by == "name" %}selected{% endif %}>
+                                                    Name
                                                 </option>
                                                 <option value="section"
-                                                        {% if sort_by == "section" %}selected{% endif %}>
-                                                    Section
+                                                        {% if sort_by == "section" %}selected{% endif %}>Section
                                                 </option>
                                             </select>
                                         </div>
 
-                                        <div class="col m-0">
+                                        <div class="col">
                                             <select name="sort_order" id="sort_order"
                                                     class="form-select text-uppercase">
                                                 <option value="" {% if not sort_order %}selected{% endif %}>ORDER BY
@@ -118,9 +119,9 @@
                                             </select>
                                         </div>
 
-                                        <div class="col m-0">
+                                        <div class="col">
                                             <select name="per_page" class="form-select">
-                                                <option value="0" {% if not sort_order %}selected{% endif %}>ITEMS PER
+                                                <option value="0" {% if not per_page %}selected{% endif %}>ITEMS PER
                                                     PAGE
                                                 </option>
                                                 <option value="10" {% if per_page == 10 %}selected{% endif %}>10
@@ -132,17 +133,17 @@
                                             </select>
                                         </div>
 
-                                        <div class="col m-0">
-                                            <button type="submit" class="btn btn-primary w-auto">
+                                        <div class="col">
+                                            <button type="submit" class="btn btn-primary w-100">
                                                 <i class="bx bx-filter"></i> Apply
                                             </button>
                                         </div>
+
                                     </div>
                                 </div>
 
-
-                                <!-- ✅ Search bar (input + button) -->
-                                <div class="col-3 m-0">
+                                <!-- Search bar -->
+                                <div class="col-12 col-lg-4 mt-3 mt-lg-0">
                                     <div class="input-group">
                                         <input type="text" name="search" class="form-control" placeholder="Search...">
                                         <button class="btn btn-secondary" type="submit" id="rank_search">
@@ -151,11 +152,12 @@
                                     </div>
                                 </div>
 
-
                             </div>
+
+
                         </form>
 
-                        <div class="row mt-3">
+                        <div class="row mt-3 table-responsive">
                             <table class="table mb-0 table-hover">
                                 <thead>
                                 <tr>
@@ -187,63 +189,64 @@
                                 </tbody>
                             </table>
 
-                            <div class="mt-3">
-                                {% if page_obj.has_other_pages %}
-                                    <div class="d-flex justify-content-center">
-                                        <ul class="pagination">
-                                            <!-- Previous -->
-                                            {% if page_obj.has_previous %}
+
+                        </div>
+                        <div class="mt-3">
+                            {% if page_obj.has_other_pages %}
+                                <div class="d-flex justify-content-center">
+                                    <ul class="pagination">
+                                        <!-- Previous -->
+                                        {% if page_obj.has_previous %}
+                                            <li class="page-item">
+                                                <a class="page-link"
+                                                   href="?{% if sort_by %}sort_by={{ sort_by }}&{% endif %}{% if sort_order %}sort_order={{ sort_order }}&{% endif %}{% if per_page %}per_page={{ per_page }}&{% endif %}page={{ page_obj.previous_page_number }}"
+                                                   aria-label="Previous">
+                                                    <span aria-hidden="true">«</span>
+                                                </a>
+                                            </li>
+                                        {% else %}
+                                            <li class="page-item disabled">
+                                                <span class="page-link">«</span>
+                                            </li>
+                                        {% endif %}
+
+                                        <!-- Pages -->
+                                        {% for num in page_obj.paginator.page_range %}
+                                            {% if page_obj.number == num %}
+                                                <li class="page-item active"><span
+                                                        class="page-link">{{ num }}</span></li>
+                                            {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %}
                                                 <li class="page-item">
                                                     <a class="page-link"
-                                                       href="?{% if sort_by %}sort_by={{ sort_by }}&{% endif %}{% if sort_order %}sort_order={{ sort_order }}&{% endif %}{% if per_page %}per_page={{ per_page }}&{% endif %}page={{ page_obj.previous_page_number }}"
-                                                       aria-label="Previous">
-                                                        <span aria-hidden="true">«</span>
+                                                       href="?{% if sort_by %}sort_by={{ sort_by }}&{% endif %}{% if sort_order %}sort_order={{ sort_order }}&{% endif %}{% if per_page %}per_page={{ per_page }}&{% endif %}page={{ num }}">
+                                                        {{ num }}
                                                     </a>
                                                 </li>
-                                            {% else %}
-                                                <li class="page-item disabled">
-                                                    <span class="page-link">«</span>
-                                                </li>
                                             {% endif %}
+                                        {% endfor %}
 
-                                            <!-- Pages -->
-                                            {% for num in page_obj.paginator.page_range %}
-                                                {% if page_obj.number == num %}
-                                                    <li class="page-item active"><span
-                                                            class="page-link">{{ num }}</span></li>
-                                                {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %}
-                                                    <li class="page-item">
-                                                        <a class="page-link"
-                                                           href="?{% if sort_by %}sort_by={{ sort_by }}&{% endif %}{% if sort_order %}sort_order={{ sort_order }}&{% endif %}{% if per_page %}per_page={{ per_page }}&{% endif %}page={{ num }}">
-                                                            {{ num }}
-                                                        </a>
-                                                    </li>
-                                                {% endif %}
-                                            {% endfor %}
+                                        <!-- Next -->
+                                        {% if page_obj.has_next %}
+                                            <li class="page-item">
+                                                <a class="page-link"
+                                                   href="?{% if sort_by %}sort_by={{ sort_by }}&{% endif %}{% if sort_order %}sort_order={{ sort_order }}&{% endif %}{% if per_page %}per_page={{ per_page }}&{% endif %}page={{ page_obj.next_page_number }}"
+                                                   aria-label="Next">
+                                                    <span aria-hidden="true">»</span>
+                                                </a>
+                                            </li>
+                                        {% else %}
+                                            <li class="page-item disabled">
+                                                <span class="page-link">»</span>
+                                            </li>
+                                        {% endif %}
+                                    </ul>
+                                </div>
 
-                                            <!-- Next -->
-                                            {% if page_obj.has_next %}
-                                                <li class="page-item">
-                                                    <a class="page-link"
-                                                       href="?{% if sort_by %}sort_by={{ sort_by }}&{% endif %}{% if sort_order %}sort_order={{ sort_order }}&{% endif %}{% if per_page %}per_page={{ per_page }}&{% endif %}page={{ page_obj.next_page_number }}"
-                                                       aria-label="Next">
-                                                        <span aria-hidden="true">»</span>
-                                                    </a>
-                                                </li>
-                                            {% else %}
-                                                <li class="page-item disabled">
-                                                    <span class="page-link">»</span>
-                                                </li>
-                                            {% endif %}
-                                        </ul>
-                                    </div>
-
-                                    <!-- Page Info -->
-                                    <div class="text-center mt-2">
-                                        <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
-                                    </div>
-                                {% endif %}
-                            </div>
+                                <!-- Page Info -->
+                                <div class="text-center mt-2">
+                                    <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                                </div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>

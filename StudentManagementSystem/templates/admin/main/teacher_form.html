@@ -37,10 +37,10 @@
 
                         <div class="row">
 
-                            <div class="col-4">
+                            <div class="col-md-4 col-12">
                                 <p class="font-16">Teacher ID:</p>
                             </div>
-                            <div class="col-8">
+                            <div class="col-12 col-md-8">
                                 <div class="input-group mb-3">
                                     <input name="teacher_id" id="teacher_id" class="form-control" type="text"
                                            placeholder="Teacher ID"
@@ -54,10 +54,10 @@
 
 
                         <div class="row">
-                            <div class="col-4">
+                            <div class="col-md-4 col-12">
                                 <p class="font-16">Full Name:</p>
                             </div>
-                            <div class="col-8">
+                            <div class="col-md-8 col-12">
                                 <div class="row">
                                     <div class="col">
                                         <input name="first_name" id="first_name" class="form-control mb-3" type="text"
@@ -76,10 +76,10 @@
 
 
                         <div class="row">
-                            <div class="col-4">
+                            <div class="col-md-4 col-12">
                                 <p class="font-16">Password:</p>
                             </div>
-                            <div class="col-8">
+                            <div class="col-md-8 col-12">
                                 <div class="input-group mb-3">
                                     <input name="password" id="password" class="form-control" type="password"
                                            placeholder="Password"
@@ -103,7 +103,7 @@
                             <div id="section-group-container">
                                 <div class="section-group mb-3">
                                     <div class="row">
-                                        <div class="col-md-6">
+                                        <div class="col-md-6 mb-3 mb-md-0">
                                             <label for="department" class="font-16">Department:</label>
                                             <select name="departments[]" class="form-select" required>
                                                 <option value="">-- Select Department --</option>
@@ -125,12 +125,12 @@
                                 </div>
                             </div>
 
-                            <div class="col-12">
-                                <button type="button" class="btn btn-outline-success float-end btn-sm ms-2"
+                            <div class="col-12 d-flex gap-3 d-md-block">
+                                <button type="button" class="btn btn-outline-success float-end btn-sm ms-md-2"
                                         onclick="addSectionGroup()">
                                     <i class="bx bx-plus mr-1"></i>Add More Sections
                                 </button>
-                                <button type="button" class="btn btn-outline-danger float-end btn-sm ms-2"
+                                <button type="button" class="btn btn-outline-danger float-end btn-sm ms-md-2"
                                         onclick="removeLastSection()">
                                     <i class="bx bx-minus mr-1"></i>Remove Last Section
                                 </button>
