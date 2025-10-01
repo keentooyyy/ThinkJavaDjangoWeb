@@ -110,6 +110,35 @@
 
 
 
+<script>
+        $(document).ready(function () {
+            // When any notification modal is closed
+            $("[id^='notifModal']").on("hidden.bs.modal", function () {
+                let notifUrl = $(this).data("notif-url");
+                if (notifUrl) {
+                    $.get(notifUrl)
+                        .done(() => {
+                            {#console.log("Notification marked as read");#}
+
+                            // 🔔 Update badge count
+                            let badge = $(".alert-count");
+                            let count = parseInt(badge.text());
+                            if (!isNaN(count) && count > 0) {
+                                let newCount = count - 1;
+                                badge.text(newCount > 9 ? "9+" : newCount);
+                                if (newCount <= 0) badge.hide();
+                            }
+
+                            // 🔔 Remove bold class for this item
+                            $("a[data-bs-target='#" + $(this).attr("id") + "']").removeClass("fw-bold");
+                        });
+                }
+            });
+        });
+    </script>
+
+
+
 
 
 

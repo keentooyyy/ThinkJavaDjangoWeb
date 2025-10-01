@@ -16,7 +16,9 @@ from GameProgress.services.progress_teacher import (
 from StudentManagementSystem.decorators.custom_decorators import session_login_required
 from StudentManagementSystem.models import Student
 from StudentManagementSystem.models.roles import Role
+from StudentManagementSystem.views.notifications_helper import create_notification
 from StudentManagementSystem.views.teacher.dashboard_teacher import get_teacher_dashboard_context
+
 
 
 # --------------------
@@ -65,7 +67,41 @@ def _parse_schedule_dates(start_date, due_date):
     return start_dt, due_dt
 
 
+def _notify_students_level_unlocked(request, students, level_name, due_dt=None):
+    """
+    Send notifications to students when a level is unlocked.
+    """
+    for student in students:
+        message = f"Your teacher has unlocked level '{level_name}'."
+        if due_dt:
+            message += f" Due date: {due_dt.strftime('%b %d, %Y %I:%M %p')}."
+        create_notification(
+            request,
+            recipient_role=Role.STUDENT,
+            title="Level Unlocked",
+            message=message,
+            student_recipient=student
+        )
+
+
+def _attach_section_progress(section, students, all_levels, all_achievements):
+    """Annotate a section with its levels and achievements progress."""
+    section.levels = [
+        {"name": lvl.name,
+         "unlocked": LevelProgress.objects.filter(student__in=students, level=lvl, unlocked=True).exists()}
+        for lvl in all_levels
+    ]
+    section.achievements = [
+        {"code": ach.code, "title": ach.title,
+         "is_active": AchievementProgress.objects.filter(student__in=students, achievement=ach,
+                                                         is_active=True).exists()}
+        for ach in all_achievements
+    ]
+    return section
+
+
 def _handle_post_action(
+    request,
     action,
     students,
     handled_sections,
@@ -90,6 +126,7 @@ def _handle_post_action(
 
     if action == "unlock_levels":
         unlock_levels_for_students(students)
+        _notify_students_level_unlocked(request, students, "All Levels")
         return result(f"All levels have been unlocked {scope}.")
 
     if action == "lock_levels":
@@ -114,6 +151,7 @@ def _handle_post_action(
         is_unlock = action == "unlock_single_level"
         if is_unlock:
             unlock_levels_for_students(students, level_name=level_name)
+            _notify_students_level_unlocked(request, students, level_name)
             return result(f"Level '{level_name}' has been unlocked {scope}.")
         else:
             lock_levels_for_students(students, level_name=level_name)
@@ -135,6 +173,10 @@ def _handle_post_action(
                 start_date=start_dt,
                 due_date=due_dt,
             )
+
+            if success:
+                _notify_students_level_unlocked(request, students, level_name, due_dt)
+
             return ("success" if success else "error", msg)
 
     # 🔹 Global single-level / single-achievement actions
@@ -143,6 +185,7 @@ def _handle_post_action(
         is_unlock = action == "unlock_single_level_global"
         if is_unlock:
             unlock_levels_for_students(global_students, level_name=level_name)
+            _notify_students_level_unlocked(request, global_students, level_name)
             return result(f"Level '{level_name}' has been unlocked across all your handled sections.")
         else:
             lock_levels_for_students(global_students, level_name=level_name)
@@ -156,22 +199,6 @@ def _handle_post_action(
                       danger=not is_active)
 
     return "error", "Unknown action. Please try again."
-
-
-def _attach_section_progress(section, students, all_levels, all_achievements):
-    """Annotate a section with its levels and achievements progress."""
-    section.levels = [
-        {"name": lvl.name,
-         "unlocked": LevelProgress.objects.filter(student__in=students, level=lvl, unlocked=True).exists()}
-        for lvl in all_levels
-    ]
-    section.achievements = [
-        {"code": ach.code, "title": ach.title,
-         "is_active": AchievementProgress.objects.filter(student__in=students, achievement=ach,
-                                                         is_active=True).exists()}
-        for ach in all_achievements
-    ]
-    return section
 
 
 # --------------------
@@ -195,7 +222,7 @@ def progress_control_teacher(request):
 
         students = _get_students_for_action(handled_sections, section_id)
         msg_type, msg_text = _handle_post_action(
-            action, students, handled_sections,
+            request, action, students, handled_sections,
             level_name, achievement_code, section_id,
             start_date=start_date, due_date=due_date
         )

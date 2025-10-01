@@ -55,7 +55,7 @@
                                 <div class="header-notifications-list ps">
                                     {% if notifications %}
                                         {% for notif in notifications %}
-                                            <a class="dropdown-item {% if not notif.is_read %}fw-bold{% else %} text-muted {% endif %}"
+                                            <a class="dropdown-item {% if not notif.is_read %}fw-bold{% else %} text-muted{% endif %}"
                                                href="javascript:void(0);"
                                                data-bs-toggle="modal"
                                                data-bs-target="#notifModal{{ notif.id }}">

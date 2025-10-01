@@ -270,6 +270,9 @@
 
 
 {% block scripts %}
+    <script>
+        const CSRF_TOKEN = "{{ csrf_token }}";
+    </script>
     <script src="{% static 'js/progress_control.js' %}"></script>
 
 
