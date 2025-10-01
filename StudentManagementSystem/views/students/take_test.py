@@ -4,6 +4,7 @@ from django.views.decorators.http import require_POST
 from django.contrib import messages
 
 from StudentManagementSystem.decorators.custom_decorators import session_login_required
+from StudentManagementSystem.models import Notification
 from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.models.pre_post_test import (
     TestDefinition, StudentTest, TestChoice,
@@ -72,6 +73,13 @@ def take_test_view(request):
         for q in post_progress.get_page_questions():
             post_choices_map[q.id] = post_progress.get_choices_for_question(q)
 
+    notifications = Notification.objects.filter(
+        recipient_role=Role.STUDENT,
+        student_recipient=student
+    ).order_by("-created_at")  # last 10
+
+    unread_count = notifications.filter(is_read=False).count()
+
     context = {
         "username": username,
         "role": role,
@@ -91,6 +99,9 @@ def take_test_view(request):
         "post_choices_map": post_choices_map,
 
         "can_take_posttest": student.can_take_posttest,
+
+        "notifications" : notifications,
+        "unread_count": unread_count,
     }
     return render(request, "students/main/take_test.html", context)
 

@@ -3,7 +3,7 @@ from django.shortcuts import render
 
 from GameProgress.services.ranking import get_all_student_rankings
 from StudentManagementSystem.decorators.custom_decorators import session_login_required
-from StudentManagementSystem.models import Student
+from StudentManagementSystem.models import Student, Notification
 from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.views.ranking_view import (
     get_common_params,
@@ -48,9 +48,17 @@ def student_student_ranking(request):
     # ✅ Paginate after filtering
     page_obj = paginate_queryset(rankings, params["per_page"], params["page_number"])
 
+    notifications = Notification.objects.filter(
+        recipient_role=Role.STUDENT,
+        student_recipient=student
+    ).order_by("-created_at")  # last 10
+
+    unread_count = notifications.filter(is_read=False).count()
     user_context = {
         "username": f"{student.first_name} {student.last_name}",
         "role": student.role,  # ✅ comes directly from student object
+        "notifications": notifications,
+        "unread_count": unread_count,
     }
 
     context = build_ranking_context(

@@ -3,6 +3,7 @@ from django.shortcuts import render
 from GameProgress.models import AchievementDefinition, AchievementProgress, LevelProgress, LevelDefinition
 from GameProgress.services.ranking import get_student_performance, calc_level_score, calc_level_stars
 from StudentManagementSystem.decorators.custom_decorators import session_login_required
+from StudentManagementSystem.models import Notification
 from StudentManagementSystem.models.roles import Role
 
 
@@ -16,6 +17,12 @@ def student_dashboard(request):
     game_completion = get_game_completion(student)
     levels = get_student_levels(student)
 
+    notifications = Notification.objects.filter(
+        recipient_role=Role.STUDENT,
+        student_recipient=student
+    ).order_by("-created_at")  # last 10
+
+    unread_count = notifications.filter(is_read=False).count()
     context = {
         "student": student,
         "performance": performance,
@@ -24,6 +31,8 @@ def student_dashboard(request):
         "achievements": achievements,
         "game_completion": game_completion,
         "levels": levels,
+        "notifications": notifications,
+        "unread_count": unread_count,
     }
     return render(request, "students/main/dashboard.html", context)
 
