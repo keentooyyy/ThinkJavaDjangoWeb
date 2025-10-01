@@ -4,8 +4,10 @@ from django.shortcuts import redirect, get_object_or_404
 
 from GameProgress.models import LevelDefinition, AchievementDefinition
 from StudentManagementSystem.decorators.custom_decorators import session_login_required
+from StudentManagementSystem.models import Teacher
 from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.views.logger import create_log
+from StudentManagementSystem.views.notifications import create_notification
 from StudentManagementSystem.views.sync_all_progress import run_sync_in_background
 
 
@@ -72,6 +74,17 @@ def add_achievement(request):
                 run_sync_in_background()
                 messages.success(request, f"Achievement '{ach_title}' created.", extra_tags=message_tag)
                 create_log(request, "CREATE", f"Admin {admin.username} created achievement '{ach_title}'.")
+
+                # 🔔 Send notification to all teachers
+                for teacher in Teacher.objects.all():
+                    create_notification(
+                        request=request,
+                        recipient_role=Role.TEACHER,
+                        teacher_recipient=teacher,
+                        title="New Achievement Added",
+                        message=f"A new achievement '{ach_title}' has been added. Please review it."
+                    )
+
             else:
                 messages.error(request, f"Achievement '{ach_title}' already exists.", extra_tags=message_tag)
                 create_log(request, "UPDATE", f"Admin {admin.username} attempted to create existing achievement '{ach_title}'.")

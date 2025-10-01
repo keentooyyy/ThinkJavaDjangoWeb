@@ -22,41 +22,55 @@
                         </a>
                     </li>
                     {% if request.session.role != 'ADMIN' %}
-                    <li class="nav-item dropdown dropdown-large">
-                        <a class="nav-link dropdown-toggle dropdown-toggle-nocaret position-relative" href="#"
-                           role="button" data-bs-toggle="dropdown" aria-expanded="false"> <span
-                                class="alert-count">1</span>
-                            <i class="bx bx-bell"></i>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-end">
-                            <a href="javascript:;">
-                                <div class="msg-header">
-                                    <p class="msg-header-title">Notifications</p>
-                                    <p class="msg-header-clear ms-auto">Marks all as read</p>
-                                </div>
+                        <li class="nav-item dropdown dropdown-large">
+                            <a class="nav-link dropdown-toggle dropdown-toggle-nocaret position-relative" href="#"
+                               role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span class="alert-count">
+                                    {% if unread_count > 9 %}
+                                        9+
+                                    {% else %}
+                                        {{ unread_count }}
+                                    {% endif %}
+                                </span>
+                                <i class="bx bx-bell"></i>
                             </a>
-                            <div class="header-notifications-list ps">
-                                <a class="dropdown-item" href="javascript:;">
-                                    <div class="d-flex align-items-center">
-                                        <div class="notify bg-light-primary text-primary"><i
-                                                class="bx bx-notification"></i>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <h6 class="msg-name">New Customers<span class="msg-time float-end">14 Sec
-												ago</span></h6>
-                                            <p class="msg-info">5 new user registered</p>
-                                        </div>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <a href="javascript:;">
+                                    <div class="msg-header">
+                                        <p class="msg-header-title">Notifications</p>
+                                        <p class="msg-header-clear ms-auto">
+                                            <a
+                                                    class="text-decoration-none">
+                                                Mark all as read
+                                            </a>
+                                        </p>
                                     </div>
                                 </a>
-                                <div class="ps__rail-x" style="left: 0px; bottom: 0px;">
-                                    <div class="ps__thumb-x" tabindex="0" style="left: 0px; width: 0px;"></div>
-                                </div>
-                                <div class="ps__rail-y" style="top: 0px; right: 0px;">
-                                    <div class="ps__thumb-y" tabindex="0" style="top: 0px; height: 0px;"></div>
+
+                                <div class="header-notifications-list ps">
+                                    {% if notifications %}
+                                        {% for notif in notifications %}
+                                            <a class="dropdown-item {% if not notif.is_read %}fw-bold{% endif %}">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="flex-grow-1">
+                                                        <h6 class="msg-name">
+                                                            {{ notif.title }}
+                                                            <span class="msg-time float-end">
+                                                            {{ notif.created_at|timesince }} ago
+                                                            </span>
+                                                        </h6>
+                                                        <p class="msg-info">{{ notif.message|truncatechars:40 }}</p>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        {% endfor %}
+                                    {% else %}
+                                        <p class="text-center p-2">No notifications</p>
+                                    {% endif %}
                                 </div>
                             </div>
-                        </div>
-                    </li>
+
+                        </li>
                     {% endif %}
                 </ul>
             </div>

@@ -3,6 +3,7 @@ from django.shortcuts import render
 from GameProgress.models import LevelDefinition, AchievementDefinition
 from GameProgress.services.ranking import get_all_student_rankings
 from StudentManagementSystem.decorators.custom_decorators import session_login_required
+from StudentManagementSystem.models import Notification
 
 from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.models.section import Section, Department
@@ -29,6 +30,13 @@ def get_teacher_dashboard_context(teacher):
     total_it_section = get_total_section_by_dept("IT")
     top_5_students = get_teacher_top_students(teacher, limit=5)
 
+    notifications = Notification.objects.filter(
+        recipient_role=Role.TEACHER,
+        teacher_recipient=teacher
+    ).order_by("-created_at")  # last 10
+
+    unread_count = notifications.filter(is_read=False).count()
+
     return {
         "teacher": teacher,
         "handled_sections": handled_sections,
@@ -47,6 +55,8 @@ def get_teacher_dashboard_context(teacher):
         "total_cs_section": total_cs_section,
         "total_it_section": total_it_section,
         "top_5_students": top_5_students,
+        'notifications': notifications,
+        'unread_count' :unread_count
     }
 
 
