@@ -11,6 +11,7 @@ from StudentManagementSystem.models.pre_post_test import (
 from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.models.section import Section
 from StudentManagementSystem.models.teachers import HandledSection
+from StudentManagementSystem.views.logger import create_log
 from StudentManagementSystem.views.teacher.manage_test import _parse_checkbox
 
 
@@ -19,7 +20,6 @@ from StudentManagementSystem.views.teacher.manage_test import _parse_checkbox
 # ------------------------------
 
 def _get_base_context(teacher):
-    """Base context with teacher identity."""
     return {
         "username": f"{teacher.first_name} {teacher.last_name}",
         "role": teacher.role,
@@ -27,7 +27,6 @@ def _get_base_context(teacher):
 
 
 def _get_teacher_test_context(teacher):
-    """Context for managing/creating tests."""
     context = _get_base_context(teacher)
 
     tests = TestDefinition.objects.all().order_by("-created_at")
@@ -54,7 +53,7 @@ def _get_teacher_results_context(request, teacher):
     handled_sections = HandledSection.objects.filter(teacher=teacher).values_list("section_id", flat=True)
     students = Student.objects.filter(section_id__in=handled_sections)
 
-    selected_type = request.GET.get("test_type")  # "pre", "post", or None
+    selected_type = request.GET.get("test_type")
     selected_test_id = request.GET.get("test_id")
 
     query = StudentTest.objects.filter(student__in=students, completed=True)
@@ -69,7 +68,6 @@ def _get_teacher_results_context(request, teacher):
         "student__section__department", "student__section__year_level", "test"
     ).order_by("test__created_at", "student__last_name", "student__first_name")
 
-    # max points
     max_points_map = {
         t["test"]: t["total_points"]
         for t in TestQuestion.objects.values("test").annotate(total_points=Sum("points"))
@@ -103,10 +101,8 @@ def _get_teacher_results_context(request, teacher):
 
 @session_login_required(role=Role.TEACHER)
 def pre_post_test_view(request):
-    """Page to create/manage tests AND view results (same template)."""
     teacher = request.user_obj
 
-    # --- Handle test creation
     if request.method == "POST":
         name = request.POST.get("name")
         test_type = request.POST.get("test_type")
@@ -114,28 +110,26 @@ def pre_post_test_view(request):
         shuffle_c = _parse_checkbox(request.POST.get("shuffle_choices"))
 
         if not name:
-            messages.error(request, "❌ Test name is required!")
+            messages.error(request, "Test name is required.")
         else:
-            TestDefinition.objects.create(
+            test = TestDefinition.objects.create(
                 name=name,
                 test_type=test_type,
                 shuffle_questions=shuffle_q,
                 shuffle_choices=shuffle_c,
             )
-            messages.success(request, f"✅ Test '{name}' created successfully!")
+            create_log(request, "CREATE", f"Created test '{test.name}' ({test.test_type})")
+            messages.success(request, f"Test '{name}' created successfully.")
             return redirect("pre_post_test_view")
 
-    # --- Build and merge contexts
     context = _get_teacher_test_context(teacher)
     context.update(_get_teacher_results_context(request, teacher))
-
     return render(request, "teacher/main/pre_post_test.html", context)
 
 
 @session_login_required(role=Role.TEACHER)
 @transaction.atomic
 def duplicate_test(request, test_id):
-    """Duplicate a test with its questions and choices."""
     orig = get_object_or_404(TestDefinition, id=test_id)
 
     new_test = TestDefinition.objects.create(
@@ -161,5 +155,6 @@ def duplicate_test(request, test_id):
                 sort_order=c.sort_order,
             )
 
-    messages.success(request, f"✅ Test '{orig.name}' duplicated successfully!")
+    create_log(request, "CREATE", f"Duplicated test '{orig.name}' to '{new_test.name}'")
+    messages.success(request, f"Test '{orig.name}' duplicated successfully.")
     return redirect("pre_post_test_view")

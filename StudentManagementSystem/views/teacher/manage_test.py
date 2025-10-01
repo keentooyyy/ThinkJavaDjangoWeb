@@ -1,4 +1,3 @@
-
 from django.db import transaction
 from django.db.models import Prefetch, Sum
 from django.http.response import JsonResponse
@@ -7,13 +6,13 @@ from django.contrib import messages
 from django.views.decorators.http import require_POST
 
 from StudentManagementSystem.decorators.custom_decorators import session_login_required
-
-from StudentManagementSystem.models.pre_post_test import TestDefinition, TestQuestion, TestChoice, StudentTest
+from StudentManagementSystem.models.pre_post_test import TestDefinition, TestQuestion, TestChoice
 from StudentManagementSystem.models.roles import Role
+from StudentManagementSystem.views.logger import create_log
 
 
 # -----------------------------
-# 🔹 Helpers
+# Helpers
 # -----------------------------
 def _get_test(test_id):
     return get_object_or_404(TestDefinition, id=test_id)
@@ -35,7 +34,6 @@ def _parse_checkbox(value):
     return str(value).lower() in ("1", "true", "on", "yes")
 
 def _update_test_fields(test, data, only_settings=False):
-    """Update TestDefinition from POST/Dict"""
     if not only_settings:
         test.name = data.get("name", test.name)
         test.test_type = data.get("test_type", test.test_type)
@@ -51,7 +49,7 @@ def _json_ok(extra=None):
 
 
 # -----------------------------
-# 🔹 Views
+# Views
 # -----------------------------
 
 @session_login_required(role=Role.TEACHER)
@@ -63,13 +61,10 @@ def manage_test_view(request, test_id):
         return _handle_add_question(request, test)
 
     ordered_choices = TestChoice.objects.order_by("sort_order", "id")
-    questions = (
-        test.questions.prefetch_related(
-            Prefetch("choices", queryset=ordered_choices)
-        ).all()
-    )
+    questions = test.questions.prefetch_related(
+        Prefetch("choices", queryset=ordered_choices)
+    ).all()
     total_points = test.questions.aggregate(total=Sum("points"))["total"] or 0
-
     assigned_ids = list(test.assignments.values_list("section_id", flat=True))
 
     return render(
@@ -93,9 +88,7 @@ def _handle_add_question(request, test):
     points = float(request.POST.get("points") or 1)
     required = bool(request.POST.get("required"))
 
-    q = TestQuestion.objects.create(
-        test=test, text=text, points=points, required=required
-    )
+    q = TestQuestion.objects.create(test=test, text=text, points=points, required=required)
 
     choice_texts = request.POST.getlist("choice_text[]")
     correct_index = request.POST.get("is_correct")
@@ -111,19 +104,17 @@ def _handle_add_question(request, test):
     ]
     TestChoice.objects.bulk_create(choices)
 
-    messages.success(request, f"✅ Question with choices added to {test.name}")
+    messages.success(request, f"Question with choices added to {test.name}")
     return redirect("manage_test_view", test_id=test.id)
 
 
-# -----------------------------
-# 🔹 Test CRUD
-# -----------------------------
 @session_login_required(role=Role.TEACHER)
 @require_POST
 def update_test(request, test_id):
     test = _update_test_fields(_get_test(test_id), request.POST)
     test.save(update_fields=["name", "test_type", "shuffle_questions", "shuffle_choices"])
-    messages.success(request, f"✅ Test '{test.name}' updated successfully.")
+    create_log(request, "UPDATE", f"Updated test '{test.name}' (ID {test.id})")
+    messages.success(request, f"Test '{test.name}' updated successfully.")
     return redirect("manage_test_view", test_id=test.id)
 
 
@@ -132,6 +123,7 @@ def update_test(request, test_id):
 def update_test_settings(request, test_id):
     test = _update_test_fields(_get_test(test_id), request.POST, only_settings=True)
     test.save(update_fields=["shuffle_questions", "shuffle_choices"])
+    create_log(request, "UPDATE", f"Updated settings for test '{test.name}'")
     messages.success(request, f"Settings updated for {test.name}")
     return redirect("manage_test_view", test_id=test.id)
 
@@ -142,8 +134,10 @@ def delete_test(request, test_id):
     test = _get_test(test_id)
     name = test.name
     test.delete()
+    create_log(request, "DELETE", f"Deleted test '{name}'")
     messages.success(request, f"Test '{name}' deleted successfully.")
     return redirect("pre_post_test_view")
+
 
 @session_login_required(role=Role.TEACHER)
 @require_POST
@@ -152,25 +146,24 @@ def assign_test(request, test_id):
     test = _get_test(test_id)
 
     section_ids = request.POST.getlist("section_ids")
-
-    # Only allow assigning to sections teacher handles
     valid_sections = teacher.handled_sections.values_list("section_id", flat=True)
     section_ids = [sid for sid in section_ids if int(sid) in valid_sections]
 
-    # reset + save
     from StudentManagementSystem.models.pre_post_test import TestAssignment
     TestAssignment.objects.filter(test=test).delete()
     TestAssignment.objects.bulk_create([
         TestAssignment(test=test, section_id=sid) for sid in section_ids
     ])
 
-    messages.success(request, f"✅ Assigned '{test.name}' to {len(section_ids)} section(s).")
+    create_log(request, "UPDATE", f"Assigned test '{test.name}' to sections {section_ids}")
+    messages.success(request, f"Assigned '{test.name}' to {len(section_ids)} section(s).")
     return redirect("pre_post_test_view")
 
 
 # -----------------------------
-# 🔹 Question / Choice AJAX
+# AJAX (no logging)
 # -----------------------------
+
 @session_login_required(role=Role.TEACHER)
 @require_POST
 def delete_choice_ajax(request, test_id, question_id, choice_id):
@@ -187,16 +180,13 @@ def save_question_ajax(request, test_id, question_id):
     q.points = float(request.POST.get("points") or q.points)
     q.save(update_fields=["text", "points"])
 
-    # update/add choices
     choices = request.POST.getlist("choices[]")
     correct_id = request.POST.get("correct_id")
 
-    to_update = []
-    to_create = []
+    to_update, to_create = [], []
 
     for idx, raw in enumerate(choices):
         cid, ctext = raw.split("::", 1) if "::" in raw else (None, raw)
-
         if cid and cid.isdigit():
             c = TestChoice.objects.get(id=int(cid), question=q)
             c.text, c.sort_order = ctext, idx
@@ -215,7 +205,6 @@ def save_question_ajax(request, test_id, question_id):
     if to_create:
         TestChoice.objects.bulk_create(to_create)
 
-    # ✅ ensure only 1 correct
     if correct_id and correct_id.isdigit():
         TestChoice.objects.filter(question=q).exclude(id=int(correct_id)).update(is_correct=False)
 
