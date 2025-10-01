@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.views.decorators.http import require_POST
 
 from StudentManagementSystem.decorators.custom_decorators import session_login_required
+from StudentManagementSystem.models import Notification
 from StudentManagementSystem.models.pre_post_test import TestDefinition, TestQuestion, TestChoice
 from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.views.logger import create_log
@@ -66,7 +67,12 @@ def manage_test_view(request, test_id):
     ).all()
     total_points = test.questions.aggregate(total=Sum("points"))["total"] or 0
     assigned_ids = list(test.assignments.values_list("section_id", flat=True))
+    notifications = Notification.objects.filter(
+        recipient_role=Role.TEACHER,
+        teacher_recipient=teacher
+    ).order_by("-created_at")  # last 10
 
+    unread_count = notifications.filter(is_read=False).count()
     return render(
         request,
         "teacher/main/manage_test.html",
@@ -78,6 +84,8 @@ def manage_test_view(request, test_id):
             "role": teacher.role,
             "handled_sections": teacher.handled_sections.select_related("section", "department", "year_level"),
             "assigned_ids": assigned_ids,
+            'notifications': notifications,
+            'unread_count': unread_count,
         },
     )
 

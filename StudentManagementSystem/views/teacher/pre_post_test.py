@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.db import transaction
 
 from StudentManagementSystem.decorators.custom_decorators import session_login_required
-from StudentManagementSystem.models import Student
+from StudentManagementSystem.models import Student, Notification
 from StudentManagementSystem.models.pre_post_test import (
     TestDefinition, StudentTest, TestQuestion, TestChoice
 )
@@ -20,9 +20,17 @@ from StudentManagementSystem.views.teacher.manage_test import _parse_checkbox
 # ------------------------------
 
 def _get_base_context(teacher):
+    notifications = Notification.objects.filter(
+        recipient_role=Role.TEACHER,
+        teacher_recipient=teacher
+    ).order_by("-created_at")  # last 10
+
+    unread_count = notifications.filter(is_read=False).count()
     return {
         "username": f"{teacher.first_name} {teacher.last_name}",
         "role": teacher.role,
+        'notifications': notifications,
+        'unread_count': unread_count,
     }
 
 

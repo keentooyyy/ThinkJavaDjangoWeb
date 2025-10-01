@@ -20,6 +20,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 from StudentManagementSystem.views.export_rankings import export_ranking_xls, print_ranking
+from StudentManagementSystem.views.notifications import read_notification, mark_all_as_read_view
 from StudentManagementSystem.views.ph_locations import provinces, cities, barangays
 
 urlpatterns = [
@@ -33,4 +34,9 @@ urlpatterns = [
     path("barangays/", barangays),
     path("ranking/export-xls/", export_ranking_xls, name="export_ranking_xls"),
     path("ranking/print/", print_ranking, name="print_ranking"),
+
+    path("notifications/read/<int:notif_id>/", read_notification, name="read_notification"),
+    path("notifications/read/all/", mark_all_as_read_view, name="mark_all_notifications_as_read"),
+
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

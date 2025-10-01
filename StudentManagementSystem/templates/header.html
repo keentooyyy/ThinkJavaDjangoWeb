@@ -25,22 +25,27 @@
                         <li class="nav-item dropdown dropdown-large">
                             <a class="nav-link dropdown-toggle dropdown-toggle-nocaret position-relative" href="#"
                                role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <span class="alert-count">
-                                    {% if unread_count > 9 %}
-                                        9+
-                                    {% else %}
-                                        {{ unread_count }}
-                                    {% endif %}
-                                </span>
+
+                                {% if unread_count > 0 %}
+                                    <span class="alert-count">
+                {% if unread_count > 9 %}
+                    9+
+                {% else %}
+                    {{ unread_count }}
+                {% endif %}
+            </span>
+                                {% endif %}
+
                                 <i class="bx bx-bell"></i>
                             </a>
+
                             <div class="dropdown-menu dropdown-menu-end">
                                 <a href="javascript:;">
                                     <div class="msg-header">
                                         <p class="msg-header-title">Notifications</p>
                                         <p class="msg-header-clear ms-auto">
-                                            <a
-                                                    class="text-decoration-none">
+                                            <a href="{% url 'mark_all_notifications_as_read' %}"
+                                               class="text-decoration-none">
                                                 Mark all as read
                                             </a>
                                         </p>
@@ -50,14 +55,17 @@
                                 <div class="header-notifications-list ps">
                                     {% if notifications %}
                                         {% for notif in notifications %}
-                                            <a class="dropdown-item {% if not notif.is_read %}fw-bold{% endif %}">
+                                            <a class="dropdown-item {% if not notif.is_read %}fw-bold{% else %} text-muted {% endif %}"
+                                               href="javascript:void(0);"
+                                               data-bs-toggle="modal"
+                                               data-bs-target="#notifModal{{ notif.id }}">
                                                 <div class="d-flex align-items-center">
                                                     <div class="flex-grow-1">
                                                         <h6 class="msg-name">
                                                             {{ notif.title }}
                                                             <span class="msg-time float-end">
-                                                            {{ notif.created_at|timesince }} ago
-                                                            </span>
+                                        {{ notif.created_at|timesince }} ago
+                                    </span>
                                                         </h6>
                                                         <p class="msg-info">{{ notif.message|truncatechars:40 }}</p>
                                                     </div>
@@ -69,8 +77,11 @@
                                     {% endif %}
                                 </div>
                             </div>
-
                         </li>
+
+
+
+
                     {% endif %}
                 </ul>
             </div>
@@ -104,6 +115,32 @@
         </nav>
     </div>
 </header>
+
+{# 🔔 Render modals AFTER nav, not inside it #}
+{% for notif in notifications %}
+    <div class="modal fade" id="notifModal{{ notif.id }}" tabindex="-1" aria-hidden="true"
+         data-notif-url="{% url 'read_notification' notif.id %}">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 500px;">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ notif.title }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body p-4">
+                    <p>{{ notif.message }}</p>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
+                        Ok
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endfor %}
 
 
 {% include "utility/modal_dialogue.html" with modal_id="logoutConfirmModal" modal_title="Confirm Logout" modal_body="<span>Are you sure you want to log out?</span>" modal_width="400px" modal_buttons="['yes','cancel']" modal_classes="['btn btn-danger','btn btn-primary']" %}

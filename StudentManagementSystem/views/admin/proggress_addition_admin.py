@@ -7,7 +7,7 @@ from StudentManagementSystem.decorators.custom_decorators import session_login_r
 from StudentManagementSystem.models import Teacher
 from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.views.logger import create_log
-from StudentManagementSystem.views.notifications import create_notification
+from StudentManagementSystem.views.notifications_helper import create_notification
 from StudentManagementSystem.views.sync_all_progress import run_sync_in_background
 
 

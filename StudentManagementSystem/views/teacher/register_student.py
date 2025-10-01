@@ -5,7 +5,7 @@ from django.http.response import JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
 
 from StudentManagementSystem.decorators.custom_decorators import session_login_required
-from StudentManagementSystem.models import Student, SectionJoinCode
+from StudentManagementSystem.models import Student, SectionJoinCode, Notification
 
 from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.models.section import Section, Department
@@ -114,6 +114,12 @@ def register_student(request):
     students = students.order_by("student_id")
 
     page_obj = paginate_queryset(students, params["per_page"], params["page_number"])
+    notifications = Notification.objects.filter(
+        recipient_role=Role.TEACHER,
+        teacher_recipient=teacher
+    ).order_by("-created_at")  # last 10
+
+    unread_count = notifications.filter(is_read=False).count()
 
     context = build_ranking_context(
         students,
@@ -127,6 +133,8 @@ def register_student(request):
             "selected_section": params["section_filter"],
             "section_codes": section_codes,
             "handled_sections": handled_sections,
+            "notifications": notifications,
+            "unread_count": unread_count,
         },
     )
 
