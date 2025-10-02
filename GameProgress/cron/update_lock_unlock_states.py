@@ -17,9 +17,9 @@ def auto_update_lock_states_cron():
     try:
         students = Student.objects.all()
         auto_update_lock_states(students)
-        msg = f"[{now()}] ✅ Auto update lock/unlock ran for {students.count()} students"
-        logger.info(msg)
-        print(msg, flush=True)   # 🔹 print only useful success log
+        # msg = f"[{now()}] ✅ Auto update lock/unlock ran for {students.count()} students"
+        # logger.info(msg)
+        # print(msg, flush=True)   # 🔹 print only useful success log
     except Exception as e:
         msg = f"[{now()}] ❌ Auto update lock/unlock failed: {e}"
         logger.error(msg)

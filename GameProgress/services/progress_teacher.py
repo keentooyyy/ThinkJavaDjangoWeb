@@ -1,5 +1,4 @@
 from django.db import transaction
-from django.utils.timezone import now
 
 from GameProgress.models import (
     LevelDefinition,
@@ -7,7 +6,6 @@ from GameProgress.models import (
     LevelProgress,
     AchievementProgress
 )
-from GameProgress.models.level_schedule import SectionLevelSchedule
 
 
 def sync_students_progress(student_qs):
@@ -82,11 +80,11 @@ def auto_update_lock_states(student_qs):
     schedules = SectionLevelSchedule.objects.filter(section_id__in=section_ids)
 
     for sched in schedules:
-        print(
-            f"[AUTO-UPDATE] Now={current_time} | Start={sched.start_date} | Due={sched.due_date} "
-            f"| Section={sched.section_id} | Level={sched.level_id}",
-            flush=True
-        )
+        # print(
+        #     f"[AUTO-UPDATE] Now={current_time} | Start={sched.start_date} | Due={sched.due_date} "
+        #     f"| Section={sched.section_id} | Level={sched.level_id}",
+        #     flush=True
+        # )
 
         # 🔓 Unlock students in this section if start_date passed
         if sched.start_date and sched.start_date <= current_time:
@@ -94,8 +92,8 @@ def auto_update_lock_states(student_qs):
                 student__section_id=sched.section_id,
                 level_id=sched.level_id
             ).update(unlocked=True)
-            if updated:
-                print(f"   🔓 Unlocked {updated} rows", flush=True)
+            # if updated:
+                # print(f"   🔓 Unlocked {updated} rows", flush=True)
 
         # 🔒 Lock students if due_date passed
         if sched.due_date and sched.due_date <= current_time:
@@ -103,12 +101,12 @@ def auto_update_lock_states(student_qs):
                 student__section_id=sched.section_id,
                 level_id=sched.level_id
             ).update(unlocked=False)
-            if updated:
-                print(f"   🔒 Locked {updated} rows", flush=True)
+            # if updated:
+            #     print(f"   🔒 Locked {updated} rows", flush=True)
 
             # 🗑️ Remove the schedule once it's expired
             sched.delete()
-            print(f"   🗑️ Deleted expired schedule (Section={sched.section_id}, Level={sched.level_id})", flush=True)
+            # print(f"   🗑️ Deleted expired schedule (Section={sched.section_id}, Level={sched.level_id})", flush=True)
 
 
 
