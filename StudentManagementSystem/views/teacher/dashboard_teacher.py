@@ -26,8 +26,8 @@ def get_teacher_dashboard_context(teacher):
     ]
 
     full_name = f"{teacher.first_name} {teacher.last_name}"
-    total_cs_section = get_total_section_by_dept("CS")
-    total_it_section = get_total_section_by_dept("IT")
+    total_cs_section = handled_sections.filter(department__name="CS").count()
+    total_it_section = handled_sections.filter(department__name="IT").count()
     top_5_students = get_teacher_top_students(teacher, limit=5)
 
     notifications = Notification.objects.filter(
@@ -67,21 +67,6 @@ def teacher_dashboard(request):
     context = get_teacher_dashboard_context(teacher)
     return render(request, "teacher/main/dashboard.html", context)
 
-
-
-def get_total_section_by_dept(name):
-    try:
-        # Example: Get IT department
-        it_department = Department.objects.get(name__iexact=name)
-
-        # Count all handled sections under IT department
-        total_section = HandledSection.objects.filter(department=it_department).count()
-
-    except Department.DoesNotExist:
-
-        total_section = 0
-
-    return total_section
 
 
 def get_teacher_top_students(teacher, limit=5, sort_by="score", sort_order="desc"):
