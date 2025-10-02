@@ -81,7 +81,6 @@ class Student(models.Model):
     @property
     def test_status(self):
         return {
-            "student_id": self.student_id,
             "has_taken_pretest": self.has_taken_pretest,
             "has_taken_posttest": self.has_taken_posttest,
             "all_levels_completed": self.all_levels_completed,

@@ -1,6 +1,7 @@
 from collections import OrderedDict
 
 from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 
 from GameProgress.models import (
     LevelProgress,
@@ -27,6 +28,7 @@ ACHIEVEMENT_TYPE = (
 
 
 @api_login_required(role=Role.STUDENT, lookup_kwarg="student_id")
+@csrf_exempt
 def get_game_progress(request, student_id):
     # 🔹 Fetch student (only the ID for efficiency)
     student = request.user_obj

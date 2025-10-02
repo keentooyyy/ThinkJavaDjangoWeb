@@ -43,6 +43,7 @@ def api_student_login(request):
         response = {
             "status": "success",
             "student": {
+                "id": student.id,
                 "student_id": student.student_id,
                 "first_name": student.first_name,
                 "last_name": student.last_name,
