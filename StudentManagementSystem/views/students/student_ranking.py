@@ -31,6 +31,12 @@ def student_student_ranking(request):
         department_filter=student.section.department.name,
         limit_to_students=student_ids,
     )
+    notifications = Notification.objects.filter(
+        recipient_role=Role.STUDENT,
+        student_recipient=student
+    ).order_by("-created_at")  # last 10
+
+    unread_count = notifications.filter(is_read=False).count()
 
     # ✅ Apply search filter if provided
     search_query = request.GET.get("search", "").strip().lower()
@@ -48,22 +54,17 @@ def student_student_ranking(request):
     # ✅ Paginate after filtering
     page_obj = paginate_queryset(rankings, params["per_page"], params["page_number"])
 
-    notifications = Notification.objects.filter(
-        recipient_role=Role.STUDENT,
-        student_recipient=student
-    ).order_by("-created_at")  # last 10
 
-    unread_count = notifications.filter(is_read=False).count()
     user_context = {
         "username": f"{student.first_name} {student.last_name}",
-        "role": student.role,  # ✅ comes directly from student object
-        "notifications": notifications,
-        "unread_count": unread_count,
+        "role": student.role,  # comes directly from student object
     }
 
     context = build_ranking_context(
         rankings, page_obj, params, user_context, {
             "section": student.section,
+            "notifications": notifications,
+            "unread_count": unread_count,
         }
     )
 

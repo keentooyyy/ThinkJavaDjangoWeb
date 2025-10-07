@@ -190,7 +190,6 @@ def register_student(request):
         request.session["user_id"] = student.id
         request.session["role"] = Role.STUDENT
 
-        messages.success(request, "Registration successful! Redirecting to your dashboard...")
         return redirect("student_dashboard")
 
     return render(request, "register.html")

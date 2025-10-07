@@ -93,7 +93,7 @@ def create_teacher(request):
             return redirect('create_teacher')
 
         if not re.match(r"^\d{2}-\d{4}-\d{3}$", teacher_id):
-            messages.error(request, "Invalid Teacher ID format. Use the format: YY-XXXX-XXX (e.g., 12-2345-678).")
+            messages.error(request, "Invalid Teacher ID format. Use the format: YY-XXXX-XXX (e.g., 12-2345-678).", extra_tags=message_tag)
             return redirect('create_teacher')
 
         if Teacher.objects.filter(teacher_id=teacher_id).exists():

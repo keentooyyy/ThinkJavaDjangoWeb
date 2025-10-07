@@ -39,7 +39,7 @@ def register_student(request):
             return redirect("register_student")
 
         if not re.match(r"^\d{2}-\d{4}-\d{3}$", student_id):
-            messages.error(request, "Invalid student_id ID format. Use the format: YY-XXXX-XXX (e.g., 12-2345-678).")
+            messages.error(request, "Invalid student_id ID format. Use the format: YY-XXXX-XXX (e.g., 12-2345-678)." ,extra_tags=extra_tags)
             return redirect("register_student")
 
         # Make sure the section belongs to this teacher
@@ -61,7 +61,7 @@ def register_student(request):
             section=handled_section.section,
             year_level=handled_section.section.year_level,
             student_id=student_id,
-            password=make_password(password),  
+            password=make_password(password),
         )
         run_sync_in_background()
 
