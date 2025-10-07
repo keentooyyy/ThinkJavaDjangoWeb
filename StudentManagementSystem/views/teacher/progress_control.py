@@ -100,6 +100,8 @@ def _attach_section_progress(section, students, all_levels, all_achievements):
     return section
 
 
+from GameProgress.models.level_schedule import SectionLevelSchedule
+
 def _handle_post_action(
     request,
     action,
@@ -124,15 +126,32 @@ def _handle_post_action(
     def result(msg, danger=False):
         return ("error" if danger else "success", msg)
 
+    # 🔹 Helper: clear conflicting schedules when teacher manually overrides lock/unlock
+    def clear_conflicting_schedules(level_name=None):
+        section_ids = students.values_list("section_id", flat=True).distinct()
+        filters = {"section_id__in": section_ids}
+        if level_name:
+            filters["level__name"] = level_name
+        deleted = SectionLevelSchedule.objects.filter(**filters).delete()
+        # print(f"[SCHEDULE CLEANUP] Removed {deleted[0]} conflicting schedule entries", flush=True)
+
+    # ----------------------------
+    # 🔹 Manual Level Actions
+    # ----------------------------
     if action == "unlock_levels":
+        clear_conflicting_schedules()
         unlock_levels_for_students(students)
         _notify_students_level_unlocked(request, students, "All Levels")
         return result(f"All levels have been unlocked {scope}.")
 
     if action == "lock_levels":
+        clear_conflicting_schedules()
         lock_levels_for_students(students)
         return result(f"All levels have been locked {scope}.", danger=True)
 
+    # ----------------------------
+    # 🔹 Manual Achievement Actions
+    # ----------------------------
     if action == "enable_achievements":
         enable_all_achievements_for_students(students)
         return result(f"All achievements are now enabled {scope}.")
@@ -147,8 +166,13 @@ def _handle_post_action(
         state = "enabled" if is_active else "disabled"
         return result(f"Achievement '{achievement_code}' has been {state} {scope}.", danger=not is_active)
 
+    # ----------------------------
+    # 🔹 Single Level Lock/Unlock
+    # ----------------------------
     if action in ("lock_single_level", "unlock_single_level") and level_name:
         is_unlock = action == "unlock_single_level"
+        clear_conflicting_schedules(level_name)
+
         if is_unlock:
             unlock_levels_for_students(students, level_name=level_name)
             _notify_students_level_unlocked(request, students, level_name)
@@ -157,6 +181,9 @@ def _handle_post_action(
             lock_levels_for_students(students, level_name=level_name)
             return result(f"Level '{level_name}' has been locked {scope}.", danger=True)
 
+    # ----------------------------
+    # 🔹 Scheduled Unlock (keeps schedule)
+    # ----------------------------
     if action == "unlock_single_level_with_schedule" and level_name and section_id:
         if handled_sections.filter(section_id=section_id).exists():
             section = handled_sections.get(section_id=section_id).section
@@ -179,10 +206,15 @@ def _handle_post_action(
 
             return ("success" if success else "error", msg)
 
-    # 🔹 Global single-level / single-achievement actions
+    # ----------------------------
+    # 🔹 Global Actions
+    # ----------------------------
     global_students = _get_students_for_action(handled_sections)
+
     if action in ("lock_single_level_global", "unlock_single_level_global") and level_name:
         is_unlock = action == "unlock_single_level_global"
+        clear_conflicting_schedules(level_name)
+
         if is_unlock:
             unlock_levels_for_students(global_students, level_name=level_name)
             _notify_students_level_unlocked(request, global_students, level_name)
@@ -195,10 +227,13 @@ def _handle_post_action(
         is_active = action == "enable_single_achievement_global"
         set_achievement_active_for_students(global_students, achievement_code, is_active)
         state = "enabled" if is_active else "disabled"
-        return result(f"Achievement '{achievement_code}' has been {state} across all your handled sections.",
-                      danger=not is_active)
+        return result(
+            f"Achievement '{achievement_code}' has been {state} across all your handled sections.",
+            danger=not is_active,
+        )
 
     return "error", "Unknown action. Please try again."
+
 
 
 # --------------------
