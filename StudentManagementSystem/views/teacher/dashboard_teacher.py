@@ -33,7 +33,7 @@ def get_teacher_dashboard_context(teacher):
     notifications = Notification.objects.filter(
         recipient_role=Role.TEACHER,
         teacher_recipient=teacher
-    ).order_by("-created_at")  # last 10
+    ).order_by("-created_at")
 
     unread_count = notifications.filter(is_read=False).count()
 

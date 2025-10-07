@@ -129,6 +129,42 @@
         });
     </script>
 
+    <script>
+    $(document).ready(function () {
+        $(".btn-delete-notif").on("click", function () {
+            const notifId = $(this).data("notif-id");
+            const $modal = $(this).closest(".modal");
+
+            {#if (!confirm("Are you sure you want to delete this notification?")) return;#}
+
+            $.ajax({
+                url: `/notifications/delete/${notifId}/`,
+                method: "POST",
+                data: { csrfmiddlewaretoken: "{{ csrf_token }}" },
+                success: function (res) {
+                    if (res.success) {
+                        // Remove from dropdown list
+                        $(`#notifModal${notifId}`).modal("hide");
+                        $(`#notifModal${notifId}`).remove();
+                        $(`#notifContainer a[data-bs-target="#notifModal${notifId}"]`).remove();
+
+                        // Optionally, update unread count
+                        const currentCount = parseInt($(".alert-count").text()) || 0;
+                        if (currentCount > 1) $(".alert-count").text(currentCount - 1);
+                        else $(".alert-count").remove();
+
+                        // Optional toast feedback
+                        {#alert("Notification deleted successfully!");#}
+                    }
+                },
+                error: function (xhr) {
+                    alert(xhr.responseJSON?.error || "Error deleting notification.");
+                },
+            });
+        });
+    });
+    </script>
+
 
 
 

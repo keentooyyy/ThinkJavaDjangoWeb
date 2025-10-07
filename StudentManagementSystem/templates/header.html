@@ -39,42 +39,35 @@
                                 <i class="bx bx-bell"></i>
                             </a>
 
-                            <div class="dropdown-menu dropdown-menu-end">
-                                <a href="javascript:;">
-                                    <div class="msg-header">
-                                        <p class="msg-header-title">Notifications</p>
-                                        <p class="msg-header-clear ms-auto">
-                                            <a href="{% url 'mark_all_notifications_as_read' %}"
-                                               class="text-decoration-none">
-                                                Mark all as read
-                                            </a>
-                                        </p>
-                                    </div>
-                                </a>
+                            <div class="dropdown-menu dropdown-menu-end p-0" style="overflow: visible !important;">
+                                <div class="msg-header p-3 border-bottom">
+                                    <p class="msg-header-title">Notifications</p>
+                                    <p class="msg-header-clear ms-auto">
+                                        <a href="{% url 'mark_all_notifications_as_read' %}"
+                                           class="text-decoration-none">
+                                            Mark all as read
+                                        </a>
+                                    </p>
+                                </div>
 
-                                <div class="header-notifications-list ps">
-                                    {% if notifications %}
-                                        {% for notif in notifications %}
-                                            <a class="dropdown-item {% if not notif.is_read %}fw-bold{% else %} text-muted{% endif %}"
-                                               href="javascript:void(0);"
-                                               data-bs-toggle="modal"
-                                               data-bs-target="#notifModal{{ notif.id }}">
-                                                <div class="d-flex align-items-center">
-                                                    <div class="flex-grow-1">
-                                                        <h6 class="msg-name">
-                                                            {{ notif.title }}
-                                                            <span class="msg-time float-end">
-                                        {{ notif.created_at|timesince }} ago
-                                    </span>
-                                                        </h6>
-                                                        <p class="msg-info">{{ notif.message|truncatechars:40 }}</p>
-                                                    </div>
+                                <div id="notifContainer"
+                                     style="max-height: 250px; overflow-y: auto !important; overflow-x: hidden;">
+                                    {% for notif in notifications|slice:":10" %}
+                                        <a class="dropdown-item {% if not notif.is_read %}fw-bold{% else %} text-muted{% endif %}"
+                                           href="javascript:void(0);"
+                                           data-bs-toggle="modal"
+                                           data-bs-target="#notifModal{{ notif.id }}">
+                                            <div class="d-flex align-items-center">
+                                                <div class="flex-grow-1">
+                                                    <h6 class="msg-name">
+                                                        {{ notif.title }}
+                                                        <span class="msg-time float-end">{{ notif.created_at|timesince }} ago</span>
+                                                    </h6>
+                                                    <p class="msg-info">{{ notif.message|truncatechars:40 }}</p>
                                                 </div>
-                                            </a>
-                                        {% endfor %}
-                                    {% else %}
-                                        <p class="text-center p-2">No notifications</p>
-                                    {% endif %}
+                                            </div>
+                                        </a>
+                                    {% endfor %}
                                 </div>
                             </div>
                         </li>
@@ -132,10 +125,16 @@
                     <p>{{ notif.message }}</p>
                 </div>
 
-                <div class="modal-footer">
+                <div class="modal-footer d-flex gap-1">
                     <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
                         Ok
                     </button>
+                    <button type="button" class="btn btn-danger btn-delete-notif"
+                            data-notif-id="{{ notif.id }}">
+                        Delete
+                    </button>
+
+
                 </div>
             </div>
         </div>
