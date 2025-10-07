@@ -1,3 +1,5 @@
+import re
+
 from django.contrib import messages
 from django.contrib.auth.hashers import make_password
 from django.core.paginator import Paginator
@@ -88,6 +90,10 @@ def create_teacher(request):
 
         if not teacher_id or not raw_password or not dept_ids or not letters or not first_name or not last_name:
             messages.error(request, 'Please fill in all fields.', extra_tags=message_tag)
+            return redirect('create_teacher')
+
+        if not re.match(r"^\d{2}-\d{4}-\d{3}$", teacher_id):
+            messages.error(request, "Invalid Teacher ID format. Use the format: YY-XXXX-XXX (e.g., 12-2345-678).")
             return redirect('create_teacher')
 
         if Teacher.objects.filter(teacher_id=teacher_id).exists():

@@ -1,3 +1,5 @@
+import re
+
 from django.contrib import messages
 from django.contrib.auth.hashers import make_password
 from django.db.models.query_utils import Q
@@ -36,6 +38,10 @@ def register_student(request):
             messages.error(request, "All fields are required.", extra_tags=extra_tags)
             return redirect("register_student")
 
+        if not re.match(r"^\d{2}-\d{4}-\d{3}$", student_id):
+            messages.error(request, "Invalid student_id ID format. Use the format: YY-XXXX-XXX (e.g., 12-2345-678).")
+            return redirect("register_student")
+
         # Make sure the section belongs to this teacher
         handled_section = (
             HandledSection.objects
@@ -55,7 +61,7 @@ def register_student(request):
             section=handled_section.section,
             year_level=handled_section.section.year_level,
             student_id=student_id,
-            password=make_password(password),  # ✅ securely hashed
+            password=make_password(password),  
         )
         run_sync_in_background()
 
