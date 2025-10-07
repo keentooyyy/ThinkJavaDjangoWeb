@@ -1,3 +1,5 @@
+import re
+
 from django.contrib import messages
 from django.contrib.auth.hashers import check_password, make_password
 from django.shortcuts import render, redirect
@@ -115,6 +117,15 @@ def register_student(request):
             messages.error(request, "Please fill out all required fields.")
             return redirect("register")
 
+        if not re.match(r"^\d{2}-\d{4}-\d{3}$", student_id):
+            messages.error(request, "Invalid student ID format. Use the format: YY-XXXX-XXX (e.g., 12-2345-678).")
+            return redirect("register")
+
+        # 🔒 Password length check
+        if len(password) < 8:
+            messages.error(request, "Password must be at least 8 characters long.")
+            return redirect("register")
+
         if password != re_password:
             messages.error(request, "Passwords do not match.")
             return redirect("register")
@@ -164,6 +175,7 @@ def register_student(request):
                 section_recipient=join_code.section,
             )
 
+        # --- Log registration ---
         create_log(
             request,
             action="CREATE",
@@ -173,11 +185,12 @@ def register_student(request):
                 f"({join_code.department.name}{join_code.year_level.year}{join_code.section.letter})."
             ),
         )
+
         # --- Store session manually for @session_login_required ---
         request.session["user_id"] = student.id
         request.session["role"] = Role.STUDENT
 
-
+        messages.success(request, "Registration successful! Redirecting to your dashboard...")
         return redirect("student_dashboard")
 
     return render(request, "register.html")
