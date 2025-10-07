@@ -1,0 +1,273 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+    <div class="section-authentication-signin d-flex">
+        <div class="container-fluid m-0 p-0">
+            <div class="row g-0">
+
+                <!-- Left image section (hidden on mobile) -->
+                <div class="col-7 d-none d-lg-block"
+                     style="background: url('{% static 'images/8-bit-pixel-art-city-2o.jpg' %}') center center / cover no-repeat; height: 100vh;">
+                </div>
+
+                <!-- Right login form -->
+                <div class="col-12 col-md-9 col-lg d-flex flex-column justify-content-center mx-auto p-md-3 p-lg-5 p-3"
+                     style="">
+                    <div class="card rounded-4 h-auto h-xl-50 shadow m-0">
+                        <div class="card-body">
+                            <div class="p-4 rounded h-100 d-flex flex-column justify-content-center">
+
+                                <!-- Heading -->
+                                <div class="text-center">
+                                    <h3 class="my-4">Student Registration Form</h3>
+
+                                </div>
+
+                                <!-- Error messages -->
+                                {% include 'utility/alert_message.html' %}
+
+                                <!-- Form -->
+                                <div class="form-body">
+                                    <form method="post" action="" class="row g-3">
+                                        {% csrf_token %}
+
+                                        <div class="col-12">
+                                            <label for="username" class="form-label">ID Number</label>
+                                            <div class="input-group">
+                                                <input type="text" class="form-control" id="username" name="username"
+                                                       placeholder="ID Number">
+                                                <button type="button" id="button-addon2"
+                                                        class="btn btn-outline-primary">Generate
+                                                </button>
+                                            </div>
+
+                                        </div>
+
+
+                                        <div class="col-12">
+                                            <label for="firstname" class="form-label">First Name</label>
+                                            <input type="text" class="form-control" id="firstname" name="firstname"
+                                                   placeholder="Enter First Name">
+
+                                        </div>
+
+                                        <div class="col-12">
+                                            <label for="lastname" class="form-label">Last Name</label>
+                                            <input type="text" class="form-control" id="lastname" name="lastname"
+                                                   placeholder="Enter Last Name">
+
+                                        </div>
+
+
+                                        <div class="col-12">
+                                            <label for="password" class="form-label">Enter Password</label>
+                                            <div class="input-group" id="show_hide_password">
+                                                <input
+                                                        type="password"
+                                                        class="form-control border-end-0"
+                                                        id="password"
+                                                        name="password"
+                                                        placeholder="Enter Password"
+                                                >
+                                                <button class="input-group-text bg-transparent border-start-0"
+                                                        type="button" id="togglePassword">
+                                                    <i class="bx bx-hide"></i>
+                                                </button>
+                                            </div>
+
+                                            <!-- Password strength bar (hidden initially) -->
+                                            <div id="passwordStrengthContainer" class="d-none">
+                                                <div class="progress mt-2" style="height: 6px;">
+                                                    <div id="passwordStrength" class="progress-bar" role="progressbar"
+                                                         style="width: 0%;"></div>
+                                                </div>
+                                                <div id="passwordStrengthText" class="small mt-1 text-muted"></div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12 mt-3">
+                                            <label for="re_password" class="form-label">Re-Enter Password</label>
+                                            <div class="input-group">
+                                                <input
+                                                        type="password"
+                                                        class="form-control border-end-0"
+                                                        id="re_password"
+                                                        name="re_password"
+                                                        placeholder="Re-Enter Password"
+                                                >
+                                                <button class="input-group-text bg-transparent border-start-0"
+                                                        type="button" id="toggleRePassword">
+                                                    <i class="bx bx-hide"></i>
+                                                </button>
+                                            </div>
+                                            <div id="matchText" class="small mt-1"></div>
+                                        </div>
+
+                                        <div class="col-12">
+                                            <label for="section_code" class="form-label">Section Code</label>
+                                            <div class="input-group" id="show_hide_password">
+                                                <input type="text" class="form-control border-end-0"
+                                                       id="section_code" name="section_code"
+                                                       placeholder="Enter Section Code">
+                                            </div>
+                                        </div>
+
+
+                                        <div class="col-12 mt-5">
+                                            <div class="d-grid">
+                                                <button type="submit" class="btn btn-primary">
+                                                    <i class="bx bxs-lock-open"></i> Complete Registration
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12">
+                                            <div class="d-grid">
+                                                <a href="{% url 'unified_login' %}" class="btn btn-outline-primary">
+                                                    <i class="bx bxs-user"></i> Back to Login
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div><!-- /.form-body -->
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        $(document).ready(function () {
+            $("#show_hide_password a").on('click', function (event) {
+                event.preventDefault();
+                let $input = $('#show_hide_password input');
+                let $icon = $('#show_hide_password i');
+                if ($input.attr("type") === "text") {
+                    $input.attr('type', 'password');
+                    $icon.addClass("bx-hide").removeClass("bx-show");
+                } else {
+                    $input.attr('type', 'text');
+                    $icon.removeClass("bx-hide").addClass("bx-show");
+                }
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            const $password = $("#password");
+            const $rePassword = $("#re_password");
+            const $strengthContainer = $("#passwordStrengthContainer");
+            const $strengthBar = $("#passwordStrength");
+            const $strengthText = $("#passwordStrengthText");
+            const $matchText = $("#matchText");
+            const $togglePassword = $("#togglePassword");
+            const $toggleRePassword = $("#toggleRePassword");
+
+            // Password strength checker
+            $password.on("input", function () {
+                const value = $(this).val();
+                const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(value);
+                const hasNumber = /\d/.test(value);
+
+                let strength = 0;
+                let barClass = "";
+                let text = "";
+
+                if (value.length === 0) {
+                    $strengthContainer.addClass("d-none");
+                } else {
+                    $strengthContainer.removeClass("d-none");
+
+                    if (value.length < 8) {
+                        strength = 33;
+                        barClass = "bg-danger";
+                        text = "Weak password";
+                    } else if (value.length >= 8 && (!hasSpecialChar || !hasNumber)) {
+                        strength = 66;
+                        barClass = "bg-warning";
+                        text = "Medium strength";
+                    } else {
+                        strength = 100;
+                        barClass = "bg-success";
+                        text = "Strong password";
+                    }
+                }
+
+                // Update progress bar
+                $strengthBar
+                    .css("width", strength + "%")
+                    .attr("class", "progress-bar " + barClass);
+                $strengthText.text(text);
+
+                checkPasswords();
+            });
+
+            // Password match check
+            function checkPasswords() {
+                const pass = $password.val();
+                const repass = $rePassword.val();
+
+                if (repass.length === 0) {
+                    $rePassword.removeClass("is-invalid");
+                    $matchText.text("");
+                    return;
+                }
+
+                if (pass === repass) {
+                    $rePassword.removeClass("is-invalid");
+                    $matchText
+                        .text("Passwords match")
+                        .removeClass("text-danger")
+                        .addClass("text-success small mt-1");
+                } else {
+                    $rePassword.addClass("is-invalid");
+                    $matchText
+                        .text("Passwords do not match")
+                        .removeClass("text-success")
+                        .addClass("text-danger small mt-1");
+                }
+            }
+
+            $rePassword.on("input", checkPasswords);
+
+            // Toggle show/hide password
+            function toggleVisibility($input, $iconBtn) {
+                const type = $input.attr("type") === "password" ? "text" : "password";
+                $input.attr("type", type);
+                const $icon = $iconBtn.find("i");
+                $icon.toggleClass("bx-hide bx-show");
+            }
+
+            $togglePassword.on("click", function () {
+                toggleVisibility($password, $(this));
+            });
+
+            $toggleRePassword.on("click", function () {
+                toggleVisibility($rePassword, $(this));
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            $('#button-addon2').click(function () {
+                var currentYear = new Date().getFullYear(); // Get the current year
+                var randomPart1 = Math.floor(Math.random() * 9000 + 1000); // Generate a 4-digit random number between 1000 and 9999
+                var randomPart2 = Math.floor(Math.random() * 900 + 100); // Generate a 3-digit random number between 100 and 999
+                var teacherId = currentYear.toString().slice(-2) + '-' + randomPart1 + '-' + randomPart2; // Format as xx-xxxx-xxx
+
+                $('#username').val(teacherId); // Set the generated ID into the input field
+            });
+        });
+
+    </script>
+{% endblock %}

@@ -3,25 +3,37 @@ from django.db.models.query_utils import Q
 from django.shortcuts import render, redirect
 
 from StudentManagementSystem.decorators.custom_decorators import session_login_required
-from StudentManagementSystem.models import SimpleAdmin, Teacher, Student
+from StudentManagementSystem.models import SimpleAdmin, Teacher, Student, Notification
 from StudentManagementSystem.models.log import Log
 from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.models.teachers import HandledSection
 
 
-def create_log(request, action, description):
-    """Helper to create logs consistently."""
+def create_log(request=None, action=None, description=""):
+    """Helper to create logs consistently, supports both authenticated and system actions."""
 
-    user_id = request.session.get("user_id")
-    role = request.session.get("role")
-    ip = get_client_ip(request)
+    # Default values
+    user_id = None
+    role = None
+    ip = None
+
+    # Try to extract session + IP if request provided
+    if request:
+        user_id = request.session.get("user_id")
+        role = request.session.get("role")
+        ip = get_client_ip(request)
+
+    # ✅ Fallback for unauthenticated/system actions
+    if not user_id or not role:
+        user_id = "SYSTEM"
+        role = "SYSTEM"
 
     Log.objects.create(
         actor_id=user_id,
         role=role,
-        action=action,
+        action=action or "UNKNOWN",
         description=description,
-        ip_address=ip,
+        ip_address=ip or "0.0.0.0",
     )
 
 
@@ -112,10 +124,18 @@ def view_log(request):
 
     # ✅ Username for header
     username = None
+    notifications = None
+    unread_count = None
     if role == Role.ADMIN and admin:
         username = admin.username
     elif role == Role.TEACHER and teacher:
         username = f"{teacher.first_name} {teacher.last_name}"
+        notifications = Notification.objects.filter(
+            recipient_role=Role.TEACHER,
+            teacher_recipient=teacher
+        ).order_by("-created_at")  # last 10
+
+        unread_count = notifications.filter(is_read=False).count()
 
     context = {
         "logs": page_obj.object_list,
@@ -127,8 +147,10 @@ def view_log(request):
         "search_query": search_query,
         "role": role,
         "username": username,
-        "role_choices": Role.choices,              # ✅ from Role enum
-        "action_choices": Log.ACTION_CHOICES,      # ✅ from Log model
+        "role_choices": Role.choices,
+        "action_choices": Log.ACTION_CHOICES,
+        "notifications": notifications,
+        "unread_count": unread_count,
     }
 
     return render(request, "logs.html", context)

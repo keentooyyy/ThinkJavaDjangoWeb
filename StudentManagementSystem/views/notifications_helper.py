@@ -1,25 +1,31 @@
 from StudentManagementSystem.models import Notification, Teacher, Student
 from StudentManagementSystem.models.roles import Role
 
-
 def create_notification(
-    request,
-    recipient_role,
-    title,
-    message,
+    request=None,
+    recipient_role=None,
+    title="",
+    message="",
     teacher_recipient=None,
     student_recipient=None,
-    section_recipient=None
+    section_recipient=None,
+    sender_id=None,
+    sender_role=None,
 ):
     """
     Helper to create notifications consistently.
+    Allows system/anonymous notifications when no session is present.
     """
 
-    sender_id = request.session.get("user_id")
-    sender_role = request.session.get("role")
+    # Try to infer sender from session if not provided
+    if request and not sender_id and not sender_role:
+        sender_id = request.session.get("user_id")
+        sender_role = request.session.get("role")
 
+    # ✅ Fallback to system sender if no user is logged in
     if not sender_id or not sender_role:
-        raise ValueError("Sender must be logged in to create a notification.")
+        sender_id = "SYSTEM"
+        sender_role = "SYSTEM"
 
     Notification.objects.create(
         sender_role=sender_role,
@@ -32,6 +38,7 @@ def create_notification(
         message=message,
     )
     return True
+
 
 
 def mark_notification_as_read(notification_id, user_id, role):

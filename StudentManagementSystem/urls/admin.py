@@ -9,14 +9,15 @@ from StudentManagementSystem.views.admin.manage_teachers import create_teacher, 
 from StudentManagementSystem.views.admin.proggress_addition_admin import add_achievement, add_level, delete_achievement, \
     delete_level, force_sync_everyone
 from StudentManagementSystem.views.admin.student_ranking import admin_student_ranking
-from StudentManagementSystem.views.auth_unified import unified_login, unified_logout
+from StudentManagementSystem.views.auth_unified import unified_login, unified_logout, register_student
 from StudentManagementSystem.views.logger import view_log
 
 urlpatterns = [
     # Login and Logout Routes
     path('', unified_login, name='unified_login'),
     path('logout/', unified_logout, name='unified_logout'),
-    path('register/', admin_register, name='admin_register'),
+    path('admin-register/', admin_register, name='admin_register'),
+    path('register/', register_student, name='register'),
 
     # Dashboard
     path('dashboard/', admin_dashboard, name='admin_dashboard'),

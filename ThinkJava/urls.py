@@ -29,9 +29,13 @@ urlpatterns = [
     path('', include('StudentManagementSystem.urls.admin')),
     path('teacher/', include('StudentManagementSystem.urls.teacher')),
     path('student/', include('StudentManagementSystem.urls.student')),
+
+
     path("provinces/", provinces),
     path("cities/", cities),
     path("barangays/", barangays),
+
+
     path("ranking/export-xls/", export_ranking_xls, name="export_ranking_xls"),
     path("ranking/print/", print_ranking, name="print_ranking"),
 
