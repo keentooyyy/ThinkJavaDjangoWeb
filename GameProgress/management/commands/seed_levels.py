@@ -10,7 +10,6 @@ class Command(BaseCommand):
         # ✅ Usage:
         # python manage.py seed_levels
 
-
         level_names = ["Tutorial"] + [f"Level{i}" for i in range(1, 6)]  # Customize upper range
 
         for name in level_names:

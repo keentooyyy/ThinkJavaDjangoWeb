@@ -1,8 +1,8 @@
 import json
 
+from django.db import transaction
 from django.http import JsonResponse, HttpResponseBadRequest
 from django.views.decorators.csrf import csrf_exempt
-from django.db import transaction
 
 from GameProgress.models import (
     LevelDefinition,

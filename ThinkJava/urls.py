@@ -14,34 +14,31 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-# from django.contrib import admin
-from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+# from django.contrib import admin
+from django.urls import path, include
 
 from StudentManagementSystem.views.export_rankings import export_ranking_xls, print_ranking
 from StudentManagementSystem.views.notifications import read_notification, mark_all_as_read_view, delete_notification
 from StudentManagementSystem.views.ph_locations import provinces, cities, barangays
 
 urlpatterns = [
-    #    path('admin/', admin.site.urls),
-    path('api/', include('GameProgress.urls')),
-    path('', include('StudentManagementSystem.urls.admin')),
-    path('teacher/', include('StudentManagementSystem.urls.teacher')),
-    path('student/', include('StudentManagementSystem.urls.student')),
+                  #    path('admin/', admin.site.urls),
+                  path('api/', include('GameProgress.urls')),
+                  path('', include('StudentManagementSystem.urls.admin')),
+                  path('teacher/', include('StudentManagementSystem.urls.teacher')),
+                  path('student/', include('StudentManagementSystem.urls.student')),
 
+                  path("provinces/", provinces),
+                  path("cities/", cities),
+                  path("barangays/", barangays),
 
-    path("provinces/", provinces),
-    path("cities/", cities),
-    path("barangays/", barangays),
+                  path("ranking/export-xls/", export_ranking_xls, name="export_ranking_xls"),
+                  path("ranking/print/", print_ranking, name="print_ranking"),
 
+                  path("notifications/read/<int:notif_id>/", read_notification, name="read_notification"),
+                  path("notifications/read/all/", mark_all_as_read_view, name="mark_all_notifications_as_read"),
+                  path("notifications/delete/<int:notif_id>/", delete_notification, name="delete_notification")
 
-    path("ranking/export-xls/", export_ranking_xls, name="export_ranking_xls"),
-    path("ranking/print/", print_ranking, name="print_ranking"),
-
-    path("notifications/read/<int:notif_id>/", read_notification, name="read_notification"),
-    path("notifications/read/all/", mark_all_as_read_view, name="mark_all_notifications_as_read"),
-    path("notifications/delete/<int:notif_id>/", delete_notification, name="delete_notification")
-
-
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+              ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -2,13 +2,15 @@ import aiohttp
 from django.http import JsonResponse
 
 BASE_URL_V2 = "https://psgc.cloud/api/v2"
-BASE_URL_V1 = "https://psgc.cloud/api"   # ✅ v1 for NCR cities
+BASE_URL_V1 = "https://psgc.cloud/api"  # ✅ v1 for NCR cities
+
 
 def fix_encoding(text: str) -> str:
     """Fix common encoding issues from PSGC API."""
     if not isinstance(text, str):
         return text
     return text.replace("Ã±", "ñ")
+
 
 def normalize_data(data):
     """Recursively fix all strings in dict/list."""
@@ -20,12 +22,14 @@ def normalize_data(data):
         return fix_encoding(data)
     return data
 
+
 async def fetch_json(url):
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as res:
             res.raise_for_status()
             raw = await res.json()
             return normalize_data(raw)
+
 
 # ----------------- Views -----------------
 
@@ -46,6 +50,7 @@ async def provinces(request):
 
     return JsonResponse(provinces, safe=False)
 
+
 async def cities(request):
     prov_code = request.GET.get("province_code")
     if not prov_code:
@@ -58,6 +63,7 @@ async def cities(request):
     else:
         data = await fetch_json(f"{BASE_URL_V2}/provinces/{prov_code}/cities-municipalities")
         return JsonResponse(data["data"], safe=False)
+
 
 async def barangays(request):
     city_code = request.GET.get("city_code")

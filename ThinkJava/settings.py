@@ -15,7 +15,6 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
@@ -70,7 +69,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'ThinkJava.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
@@ -88,10 +86,9 @@ DATABASES = {
         'USER': 'postgres',
         'PASSWORD': '123',
         'HOST': 'localhost',  # Or your PostgreSQL host
-        'PORT': '5432',       # Default PostgreSQL port
+        'PORT': '5432',  # Default PostgreSQL port
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -111,7 +108,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
@@ -123,19 +119,15 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
-# STATICFILES_DIRS = [BASE_DIR / "static"]
-
-STATICFILES_DIRS = [BASE_DIR / "assets"]
-
-MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+MEDIA_URL = "/media/"
 
 # STATIC_ROOT = BASE_DIR / "staticfiles"
+# STATIC_URL = 'static/'
+# STATICFILES_DIRS = [BASE_DIR / "assets"]
 
 
 # Default primary key field type
@@ -146,17 +138,19 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Custom Login URL
 LOGIN_URL = '/'
 
-#
-# #HTTPS TEST
-# Security settings for HTTPS
-SECURE_SSL_REDIRECT = True  # Redirect HTTP to HTTPS
-SESSION_COOKIE_SECURE = True  # Only send cookies over HTTPS
-CSRF_COOKIE_SECURE = True  # CSRF cookie only sent over HTTPS
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')  # Trust Caddy proxy headers
+# HTTPS CONFIG
 
-# HSTS for enforced HTTPS
-SECURE_HSTS_SECONDS = 31536000  # 1 year
-SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-SECURE_HSTS_PRELOAD = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
+# DISABLE ON CADDY PROD
+# Let Caddy do HTTP→HTTPS redirects and HSTS instead of Django
+SECURE_SSL_REDIRECT = False
+SECURE_HSTS_SECONDS = 0
+SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+SECURE_HSTS_PRELOAD = False
+# DISABLE ON CADDY PROD
+
 
 ALLOWED_HOSTS = ['*']  # Allow local development domains

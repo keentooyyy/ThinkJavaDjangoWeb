@@ -1,10 +1,10 @@
 from django.db import models
 
+
 class LevelDefinition(models.Model):
     name = models.CharField(max_length=100, unique=True)
     unlocked = models.BooleanField(default=False)
     sort_order = models.IntegerField(default=999)
-
 
     class Meta:
         ordering = ["sort_order"]

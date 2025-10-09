@@ -78,7 +78,7 @@
     window.addEventListener("load", function () {
         setTimeout(function () {
             window.print();
-            window.onafterprint = function() {
+            window.onafterprint = function () {
                 window.close();
             };
         }, 500); // wait a bit to make sure everything renders

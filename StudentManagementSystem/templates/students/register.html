@@ -2,20 +2,22 @@
 <html>
 <head><title>Student Register</title></head>
 <body>
-  <h2>Register</h2>
-  <form method="post">
+<h2>Register</h2>
+<form method="post">
     {% csrf_token %}
     <p><label>Student ID:</label><br><input type="text" name="student_id" required></p>
     <p><label>Name:</label><br><input type="text" name="name" required></p>
     <p><label>Password:</label><br><input type="password" name="password" required></p>
     <p><label>Section Code:</label><br><input type="text" name="section_code" required></p>
-    <p><button type="submit">Register</button></p>
-  </form>
+    <p>
+        <button type="submit">Register</button>
+    </p>
+</form>
 
-  {% for message in messages %}
+{% for message in messages %}
     <p style="color: red;">{{ message }}</p>
-  {% endfor %}
+{% endfor %}
 
-  <p><a href="{% url 'student_login' %}">Already have an account? Login</a></p>
+<p><a href="{% url 'student_login' %}">Already have an account? Login</a></p>
 </body>
 </html>
