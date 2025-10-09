@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -22,7 +21,8 @@ class Migration(migrations.Migration):
                 ('password', models.CharField(max_length=128)),
                 ('first_name', models.CharField(max_length=150)),
                 ('last_name', models.CharField(max_length=150)),
-                ('role', models.CharField(choices=[('STUDENT', 'Student'), ('TEACHER', 'Teacher'), ('ADMIN', 'Admin')], default='ADMIN', max_length=20)),
+                ('role', models.CharField(choices=[('STUDENT', 'Student'), ('TEACHER', 'Teacher'), ('ADMIN', 'Admin')],
+                                          default='ADMIN', max_length=20)),
             ],
         ),
         migrations.CreateModel(
@@ -51,15 +51,21 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('actor_id', models.CharField(max_length=50)),
-                ('role', models.CharField(choices=[('STUDENT', 'Student'), ('TEACHER', 'Teacher'), ('ADMIN', 'Admin')], max_length=20)),
-                ('action', models.CharField(choices=[('LOGIN', 'Login'), ('LOGOUT', 'Logout'), ('CREATE', 'Create'), ('UPDATE', 'Update'), ('DELETE', 'Delete'), ('VIEW', 'View'), ('OTHER', 'Other')], default='OTHER', max_length=20)),
+                ('role', models.CharField(choices=[('STUDENT', 'Student'), ('TEACHER', 'Teacher'), ('ADMIN', 'Admin')],
+                                          max_length=20)),
+                ('action', models.CharField(
+                    choices=[('LOGIN', 'Login'), ('LOGOUT', 'Logout'), ('CREATE', 'Create'), ('UPDATE', 'Update'),
+                             ('DELETE', 'Delete'), ('VIEW', 'View'), ('OTHER', 'Other')], default='OTHER',
+                    max_length=20)),
                 ('description', models.TextField()),
                 ('ip_address', models.GenericIPAddressField(blank=True, null=True)),
                 ('timestamp', models.DateTimeField(default=django.utils.timezone.now)),
             ],
             options={
                 'ordering': ['-timestamp'],
-                'indexes': [models.Index(fields=['actor_id', 'role'], name='StudentMana_actor_i_dcd0a5_idx'), models.Index(fields=['timestamp'], name='StudentMana_timesta_7192ea_idx'), models.Index(fields=['action'], name='StudentMana_action_0506e7_idx')],
+                'indexes': [models.Index(fields=['actor_id', 'role'], name='StudentMana_actor_i_dcd0a5_idx'),
+                            models.Index(fields=['timestamp'], name='StudentMana_timesta_7192ea_idx'),
+                            models.Index(fields=['action'], name='StudentMana_action_0506e7_idx')],
             },
         ),
         migrations.CreateModel(
@@ -67,7 +73,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('letter', models.CharField(max_length=1)),
-                ('department', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='StudentManagementSystem.department')),
+                ('department', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                                                 to='StudentManagementSystem.department')),
             ],
         ),
         migrations.CreateModel(
@@ -78,11 +85,13 @@ class Migration(migrations.Migration):
                 ('first_name', models.CharField(max_length=150)),
                 ('last_name', models.CharField(max_length=150)),
                 ('password', models.CharField(max_length=128)),
-                ('role', models.CharField(choices=[('STUDENT', 'Student'), ('TEACHER', 'Teacher'), ('ADMIN', 'Admin')], default='TEACHER', max_length=20)),
+                ('role', models.CharField(choices=[('STUDENT', 'Student'), ('TEACHER', 'Teacher'), ('ADMIN', 'Admin')],
+                                          default='TEACHER', max_length=20)),
                 ('login_key', models.CharField(blank=True, editable=False, max_length=128, null=True, unique=True)),
             ],
             options={
-                'indexes': [models.Index(fields=['teacher_id'], name='StudentMana_teacher_620fa4_idx'), models.Index(fields=['last_name', 'first_name'], name='StudentMana_last_na_b6a36f_idx')],
+                'indexes': [models.Index(fields=['teacher_id'], name='StudentMana_teacher_620fa4_idx'),
+                            models.Index(fields=['last_name', 'first_name'], name='StudentMana_last_na_b6a36f_idx')],
             },
         ),
         migrations.CreateModel(
@@ -93,7 +102,8 @@ class Migration(migrations.Migration):
                 ('points', models.FloatField(default=1.0)),
                 ('required', models.BooleanField(default=True)),
                 ('sort_order', models.IntegerField(default=0)),
-                ('test', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='questions', to='StudentManagementSystem.testdefinition')),
+                ('test', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='questions',
+                                           to='StudentManagementSystem.testdefinition')),
             ],
             options={
                 'ordering': ['sort_order'],
@@ -106,7 +116,8 @@ class Migration(migrations.Migration):
                 ('text', models.CharField(max_length=255)),
                 ('is_correct', models.BooleanField(default=False)),
                 ('sort_order', models.IntegerField(default=0)),
-                ('question', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='choices', to='StudentManagementSystem.testquestion')),
+                ('question', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='choices',
+                                               to='StudentManagementSystem.testquestion')),
             ],
             options={
                 'ordering': ['sort_order', 'id'],
@@ -128,7 +139,8 @@ class Migration(migrations.Migration):
                 ('street', models.TextField(blank=True, null=True)),
                 ('province', models.CharField(blank=True, max_length=100, null=True)),
                 ('barangay', models.CharField(blank=True, max_length=100, null=True)),
-                ('content_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='contenttypes.contenttype')),
+                ('content_type',
+                 models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='contenttypes.contenttype')),
             ],
         ),
         migrations.CreateModel(
@@ -138,7 +150,9 @@ class Migration(migrations.Migration):
                 ('institution', models.CharField(blank=True, max_length=255, null=True)),
                 ('start_date', models.DateField(blank=True, null=True)),
                 ('graduation_date', models.DateField(blank=True, null=True)),
-                ('profile', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='educational_backgrounds', to='StudentManagementSystem.userprofile')),
+                ('profile',
+                 models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='educational_backgrounds',
+                                   to='StudentManagementSystem.userprofile')),
             ],
         ),
         migrations.CreateModel(
@@ -159,10 +173,13 @@ class Migration(migrations.Migration):
                 ('first_name', models.CharField(max_length=150)),
                 ('last_name', models.CharField(max_length=150)),
                 ('password', models.CharField(max_length=128)),
-                ('role', models.CharField(choices=[('STUDENT', 'Student'), ('TEACHER', 'Teacher'), ('ADMIN', 'Admin')], default='STUDENT', max_length=20)),
+                ('role', models.CharField(choices=[('STUDENT', 'Student'), ('TEACHER', 'Teacher'), ('ADMIN', 'Admin')],
+                                          default='STUDENT', max_length=20)),
                 ('login_key', models.CharField(blank=True, editable=False, max_length=128, null=True, unique=True)),
-                ('section', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='StudentManagementSystem.section')),
-                ('year_level', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='StudentManagementSystem.yearlevel')),
+                ('section', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
+                                              to='StudentManagementSystem.section')),
+                ('year_level', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
+                                                 to='StudentManagementSystem.yearlevel')),
             ],
         ),
         migrations.CreateModel(
@@ -171,24 +188,33 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('code', models.CharField(max_length=10, unique=True)),
                 ('created_at', models.DateTimeField(auto_now=True)),
-                ('department', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='StudentManagementSystem.department')),
-                ('section', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='StudentManagementSystem.section')),
-                ('year_level', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='StudentManagementSystem.yearlevel')),
+                ('department', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                                                 to='StudentManagementSystem.department')),
+                ('section',
+                 models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='StudentManagementSystem.section')),
+                ('year_level', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                                                 to='StudentManagementSystem.yearlevel')),
             ],
         ),
         migrations.AddField(
             model_name='section',
             name='year_level',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='StudentManagementSystem.yearlevel'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                                    to='StudentManagementSystem.yearlevel'),
         ),
         migrations.CreateModel(
             name='HandledSection',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('department', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='StudentManagementSystem.department')),
-                ('section', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='StudentManagementSystem.section')),
-                ('teacher', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='handled_sections', to='StudentManagementSystem.teacher')),
-                ('year_level', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='StudentManagementSystem.yearlevel')),
+                ('department', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                                                 to='StudentManagementSystem.department')),
+                ('section',
+                 models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='StudentManagementSystem.section')),
+                ('teacher',
+                 models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='handled_sections',
+                                   to='StudentManagementSystem.teacher')),
+                ('year_level', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                                                 to='StudentManagementSystem.yearlevel')),
             ],
         ),
         migrations.CreateModel(
@@ -196,8 +222,11 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('assigned_at', models.DateTimeField(auto_now_add=True)),
-                ('section', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='assigned_tests', to='StudentManagementSystem.section')),
-                ('test', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='assignments', to='StudentManagementSystem.testdefinition')),
+                ('section',
+                 models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='assigned_tests',
+                                   to='StudentManagementSystem.section')),
+                ('test', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='assignments',
+                                           to='StudentManagementSystem.testdefinition')),
             ],
             options={
                 'unique_together': {('test', 'section')},
@@ -210,8 +239,10 @@ class Migration(migrations.Migration):
                 ('score', models.FloatField(blank=True, null=True)),
                 ('completed', models.BooleanField(default=False)),
                 ('taken_at', models.DateTimeField(auto_now_add=True)),
-                ('student', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='StudentManagementSystem.student')),
-                ('test', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='StudentManagementSystem.testdefinition')),
+                ('student',
+                 models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='StudentManagementSystem.student')),
+                ('test', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                                           to='StudentManagementSystem.testdefinition')),
             ],
             options={
                 'unique_together': {('student', 'test')},
@@ -227,8 +258,10 @@ class Migration(migrations.Migration):
                 ('choice_orders', models.JSONField(default=dict)),
                 ('answers', models.JSONField(default=dict)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
-                ('student', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='StudentManagementSystem.student')),
-                ('test', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='StudentManagementSystem.testdefinition')),
+                ('student',
+                 models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='StudentManagementSystem.student')),
+                ('test', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                                           to='StudentManagementSystem.testdefinition')),
             ],
             options={
                 'unique_together': {('student', 'test')},
@@ -240,9 +273,12 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('is_correct', models.BooleanField(default=False)),
                 ('answered_at', models.DateTimeField(auto_now_add=True)),
-                ('student', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='StudentManagementSystem.student')),
-                ('choice', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='StudentManagementSystem.testchoice')),
-                ('question', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='StudentManagementSystem.testquestion')),
+                ('student',
+                 models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='StudentManagementSystem.student')),
+                ('choice', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                                             to='StudentManagementSystem.testchoice')),
+                ('question', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                                               to='StudentManagementSystem.testquestion')),
             ],
             options={
                 'unique_together': {('student', 'question')},
@@ -282,7 +318,8 @@ class Migration(migrations.Migration):
         ),
         migrations.AddIndex(
             model_name='handledsection',
-            index=models.Index(fields=['teacher', 'department', 'year_level', 'section'], name='StudentMana_teacher_742eb3_idx'),
+            index=models.Index(fields=['teacher', 'department', 'year_level', 'section'],
+                               name='StudentMana_teacher_742eb3_idx'),
         ),
         migrations.AlterUniqueTogether(
             name='handledsection',

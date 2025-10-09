@@ -1,6 +1,6 @@
+from django.http import HttpResponseForbidden
 from django.http.response import JsonResponse
 from django.shortcuts import redirect, get_object_or_404
-from django.http import HttpResponseForbidden
 
 from StudentManagementSystem.models import Notification
 from StudentManagementSystem.models.roles import Role

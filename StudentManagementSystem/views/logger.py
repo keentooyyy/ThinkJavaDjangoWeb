@@ -46,6 +46,7 @@ def get_client_ip(request):
         ip = request.META.get("REMOTE_ADDR")
     return ip
 
+
 def get_filtered_logs_for_user(user_id, role):
     logs = Log.objects.all()
 

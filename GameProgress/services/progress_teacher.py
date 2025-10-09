@@ -3,7 +3,6 @@ from django.db import transaction
 from GameProgress.models import (
     LevelDefinition,
     AchievementDefinition,
-    LevelProgress,
     AchievementProgress
 )
 
@@ -29,7 +28,8 @@ def sync_students_progress(student_qs):
         for achievement_id in achievements:
             if (student_id, achievement_id) not in existing_achievements:
                 new_achievement_progress.append(
-                    AchievementProgress(student_id=student_id, achievement_id=achievement_id, unlocked=False, is_active=True)
+                    AchievementProgress(student_id=student_id, achievement_id=achievement_id, unlocked=False,
+                                        is_active=True)
                 )
 
     with transaction.atomic():
@@ -70,9 +70,11 @@ def enable_all_achievements_for_students(student_qs):
 def disable_all_achievements_for_students(student_qs):
     AchievementProgress.objects.filter(student__in=student_qs).update(is_active=False)
 
+
 from django.utils.timezone import now
 from GameProgress.models.level_schedule import SectionLevelSchedule
 from GameProgress.models.level_progress import LevelProgress
+
 
 def auto_update_lock_states(student_qs):
     current_time = now()
@@ -93,7 +95,7 @@ def auto_update_lock_states(student_qs):
                 level_id=sched.level_id
             ).update(unlocked=True)
             # if updated:
-                # print(f"   🔓 Unlocked {updated} rows", flush=True)
+            # print(f"   🔓 Unlocked {updated} rows", flush=True)
 
         # 🔒 Lock students if due_date passed
         if sched.due_date and sched.due_date <= current_time:
@@ -107,7 +109,6 @@ def auto_update_lock_states(student_qs):
             # 🗑️ Remove the schedule once it's expired
             sched.delete()
             # print(f"   🗑️ Deleted expired schedule (Section={sched.section_id}, Level={sched.level_id})", flush=True)
-
 
 
 def unlock_level_with_schedule(student_qs, level_name, section, start_date=None, due_date=None):

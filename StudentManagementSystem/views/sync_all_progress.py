@@ -9,6 +9,7 @@ def run_sync_in_background():
     Fire sync_all_students_with_all_progress() in a background thread.
     Can be used in views or anywhere else.
     """
+
     def task():
         try:
             sync_all_students_with_all_progress()

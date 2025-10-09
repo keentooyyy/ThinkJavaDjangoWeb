@@ -84,7 +84,7 @@
                                     <input name="password" id="password" class="form-control" type="password"
                                            placeholder="Password"
                                            aria-label="Password" value="123">
-                                    <a href="javascript:;" class="input-group-text bg-transparent"
+                                    <a href="javascript:" class="input-group-text bg-transparent"
                                        id="togglePassword"><i
                                             class="bx bx-hide"></i></a>
                                 </div>
@@ -164,7 +164,7 @@
 
 
 
-{% include "utility/modal_dialogue.html" with modal_id="teacherConfirmModal" modal_title="Confirm Submission" modal_body="<span>Are you sure that all the details are correct?</span>" modal_width="400px" modal_buttons="['yes','cancel']" modal_classes="['btn btn-primary','btn btn-secondary']"%}
+    {% include "utility/modal_dialogue.html" with modal_id="teacherConfirmModal" modal_title="Confirm Submission" modal_body="<span>Are you sure that all the details are correct?</span>" modal_width="400px" modal_buttons="['yes','cancel']" modal_classes="['btn btn-primary','btn btn-secondary']" %}
 
 
 

@@ -4,6 +4,7 @@ from django import template
 
 register = template.Library()
 
+
 @register.filter
 def to_list(value):
     if not value:
@@ -12,6 +13,7 @@ def to_list(value):
         return ast.literal_eval(value)
     except Exception:
         return []
+
 
 @register.simple_tag
 def zip_lists(list1, list2):
@@ -22,6 +24,7 @@ def zip_lists(list1, list2):
 @register.filter
 def get_item(dictionary, key):
     return dictionary.get(key, [])
+
 
 @register.filter
 def dict_get(d, key):

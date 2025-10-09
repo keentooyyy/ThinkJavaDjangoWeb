@@ -1,7 +1,7 @@
-from django.db.models import Sum
-from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.db import transaction
+from django.db.models import Sum
+from django.shortcuts import render, redirect, get_object_or_404
 
 from StudentManagementSystem.decorators.custom_decorators import session_login_required
 from StudentManagementSystem.models import Student, Notification

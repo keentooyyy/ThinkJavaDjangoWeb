@@ -1,10 +1,12 @@
 import logging
 import threading
 import time
+
 from django.utils.timezone import now
-from StudentManagementSystem.models import Student
-from GameProgress.models.level_schedule import SectionLevelSchedule
+
 from GameProgress.models.level_progress import LevelProgress
+from GameProgress.models.level_schedule import SectionLevelSchedule
+from StudentManagementSystem.models import Student
 
 logger = logging.getLogger(__name__)
 

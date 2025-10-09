@@ -1,8 +1,8 @@
+from django.contrib import messages
 from django.db import transaction
 from django.db.models import Prefetch, Sum
 from django.http.response import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib import messages
 from django.views.decorators.http import require_POST
 
 from StudentManagementSystem.decorators.custom_decorators import session_login_required
@@ -18,8 +18,10 @@ from StudentManagementSystem.views.logger import create_log
 def _get_test(test_id):
     return get_object_or_404(TestDefinition, id=test_id)
 
+
 def _get_question(test_id, question_id):
     return get_object_or_404(TestQuestion.objects.select_related("test"), id=question_id, test_id=test_id)
+
 
 def _get_choice(test_id, question_id, choice_id):
     return get_object_or_404(
@@ -29,10 +31,12 @@ def _get_choice(test_id, question_id, choice_id):
         question__test_id=test_id,
     )
 
+
 def _parse_checkbox(value):
     if value is None:
         return False
     return str(value).lower() in ("1", "true", "on", "yes")
+
 
 def _update_test_fields(test, data, only_settings=False):
     if not only_settings:
@@ -41,6 +45,7 @@ def _update_test_fields(test, data, only_settings=False):
     test.shuffle_questions = _parse_checkbox(data.get("shuffle_questions"))
     test.shuffle_choices = _parse_checkbox(data.get("shuffle_choices"))
     return test
+
 
 def _json_ok(extra=None):
     res = {"status": "ok"}

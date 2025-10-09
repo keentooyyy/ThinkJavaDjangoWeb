@@ -41,175 +41,179 @@
         }
     </style>
     <div class="page-wrapper py-4 py-md-5">
-  <div class="container">
+        <div class="container">
 
-    <!-- PRE-TEST CARD -->
-    <div class="row mb-4">
-      <div class="col-12 col-sm-10 col-md-8 col-lg-6 mx-auto px-2 px-sm-3 px-md-4">
-        <div class="card">
-          <div class="card-body p-4 p-md-5 text-center">
-            <h6 class="mb-3">TAKE PRE-TEST</h6>
-            {% if pre_taken %}
-              <div class="alert alert-success">
-                Completed {{ pre_test.name }}<br>
-                <strong>Your Score:</strong> {{ pre_score }} / {{ pre_max }}
-              </div>
-            {% elif pre_test %}
-              <button id="start-pre-btn" class="btn btn-primary w-100">START</button>
-            {% else %}
-              <div class="alert alert-info">No Pre-Test assigned to your section yet.</div>
-            {% endif %}
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- POST-TEST CARD -->
-    <div class="row mb-4">
-      <div class="col-12 col-sm-10 col-md-8 col-lg-6 mx-auto px-2 px-sm-3 px-md-4">
-        <div class="card">
-          <div class="card-body p-4 p-md-5 text-center">
-            <h6 class="mb-3">TAKE POST-TEST</h6>
-            {% if post_taken %}
-              <div class="alert alert-success">
-                ✅ Completed {{ post_test.name }}<br>
-                <strong>Your Score:</strong> {{ post_score }} / {{ post_max }}
-              </div>
-            {% elif post_test and can_take_posttest %}
-              <button id="start-post-btn" class="btn btn-primary w-100">START</button>
-            {% elif post_test %}
-              <div class="alert alert-warning">
-                ⚠️ You can only take the Post-Test after completing the Pre-Test and finishing all levels.
-              </div>
-            {% else %}
-              <div class="alert alert-info">No Post-Test assigned to your section yet.</div>
-            {% endif %}
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- PRE-TEST QUESTIONS -->
-    {% if pre_test and not pre_taken %}
-      <div id="pre-test-container" class="d-none">
-        <!-- Header -->
-        <div class="row mb-4">
-          <div class="col-12 col-sm-10 col-md-8 col-lg-6 mx-auto px-2 px-sm-3 px-md-4">
-            <div class="card border-top border-0 border-4 border-primary">
-              <div class="card-body p-4 p-md-5">
-                <h3>{{ pre_test.name }}</h3>
-                <p class="mb-0 text-muted small mt-3">
-                  Maximum Score:
-                  <span class="ms-3 badge bg-primary px-3 py-2">{{ pre_max|floatformat:"0" }} points</span>
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <form method="post" action="{% url 'submit_test' pre_test.id %}">
-          {% csrf_token %}
-          <input type="hidden" name="test_id" value="{{ pre_test.id }}">
-
-          {% for q in pre_progress.get_page_questions %}
+            <!-- PRE-TEST CARD -->
             <div class="row mb-4">
-              <div class="col-12 col-sm-10 col-md-8 col-lg-6 mx-auto px-2 px-sm-3 px-md-4">
-                <div class="card border-start border-0 border-4 border-primary">
-                  <div class="card-body p-4 p-md-5">
-                    <div class="d-flex justify-content-between">
-                      <h5>{{ forloop.counter }}. {{ q.text }}</h5>
-                      <p class="text-muted">{{ q.points|floatformat:"0" }} point(s)</p>
+                <div class="col-12 col-sm-10 col-md-8 col-lg-6 mx-auto px-2 px-sm-3 px-md-4">
+                    <div class="card">
+                        <div class="card-body p-4 p-md-5 text-center">
+                            <h6 class="mb-3">TAKE PRE-TEST</h6>
+                            {% if pre_taken %}
+                                <div class="alert alert-success">
+                                    Completed {{ pre_test.name }}<br>
+                                    <strong>Your Score:</strong> {{ pre_score }} / {{ pre_max }}
+                                </div>
+                            {% elif pre_test %}
+                                <button id="start-pre-btn" class="btn btn-primary w-100">START</button>
+                            {% else %}
+                                <div class="alert alert-info">No Pre-Test assigned to your section yet.</div>
+                            {% endif %}
+                        </div>
                     </div>
-                    <div class="mt-3">
-                      {% for c in pre_choices_map|dict_get:q.id %}
-                        <label class="form-check py-3 rounded d-block choice-label">
-                          <div class="ms-4">
-                            <input class="form-check-input border border-primary" type="radio"
-                                   name="q{{ q.id }}" value="{{ c.id }}" id="c{{ c.id }}"
-                                   {% if pre_progress.answers|get_item:q.id == c.id %}checked{% endif %}>
-                            <span class="form-check-label ms-3">{{ c.text }}</span>
-                          </div>
-                        </label>
-                      {% endfor %}
-                    </div>
-                  </div>
                 </div>
-              </div>
             </div>
-          {% endfor %}
 
-          <!-- Submit -->
-          <div class="row">
-            <div class="col-12 col-sm-10 col-md-8 col-lg-6 mx-auto d-flex justify-content-end gap-3 mb-3">
-              <button type="submit" class="btn btn-primary">Submit</button>
-              <button type="button" class="btn btn-secondary btn-cancel">Cancel</button>
-            </div>
-          </div>
-        </form>
-      </div>
-    {% endif %}
-
-    <!-- POST-TEST QUESTIONS -->
-    {% if post_test and not post_taken and can_take_posttest %}
-      <div id="post-test-container" class="d-none">
-        <!-- Header -->
-        <div class="row mb-4">
-          <div class="col-12 col-sm-10 col-md-8 col-lg-6 mx-auto px-2 px-sm-3 px-md-4">
-            <div class="card border-top border-0 border-4 border-primary">
-              <div class="card-body p-4 p-md-5">
-                <h3>{{ post_test.name }}</h3>
-                <p class="mb-0 text-muted small mt-3">
-                  Maximum Score:
-                  <span class="ms-3 badge bg-primary px-3 py-2">{{ post_max|floatformat:"0" }} points</span>
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <form method="post" action="{% url 'submit_test' post_test.id %}">
-          {% csrf_token %}
-          <input type="hidden" name="test_id" value="{{ post_test.id }}">
-
-          {% for q in post_progress.get_page_questions %}
+            <!-- POST-TEST CARD -->
             <div class="row mb-4">
-              <div class="col-12 col-sm-10 col-md-8 col-lg-6 mx-auto px-2 px-sm-3 px-md-4">
-                <div class="card border-start border-0 border-4 border-primary">
-                  <div class="card-body p-4 p-md-5">
-                    <div class="d-flex justify-content-between">
-                      <h5>{{ forloop.counter }}. {{ q.text }}</h5>
-                      <p class="text-muted">{{ q.points|floatformat:"0" }} point(s)</p>
+                <div class="col-12 col-sm-10 col-md-8 col-lg-6 mx-auto px-2 px-sm-3 px-md-4">
+                    <div class="card">
+                        <div class="card-body p-4 p-md-5 text-center">
+                            <h6 class="mb-3">TAKE POST-TEST</h6>
+                            {% if post_taken %}
+                                <div class="alert alert-success">
+                                    ✅ Completed {{ post_test.name }}<br>
+                                    <strong>Your Score:</strong> {{ post_score }} / {{ post_max }}
+                                </div>
+                            {% elif post_test and can_take_posttest %}
+                                <button id="start-post-btn" class="btn btn-primary w-100">START</button>
+                            {% elif post_test %}
+                                <div class="alert alert-warning">
+                                    ⚠️ You can only take the Post-Test after completing the Pre-Test and finishing all
+                                    levels.
+                                </div>
+                            {% else %}
+                                <div class="alert alert-info">No Post-Test assigned to your section yet.</div>
+                            {% endif %}
+                        </div>
                     </div>
-                    <div class="mt-3">
-                      {% for c in post_choices_map|dict_get:q.id %}
-                        <label class="form-check py-3 rounded d-block choice-label">
-                          <div class="ms-4">
-                            <input class="form-check-input" type="radio"
-                                   name="q{{ q.id }}" value="{{ c.id }}" id="post-c{{ c.id }}">
-                            <span class="form-check-label ms-3">{{ c.text }}</span>
-                          </div>
-                        </label>
-                      {% endfor %}
-                    </div>
-                  </div>
                 </div>
-              </div>
             </div>
-          {% endfor %}
 
-          <!-- Submit -->
-          <div class="row">
-            <div class="col-12 col-sm-10 col-md-8 col-lg-6 mx-auto d-flex justify-content-end gap-3 mb-3">
-              <button type="submit" class="btn btn-primary">Submit</button>
-              <button type="button" class="btn btn-secondary btn-cancel">Cancel</button>
-            </div>
-          </div>
-        </form>
-      </div>
-    {% endif %}
+            <!-- PRE-TEST QUESTIONS -->
+            {% if pre_test and not pre_taken %}
+                <div id="pre-test-container" class="d-none">
+                    <!-- Header -->
+                    <div class="row mb-4">
+                        <div class="col-12 col-sm-10 col-md-8 col-lg-6 mx-auto px-2 px-sm-3 px-md-4">
+                            <div class="card border-top border-0 border-4 border-primary">
+                                <div class="card-body p-4 p-md-5">
+                                    <h3>{{ pre_test.name }}</h3>
+                                    <p class="mb-0 text-muted small mt-3">
+                                        Maximum Score:
+                                        <span class="ms-3 badge bg-primary px-3 py-2">{{ pre_max|floatformat:"0" }} points</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-  </div>
-</div>
+                    <form method="post" action="{% url 'submit_test' pre_test.id %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="test_id" value="{{ pre_test.id }}">
+
+                        {% for q in pre_progress.get_page_questions %}
+                            <div class="row mb-4">
+                                <div class="col-12 col-sm-10 col-md-8 col-lg-6 mx-auto px-2 px-sm-3 px-md-4">
+                                    <div class="card border-start border-0 border-4 border-primary">
+                                        <div class="card-body p-4 p-md-5">
+                                            <div class="d-flex justify-content-between">
+                                                <h5>{{ forloop.counter }}. {{ q.text }}</h5>
+                                                <p class="text-muted">{{ q.points|floatformat:"0" }} point(s)</p>
+                                            </div>
+                                            <div class="mt-3">
+                                                {% for c in pre_choices_map|dict_get:q.id %}
+                                                    <label class="form-check py-3 rounded d-block choice-label">
+                                                        <div class="ms-4">
+                                                            <input class="form-check-input border border-primary"
+                                                                   type="radio"
+                                                                   name="q{{ q.id }}" value="{{ c.id }}"
+                                                                   id="c{{ c.id }}"
+                                                                   {% if pre_progress.answers|get_item:q.id == c.id %}checked{% endif %}>
+                                                            <span class="form-check-label ms-3">{{ c.text }}</span>
+                                                        </div>
+                                                    </label>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+
+                        <!-- Submit -->
+                        <div class="row">
+                            <div class="col-12 col-sm-10 col-md-8 col-lg-6 mx-auto d-flex justify-content-end gap-3 mb-3">
+                                <button type="submit" class="btn btn-primary">Submit</button>
+                                <button type="button" class="btn btn-secondary btn-cancel">Cancel</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            {% endif %}
+
+            <!-- POST-TEST QUESTIONS -->
+            {% if post_test and not post_taken and can_take_posttest %}
+                <div id="post-test-container" class="d-none">
+                    <!-- Header -->
+                    <div class="row mb-4">
+                        <div class="col-12 col-sm-10 col-md-8 col-lg-6 mx-auto px-2 px-sm-3 px-md-4">
+                            <div class="card border-top border-0 border-4 border-primary">
+                                <div class="card-body p-4 p-md-5">
+                                    <h3>{{ post_test.name }}</h3>
+                                    <p class="mb-0 text-muted small mt-3">
+                                        Maximum Score:
+                                        <span class="ms-3 badge bg-primary px-3 py-2">{{ post_max|floatformat:"0" }} points</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form method="post" action="{% url 'submit_test' post_test.id %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="test_id" value="{{ post_test.id }}">
+
+                        {% for q in post_progress.get_page_questions %}
+                            <div class="row mb-4">
+                                <div class="col-12 col-sm-10 col-md-8 col-lg-6 mx-auto px-2 px-sm-3 px-md-4">
+                                    <div class="card border-start border-0 border-4 border-primary">
+                                        <div class="card-body p-4 p-md-5">
+                                            <div class="d-flex justify-content-between">
+                                                <h5>{{ forloop.counter }}. {{ q.text }}</h5>
+                                                <p class="text-muted">{{ q.points|floatformat:"0" }} point(s)</p>
+                                            </div>
+                                            <div class="mt-3">
+                                                {% for c in post_choices_map|dict_get:q.id %}
+                                                    <label class="form-check py-3 rounded d-block choice-label">
+                                                        <div class="ms-4">
+                                                            <input class="form-check-input" type="radio"
+                                                                   name="q{{ q.id }}" value="{{ c.id }}"
+                                                                   id="post-c{{ c.id }}">
+                                                            <span class="form-check-label ms-3">{{ c.text }}</span>
+                                                        </div>
+                                                    </label>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+
+                        <!-- Submit -->
+                        <div class="row">
+                            <div class="col-12 col-sm-10 col-md-8 col-lg-6 mx-auto d-flex justify-content-end gap-3 mb-3">
+                                <button type="submit" class="btn btn-primary">Submit</button>
+                                <button type="button" class="btn btn-secondary btn-cancel">Cancel</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
 
 
 {% endblock %}
@@ -221,26 +225,26 @@
 {% block scripts %}
     <script>
         $(function () {
-    const $preBtn = $("#start-pre-btn");
-    const $preContainer = $("#pre-test-container");
-    const $postBtn = $("#start-post-btn");
-    const $postContainer = $("#post-test-container");
+            const $preBtn = $("#start-pre-btn");
+            const $preContainer = $("#pre-test-container");
+            const $postBtn = $("#start-post-btn");
+            const $postContainer = $("#post-test-container");
 
-    $preBtn.on("click", function () {
-      $(".page-wrapper > .container > .row").hide();
-      $preContainer.removeClass("d-none");
-    });
+            $preBtn.on("click", function () {
+                $(".page-wrapper > .container > .row").hide();
+                $preContainer.removeClass("d-none");
+            });
 
-    $postBtn.on("click", function () {
-      $(".page-wrapper > .container > .row").hide();
-      $postContainer.removeClass("d-none");
-    });
+            $postBtn.on("click", function () {
+                $(".page-wrapper > .container > .row").hide();
+                $postContainer.removeClass("d-none");
+            });
 
-    $(".btn-cancel").on("click", function () {
-      $(".page-wrapper > .container > .row").show();
-      $("#pre-test-container, #post-test-container").addClass("d-none");
-    });
-  });
+            $(".btn-cancel").on("click", function () {
+                $(".page-wrapper > .container > .row").show();
+                $("#pre-test-container, #post-test-container").addClass("d-none");
+            });
+        });
     </script>
 
 

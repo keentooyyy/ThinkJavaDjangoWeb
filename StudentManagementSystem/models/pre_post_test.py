@@ -1,4 +1,5 @@
 from django.db import models
+
 from StudentManagementSystem.models.student import Student
 
 
@@ -92,6 +93,7 @@ class StudentTest(models.Model):
 
         return {"score": score, "max_score": max_score}
 
+
 class StudentProgress(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     test = models.ForeignKey(TestDefinition, on_delete=models.CASCADE)
@@ -99,10 +101,10 @@ class StudentProgress(models.Model):
     current_page = models.PositiveIntegerField(default=0)
     page_size = models.PositiveIntegerField(default=25)  # default like Google Forms
 
-    question_order = models.JSONField(default=list)   # [5, 2, 7, 1...]
-    choice_orders = models.JSONField(default=dict)    # {"5": [12,13,14]}
+    question_order = models.JSONField(default=list)  # [5, 2, 7, 1...]
+    choice_orders = models.JSONField(default=dict)  # {"5": [12,13,14]}
 
-    answers = models.JSONField(default=dict)          # {"5": 14, "2": 22}
+    answers = models.JSONField(default=dict)  # {"5": 14, "2": 22}
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -148,9 +150,11 @@ class StudentProgress(models.Model):
         self.save(update_fields=["current_page"])
         return self.get_page_questions()
 
+
 class TestAssignment(models.Model):
     test = models.ForeignKey(TestDefinition, on_delete=models.CASCADE, related_name="assignments")
-    section = models.ForeignKey("StudentManagementSystem.Section", on_delete=models.CASCADE, related_name="assigned_tests")
+    section = models.ForeignKey("StudentManagementSystem.Section", on_delete=models.CASCADE,
+                                related_name="assigned_tests")
     assigned_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

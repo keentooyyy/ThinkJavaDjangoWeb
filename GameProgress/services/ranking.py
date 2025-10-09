@@ -29,6 +29,7 @@ def calc_level_stars(best_time: int) -> int:
             return stars_map[idx]
     return 0
 
+
 def calc_level_score(best_time: int) -> int:
     """Python-side scoring for a single level."""
     if best_time is None:
@@ -38,10 +39,12 @@ def calc_level_score(best_time: int) -> int:
             return score
     return 0
 
+
 def level_score_case(field="best_time"):
     """Reusable ORM scoring expression."""
     whens = [When(**{f"{field}__gte": t}, then=Value(s)) for t, s in LEVEL_SCORE_THRESHOLDS]
     return Case(*whens, default=Value(0), output_field=IntegerField())
+
 
 # --------------------------
 # Student performance (single)
@@ -69,7 +72,8 @@ def get_student_performance(student):
         "first_name": student.first_name,
         "last_name": student.last_name,
         "section": getattr(student, "full_section", "N/A"),
-        "department": getattr(student.section, "department", None).name if getattr(student.section, "department", None) else "N/A",
+        "department": getattr(student.section, "department", None).name if getattr(student.section, "department",
+                                                                                   None) else "N/A",
         "year_level": getattr(student, "year_level", None).year if getattr(student, "year_level", None) else "N/A",
         "section_letter": getattr(student, "section", None).letter if getattr(student, "section", None) else "N/A",
         "total_time_remaining": total_time_remaining,
@@ -77,15 +81,16 @@ def get_student_performance(student):
         "score": total_score,  # 🚫 no +25 per achievement
     }
 
+
 # --------------------------
 # All student rankings
 # --------------------------
 def get_all_student_rankings(
-    sort_by="score",
-    sort_order="desc",
-    filter_by=None,
-    department_filter=None,
-    limit_to_students=None,
+        sort_by="score",
+        sort_order="desc",
+        filter_by=None,
+        department_filter=None,
+        limit_to_students=None,
 ):
     # --- Precompute scores like get_section_rankings ---
     level_scores = (
@@ -166,6 +171,7 @@ def get_all_student_rankings(
 
     return rankings
 
+
 # --------------------------
 # Section rankings
 # --------------------------
@@ -199,4 +205,3 @@ def get_section_rankings(sort_order="desc", limit=5):
     section_averages.sort(key=lambda x: x["average_score"], reverse=reverse)
 
     return section_averages[:limit]
-

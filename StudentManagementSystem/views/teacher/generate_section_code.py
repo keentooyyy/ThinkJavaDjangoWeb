@@ -144,7 +144,6 @@ def delete_section_code(request):
     return JsonResponse({"success": True})
 
 
-
 @session_login_required(role=Role.TEACHER)
 @require_POST
 def check_section_code_exists(request):

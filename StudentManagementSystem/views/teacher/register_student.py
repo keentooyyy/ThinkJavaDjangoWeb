@@ -8,7 +8,6 @@ from django.shortcuts import redirect, render, get_object_or_404
 
 from StudentManagementSystem.decorators.custom_decorators import session_login_required
 from StudentManagementSystem.models import Student, SectionJoinCode, Notification
-
 from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.models.section import Section, Department
 from StudentManagementSystem.models.teachers import HandledSection
@@ -39,7 +38,8 @@ def register_student(request):
             return redirect("register_student")
 
         if not re.match(r"^\d{2}-\d{4}-\d{3}$", student_id):
-            messages.error(request, "Invalid student_id ID format. Use the format: YY-XXXX-XXX (e.g., 12-2345-678)." ,extra_tags=extra_tags)
+            messages.error(request, "Invalid student_id ID format. Use the format: YY-XXXX-XXX (e.g., 12-2345-678).",
+                           extra_tags=extra_tags)
             return redirect("register_student")
 
         # Make sure the section belongs to this teacher
@@ -293,4 +293,3 @@ def delete_student(request, student_id):
         return JsonResponse({"success": True})
 
     return JsonResponse({"success": False, "message": "Invalid request method."}, status=405)
-

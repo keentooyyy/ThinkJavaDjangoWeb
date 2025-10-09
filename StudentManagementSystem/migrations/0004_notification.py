@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('StudentManagementSystem', '0003_alter_userprofile_picture'),
     ]
@@ -16,20 +15,31 @@ class Migration(migrations.Migration):
             name='Notification',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('sender_role', models.CharField(choices=[('STUDENT', 'Student'), ('TEACHER', 'Teacher'), ('ADMIN', 'Admin')], max_length=20)),
+                ('sender_role',
+                 models.CharField(choices=[('STUDENT', 'Student'), ('TEACHER', 'Teacher'), ('ADMIN', 'Admin')],
+                                  max_length=20)),
                 ('sender_id', models.CharField(max_length=50)),
-                ('recipient_role', models.CharField(choices=[('STUDENT', 'Student'), ('TEACHER', 'Teacher'), ('ADMIN', 'Admin')], max_length=20)),
+                ('recipient_role',
+                 models.CharField(choices=[('STUDENT', 'Student'), ('TEACHER', 'Teacher'), ('ADMIN', 'Admin')],
+                                  max_length=20)),
                 ('title', models.CharField(max_length=255)),
                 ('message', models.TextField()),
                 ('created_at', models.DateTimeField(default=django.utils.timezone.now)),
                 ('is_read', models.BooleanField(default=False)),
-                ('section_recipient', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='notifications', to='StudentManagementSystem.section')),
-                ('student_recipient', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='notifications', to='StudentManagementSystem.student')),
-                ('teacher_recipient', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='notifications', to='StudentManagementSystem.teacher')),
+                ('section_recipient',
+                 models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
+                                   related_name='notifications', to='StudentManagementSystem.section')),
+                ('student_recipient',
+                 models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
+                                   related_name='notifications', to='StudentManagementSystem.student')),
+                ('teacher_recipient',
+                 models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
+                                   related_name='notifications', to='StudentManagementSystem.teacher')),
             ],
             options={
                 'ordering': ['-created_at'],
-                'indexes': [models.Index(fields=['recipient_role', 'is_read'], name='StudentMana_recipie_29693c_idx'), models.Index(fields=['created_at'], name='StudentMana_created_fd4459_idx')],
+                'indexes': [models.Index(fields=['recipient_role', 'is_read'], name='StudentMana_recipie_29693c_idx'),
+                            models.Index(fields=['created_at'], name='StudentMana_created_fd4459_idx')],
             },
         ),
     ]

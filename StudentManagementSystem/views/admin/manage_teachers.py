@@ -10,7 +10,6 @@ from django.shortcuts import redirect, render, get_object_or_404
 
 from StudentManagementSystem.decorators.custom_decorators import session_login_required
 from StudentManagementSystem.models import Teacher
-
 from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.models.section import Section, Department, YearLevel
 from StudentManagementSystem.models.teachers import HandledSection
@@ -24,9 +23,9 @@ def get_teacher_context(admin, search_query=None, per_page=25, page_number=1):
     if search_query:
         name_parts = search_query.split()
         q = (
-            Q(teacher_id__icontains=search_query) |
-            Q(first_name__icontains=search_query) |
-            Q(last_name__icontains=search_query)
+                Q(teacher_id__icontains=search_query) |
+                Q(first_name__icontains=search_query) |
+                Q(last_name__icontains=search_query)
         )
 
         # ✅ If query looks like "First Last"
@@ -70,11 +69,6 @@ def get_teacher_context(admin, search_query=None, per_page=25, page_number=1):
     }
 
 
-
-
-
-
-
 @session_login_required(role=Role.ADMIN)
 def create_teacher(request):
     message_tag = 'create_message'
@@ -93,7 +87,8 @@ def create_teacher(request):
             return redirect('create_teacher')
 
         if not re.match(r"^\d{2}-\d{4}-\d{3}$", teacher_id):
-            messages.error(request, "Invalid Teacher ID format. Use the format: YY-XXXX-XXX (e.g., 12-2345-678).", extra_tags=message_tag)
+            messages.error(request, "Invalid Teacher ID format. Use the format: YY-XXXX-XXX (e.g., 12-2345-678).",
+                           extra_tags=message_tag)
             return redirect('create_teacher')
 
         if Teacher.objects.filter(teacher_id=teacher_id).exists():
@@ -198,7 +193,8 @@ def edit_teacher(request, teacher_id):
                     return redirect('create_teacher')
 
         if duplicate_sections:
-            messages.error(request, f"Sections already assigned: {', '.join(duplicate_sections)}", extra_tags=message_tag)
+            messages.error(request, f"Sections already assigned: {', '.join(duplicate_sections)}",
+                           extra_tags=message_tag)
             return redirect('create_teacher')
 
         for section in sections_to_create:
@@ -227,8 +223,6 @@ def edit_teacher(request, teacher_id):
     return redirect('create_teacher')
 
 
-
-
 # 2. View to fetch teacher details for the modal
 @session_login_required(role=Role.ADMIN)
 def get_teacher_details(request, teacher_id):
@@ -251,7 +245,6 @@ def get_teacher_details(request, teacher_id):
     })
 
 
-
 @session_login_required(role=Role.ADMIN)
 def remove_section(request, section_id):
     if request.method == 'POST':
@@ -267,7 +260,6 @@ def remove_section(request, section_id):
         return JsonResponse({'success': True})
 
     return JsonResponse({'success': False}, status=400)
-
 
 
 @session_login_required(role=Role.ADMIN)

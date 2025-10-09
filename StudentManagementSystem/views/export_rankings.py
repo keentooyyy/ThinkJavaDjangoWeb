@@ -34,7 +34,7 @@ def export_ranking_xls(request):
         sort_order=params["sort_order"],
         filter_by=params["section_filter"],
         department_filter=None if not params["department_name"] or params["department_name"].lower() == "all"
-                                else params["department_name"],
+        else params["department_name"],
         limit_to_students=limit_to_students,
     )
 
@@ -127,7 +127,7 @@ def print_ranking(request):
         sort_order=params["sort_order"],
         filter_by=params["section_filter"],
         department_filter=None if not params["department_name"] or params["department_name"].lower() == "all"
-                                else params["department_name"],
+        else params["department_name"],
         limit_to_students=limit_to_students,
     )
 
@@ -151,4 +151,3 @@ def print_ranking(request):
     }
 
     return render(request, "print_layout.html", context)
-

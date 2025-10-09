@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('StudentManagementSystem', '0002_userprofile_city'),
     ]

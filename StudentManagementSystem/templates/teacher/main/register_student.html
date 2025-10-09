@@ -106,8 +106,9 @@
                                 <div class="col-12 col-sm-4">
                                     <label for="section_id">Assign to Section:</label>
                                 </div>
-                                <div class="col-12 col-sm-8"><select name="section_id" id="section_id" class="form-select"
-                                                           required>
+                                <div class="col-12 col-sm-8"><select name="section_id" id="section_id"
+                                                                     class="form-select"
+                                                                     required>
                                     {% for hs in handled_sections %}
                                         <option value="{{ hs.section.id }}">
                                             {{ hs.department.name }}{{ hs.year_level.year }}{{ hs.section.letter }}
@@ -203,154 +204,151 @@
 
     <script>
 
-let lastStudentEditBtn = null;
+        let lastStudentEditBtn = null;
 
-function openEditStudentModal(studentId, btn) {
-    $.ajax({
-        url: `/teacher/students/${studentId}/edit/`,
-        method: 'GET',
-        success: function (data) {
-            if (!data.success) {
-                alert("Failed to fetch student details.");
-                return;
-            }
-
-            const s = data.student;
-
-            // Fill modal fields
-            $('#student_id_edit_modal').val(s.id);
-            $('#student_first_name_modal').val(s.first_name);
-            $('#student_last_name_modal').val(s.last_name);
-
-            // ✅ Rebuild department dropdown
-            const deptSelect = $('#student_department_modal');
-            deptSelect.empty().append('<option value="">-- Select Department --</option>');
-
-            data.departments.forEach(dept => {
-                const opt = $('<option>', {
-                    value: dept.id,
-                    text: dept.name
-                });
-                if (dept.id === s.department_id) {
-                    opt.prop('selected', true);
-                }
-                deptSelect.append(opt);
-            });
-
-            // ✅ Populate section dropdown based on current dept
-            const sectionSelect = $('#student_section_modal');
-            sectionSelect.empty().append('<option value="">-- Select Section --</option>');
-            const currentDept = data.departments.find(d => d.id === s.department_id);
-            if (currentDept) {
-                currentDept.sections.forEach(sec => {
-                    const opt = $('<option>', {
-                        value: sec.id,
-                        text: sec.year + sec.letter
-                    });
-                    if (sec.id === s.section_id) {
-                        opt.prop('selected', true);
+        function openEditStudentModal(studentId, btn) {
+            $.ajax({
+                url: `/teacher/students/${studentId}/edit/`,
+                method: 'GET',
+                success: function (data) {
+                    if (!data.success) {
+                        alert("Failed to fetch student details.");
+                        return;
                     }
-                    sectionSelect.append(opt);
-                });
-            }
 
-            // ✅ On dept change → reload sections
-            deptSelect.off('change').on('change', function () {
-                const selectedDeptId = $(this).val();
-                sectionSelect.empty().append('<option value="">-- Select Section --</option>');
-                const selectedDept = data.departments.find(d => d.id == selectedDeptId);
-                if (selectedDept) {
-                    selectedDept.sections.forEach(sec => {
+                    const s = data.student;
+
+                    // Fill modal fields
+                    $('#student_id_edit_modal').val(s.id);
+                    $('#student_first_name_modal').val(s.first_name);
+                    $('#student_last_name_modal').val(s.last_name);
+
+                    // ✅ Rebuild department dropdown
+                    const deptSelect = $('#student_department_modal');
+                    deptSelect.empty().append('<option value="">-- Select Department --</option>');
+
+                    data.departments.forEach(dept => {
                         const opt = $('<option>', {
-                            value: sec.id,
-                            text: sec.year + sec.letter
+                            value: dept.id,
+                            text: dept.name
                         });
-                        sectionSelect.append(opt);
+                        if (dept.id === s.department_id) {
+                            opt.prop('selected', true);
+                        }
+                        deptSelect.append(opt);
                     });
+
+                    // ✅ Populate section dropdown based on current dept
+                    const sectionSelect = $('#student_section_modal');
+                    sectionSelect.empty().append('<option value="">-- Select Section --</option>');
+                    const currentDept = data.departments.find(d => d.id === s.department_id);
+                    if (currentDept) {
+                        currentDept.sections.forEach(sec => {
+                            const opt = $('<option>', {
+                                value: sec.id,
+                                text: sec.year + sec.letter
+                            });
+                            if (sec.id === s.section_id) {
+                                opt.prop('selected', true);
+                            }
+                            sectionSelect.append(opt);
+                        });
+                    }
+
+                    // ✅ On dept change → reload sections
+                    deptSelect.off('change').on('change', function () {
+                        const selectedDeptId = $(this).val();
+                        sectionSelect.empty().append('<option value="">-- Select Section --</option>');
+                        const selectedDept = data.departments.find(d => d.id == selectedDeptId);
+                        if (selectedDept) {
+                            selectedDept.sections.forEach(sec => {
+                                const opt = $('<option>', {
+                                    value: sec.id,
+                                    text: sec.year + sec.letter
+                                });
+                                sectionSelect.append(opt);
+                            });
+                        }
+                    });
+
+                    // Show modal
+                    $('#editStudentModal').modal('show');
+
+                    // Submit handler
+                    $('#editStudentForm').off('submit').on('submit', function (e) {
+                        e.preventDefault();
+                        let formData = $(this).serialize();
+
+                        $.ajax({
+                            url: `/teacher/students/${studentId}/edit/`,
+                            method: 'POST',
+                            data: formData,
+                            success: function (response) {
+                                if (response.success) {
+                                    $('#editStudentModal').modal('hide');
+                                    location.reload();
+                                } else {
+                                    alert(response.message || "Failed to update student.");
+                                }
+                            },
+                            error: function () {
+                                alert("Something went wrong while saving.");
+                            }
+                        });
+                    });
+                },
+                error: function () {
+                    alert("Error fetching student data.");
                 }
             });
+        }
 
-            // Show modal
-            $('#editStudentModal').modal('show');
 
-            // Submit handler
-            $('#editStudentForm').off('submit').on('submit', function (e) {
-                e.preventDefault();
-                let formData = $(this).serialize();
-
-                $.ajax({
-                    url: `/teacher/students/${studentId}/edit/`,
-                    method: 'POST',
-                    data: formData,
-                    success: function (response) {
-                        if (response.success) {
-                            $('#editStudentModal').modal('hide');
-                            location.reload();
-                        } else {
-                            alert(response.message || "Failed to update student.");
-                        }
-                    },
-                    error: function () {
-                        alert("Something went wrong while saving.");
-                    }
-                });
+        // ✅ When modal closes (X, Close button, or backdrop click), return focus to the opener
+        $(document).ready(function () {
+            $('#editStudentModal').on('hidden.bs.modal', function () {
+                if (lastStudentEditBtn) {
+                    $(lastStudentEditBtn).focus();
+                    lastStudentEditBtn = null; // reset
+                }
             });
-        },
-        error: function () {
-            alert("Error fetching student data.");
-        }
-    });
-}
-
-
-
-
-// ✅ When modal closes (X, Close button, or backdrop click), return focus to the opener
-$(document).ready(function () {
-    $('#editStudentModal').on('hidden.bs.modal', function () {
-        if (lastStudentEditBtn) {
-            $(lastStudentEditBtn).focus();
-            lastStudentEditBtn = null; // reset
-        }
-    });
-});
-
+        });
 
 
         let deleteStudentId = null;
 
-function deleteStudent(studentId) {
-    // store student ID and show the modal
-    deleteStudentId = studentId;
-    $('#deleteConfirmModal').modal('show');
-}
+        function deleteStudent(studentId) {
+            // store student ID and show the modal
+            deleteStudentId = studentId;
+            $('#deleteConfirmModal').modal('show');
+        }
 
-$(document).ready(function () {
-    // handle confirm delete button
-    $('#deleteConfirmModal_yes').on('click', function () {
-        if (!deleteStudentId) return;
+        $(document).ready(function () {
+            // handle confirm delete button
+            $('#deleteConfirmModal_yes').on('click', function () {
+                if (!deleteStudentId) return;
 
-        $.ajax({
-            url: `/teacher/students/${deleteStudentId}/delete/`,
-            method: "POST",   // easier to use POST for CSRF than DELETE
-            headers: {
-                "X-CSRFToken": $("input[name=csrfmiddlewaretoken]").val()
-            },
-            success: function (response) {
-                if (response.success) {
-                    $('#deleteConfirmModal').modal('hide');
-                    $(`#student-row-${deleteStudentId}`).remove();
-                    location.reload(); // keep reload if you want flash messages
-                } else {
-                    alert("Failed to delete student.");
-                }
-            },
-            error: function () {
-                alert("Error deleting student.");
-            }
+                $.ajax({
+                    url: `/teacher/students/${deleteStudentId}/delete/`,
+                    method: "POST",   // easier to use POST for CSRF than DELETE
+                    headers: {
+                        "X-CSRFToken": $("input[name=csrfmiddlewaretoken]").val()
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            $('#deleteConfirmModal').modal('hide');
+                            $(`#student-row-${deleteStudentId}`).remove();
+                            location.reload(); // keep reload if you want flash messages
+                        } else {
+                            alert("Failed to delete student.");
+                        }
+                    },
+                    error: function () {
+                        alert("Error deleting student.");
+                    }
+                });
+            });
         });
-    });
-});
     </script>
 
 
@@ -392,7 +390,7 @@ $(document).ready(function () {
 
     </script>
 
-      <script>
+    <script>
 
         $('#openGenerateCodeConfirm').on('click', function () {
             $('#generateCodeConfirmModal').modal('show');
@@ -405,7 +403,7 @@ $(document).ready(function () {
     </script>
 
 
-        <script>
+    <script>
         function copyCode(id) {
             let codeText = $("#code-" + id).text().trim();
 
@@ -462,49 +460,50 @@ $(document).ready(function () {
     </script>
 
 
-<script>
-$(document).ready(function () {
-    $("#generateCodeBtn").on("click", function () {
-        const sectionId = $("#generate_section_id").val();
+    <script>
+        $(document).ready(function () {
+            $("#generateCodeBtn").on("click", function () {
+                const sectionId = $("#generate_section_id").val();
 
-        $.ajax({
-            url: "{% url 'check_section_code_exists' %}",
-            type: "POST",
-            dataType: "json",
-            data: {
-                section_id: sectionId,
-                csrfmiddlewaretoken: "{{ csrf_token }}",
-            },
-            success: function (data) {
-                if (data.exists === true) {
-                    // 🔹 Section already has code → wire modal confirm
-                    const modal = new bootstrap.Modal(document.getElementById("generateCodeConfirmModal"));
-                    modal.show();
+                $.ajax({
+                    url: "{% url 'check_section_code_exists' %}",
+                    type: "POST",
+                    dataType: "json",
+                    data: {
+                        section_id: sectionId,
+                        csrfmiddlewaretoken: "{{ csrf_token }}",
+                    },
+                    success: function (data) {
+                        if (data.exists === true) {
+                            // 🔹 Section already has code → wire modal confirm
+                            const modal = new bootstrap.Modal(document.getElementById("generateCodeConfirmModal"));
+                            modal.show();
 
-                    $("#generateCodeConfirmModal_yes")
-                        .off("click")
-                        .on("click", function (e) {
-                            e.preventDefault();
+                            $("#generateCodeConfirmModal_yes")
+                                .off("click")
+                                .on("click", function (e) {
+                                    e.preventDefault();
+                                    $("#generateSectionForm").submit();
+                                    modal.hide();
+                                });
+                        } else {
+                            // 🔹 No code exists → submit directly
                             $("#generateSectionForm").submit();
-                            modal.hide();
-                        });
-                } else {
-                    // 🔹 No code exists → submit directly
-                    $("#generateSectionForm").submit();
-                }
-            },
-            error: function (xhr) {
-                let errMsg = "Unknown error";
-                try {
-                    errMsg = JSON.parse(xhr.responseText).error || errMsg;
-                } catch (e) {}
-                alert("Error checking section code: " + errMsg);
-            }
+                        }
+                    },
+                    error: function (xhr) {
+                        let errMsg = "Unknown error";
+                        try {
+                            errMsg = JSON.parse(xhr.responseText).error || errMsg;
+                        } catch (e) {
+                        }
+                        alert("Error checking section code: " + errMsg);
+                    }
+                });
+            });
         });
-    });
-});
 
-</script>
+    </script>
 {% endblock %}
 
 

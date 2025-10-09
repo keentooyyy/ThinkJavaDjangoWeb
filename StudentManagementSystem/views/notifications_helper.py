@@ -1,16 +1,17 @@
-from StudentManagementSystem.models import Notification, Teacher, Student
+from StudentManagementSystem.models import Notification
 from StudentManagementSystem.models.roles import Role
 
+
 def create_notification(
-    request=None,
-    recipient_role=None,
-    title="",
-    message="",
-    teacher_recipient=None,
-    student_recipient=None,
-    section_recipient=None,
-    sender_id=None,
-    sender_role=None,
+        request=None,
+        recipient_role=None,
+        title="",
+        message="",
+        teacher_recipient=None,
+        student_recipient=None,
+        section_recipient=None,
+        sender_id=None,
+        sender_role=None,
 ):
     """
     Helper to create notifications consistently.
@@ -38,7 +39,6 @@ def create_notification(
         message=message,
     )
     return True
-
 
 
 def mark_notification_as_read(notification_id, user_id, role):

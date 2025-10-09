@@ -36,6 +36,7 @@ def student_dashboard(request):
     }
     return render(request, "students/main/dashboard.html", context)
 
+
 def get_student_achievements(student):
     """Return all achievements for a student with unlocked/locked status."""
     all_achievements = AchievementDefinition.objects.all()
@@ -51,6 +52,7 @@ def get_student_achievements(student):
         }
         for achievement in all_achievements
     ]
+
 
 def get_game_completion(student):
     """
@@ -78,6 +80,7 @@ def get_game_completion(student):
         achievement_score = 0
 
     return round(level_score + achievement_score, 2)
+
 
 def get_student_levels(student):
     """Return all levels with student's progress, sorted by LevelDefinition.sort_order."""

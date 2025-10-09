@@ -5,10 +5,8 @@ from django.utils.timezone import now
 
 from StudentManagementSystem.models import Teacher
 from StudentManagementSystem.models.roles import Role
-
-from StudentManagementSystem.models.student import Student
 from StudentManagementSystem.models.section import Section
-
+from StudentManagementSystem.models.student import Student
 
 
 class Notification(models.Model):

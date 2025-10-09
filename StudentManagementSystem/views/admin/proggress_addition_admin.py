@@ -27,11 +27,13 @@ def add_level(request):
 
             if created:
                 run_sync_in_background()
-                messages.success(request, f"Level '{level_name}' has been created successfully.", extra_tags=message_tag)
+                messages.success(request, f"Level '{level_name}' has been created successfully.",
+                                 extra_tags=message_tag)
                 create_log(request, "CREATE", f"Admin {admin.username} created level '{level_name}'.")
             else:
                 messages.error(request, f"Level '{level_name}' already exists.", extra_tags=message_tag)
-                create_log(request, "UPDATE", f"Admin {admin.username} attempted to create existing level '{level_name}'.")
+                create_log(request, "UPDATE",
+                           f"Admin {admin.username} attempted to create existing level '{level_name}'.")
 
             return redirect('admin_dashboard')
 
@@ -87,7 +89,8 @@ def add_achievement(request):
 
             else:
                 messages.error(request, f"Achievement '{ach_title}' already exists.", extra_tags=message_tag)
-                create_log(request, "UPDATE", f"Admin {admin.username} attempted to create existing achievement '{ach_title}'.")
+                create_log(request, "UPDATE",
+                           f"Admin {admin.username} attempted to create existing achievement '{ach_title}'.")
 
             return redirect('admin_dashboard')
 

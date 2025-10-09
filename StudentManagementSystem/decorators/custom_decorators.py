@@ -16,6 +16,7 @@ def session_login_required(role=None, lookup_kwarg="id"):
     - Enforces ownership if route has a user ID param.
     - Attaches the user object to request.user_obj for safe use in views.
     """
+
     def decorator(view_func):
         @wraps(view_func)
         def _wrapped_view(request, *args, **kwargs):
@@ -55,8 +56,8 @@ def session_login_required(role=None, lookup_kwarg="id"):
             return view_func(request, *args, **kwargs)
 
         return _wrapped_view
-    return decorator
 
+    return decorator
 
 
 def api_login_required(role=None, lookup_kwarg="id"):
@@ -121,4 +122,3 @@ def api_login_required(role=None, lookup_kwarg="id"):
         return _wrapped_view
 
     return decorator
-

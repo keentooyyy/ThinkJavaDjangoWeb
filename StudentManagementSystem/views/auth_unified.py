@@ -63,7 +63,6 @@ def unified_login(request):
     return render(request, 'login.html')
 
 
-
 def unified_logout(request):
     user_id = request.session.get("user_id")
     role = request.session.get("role")

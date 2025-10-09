@@ -15,7 +15,6 @@ class Department(models.Model):
         return self.name
 
 
-
 class YearLevel(models.Model):
     year = models.PositiveSmallIntegerField(unique=True)  # e.g. 1, 2, 3, 4
 
@@ -34,11 +33,12 @@ class Section(models.Model):
     letter = models.CharField(max_length=1)  # e.g., "A", "B", "C"
 
     class Meta:
-        unique_together = ('department', 'year_level', 'letter')  # Ensure unique combination of department, year, and section letter
+        unique_together = ('department', 'year_level',
+                           'letter')  # Ensure unique combination of department, year, and section letter
         indexes = [
-            models.Index(fields=['department', 'year_level', 'letter']),  # Index for composite of department, year_level, and letter
+            models.Index(fields=['department', 'year_level', 'letter']),
+            # Index for composite of department, year_level, and letter
         ]
 
     def __str__(self):
         return f"{self.department.name}{self.year_level.year}{self.letter}"  # e.g., "CS 1A"
-

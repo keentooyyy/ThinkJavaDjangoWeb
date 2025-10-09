@@ -1,15 +1,14 @@
-from django.http.response import JsonResponse
+from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
-from django.contrib import messages
 
 from StudentManagementSystem.decorators.custom_decorators import session_login_required
 from StudentManagementSystem.models import Notification
-from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.models.pre_post_test import (
     TestDefinition, StudentTest, TestChoice,
     StudentAnswer, StudentProgress
 )
+from StudentManagementSystem.models.roles import Role
 
 
 @session_login_required(role=Role.STUDENT)
@@ -100,7 +99,7 @@ def take_test_view(request):
 
         "can_take_posttest": student.can_take_posttest,
 
-        "notifications" : notifications,
+        "notifications": notifications,
         "unread_count": unread_count,
     }
     return render(request, "students/main/take_test.html", context)
@@ -147,4 +146,3 @@ def submit_test(request, test_id):
         f"✅ You scored {result['score']} out of {result['max_score']} on {test.name}."
     )
     return redirect("take_test_view")
-

@@ -29,7 +29,7 @@ def admin_student_ranking(request):
         sort_order=params["sort_order"],
         filter_by=params["section_filter"],
         department_filter=None if not params["department_name"] or params["department_name"].lower() == "all"
-                                else params["department_name"],
+        else params["department_name"],
     )
 
     # ✅ Apply search filter if provided

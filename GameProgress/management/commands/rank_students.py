@@ -72,7 +72,6 @@ class Command(BaseCommand):
 
         self.stdout.write("\n✅ Done.")
 
-
 # # Default (by score descending)
 # python manage.py rank_students
 #

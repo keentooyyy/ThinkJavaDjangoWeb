@@ -3,7 +3,6 @@ from django.shortcuts import render
 from GameProgress.services.ranking import get_all_student_rankings
 from StudentManagementSystem.decorators.custom_decorators import session_login_required
 from StudentManagementSystem.models import Student, Notification
-
 from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.models.section import Department
 from StudentManagementSystem.models.teachers import HandledSection
@@ -45,7 +44,7 @@ def teacher_student_ranking(request):
         sort_order=params["sort_order"],
         filter_by=params["section_filter"],
         department_filter=None if params["department_name"] and params["department_name"].lower() == "all"
-                                else params["department_name"],
+        else params["department_name"],
         limit_to_students=student_ids,
     )
 
@@ -78,7 +77,7 @@ def teacher_student_ranking(request):
         "sections": unique_sections,
         "selected_department": params["department_name"],
         "selected_section": params["section_filter"],
-        "notifications" : notifications,
+        "notifications": notifications,
         "unread_count": unread_count,
     })
 

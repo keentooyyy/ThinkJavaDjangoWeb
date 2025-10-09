@@ -1,8 +1,9 @@
 from datetime import datetime
-from django.utils import timezone, formats
+
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.urls import reverse
+from django.utils import timezone, formats
 
 from GameProgress.models import LevelDefinition, AchievementDefinition, LevelProgress, AchievementProgress
 from GameProgress.services.progress_teacher import (
@@ -18,7 +19,6 @@ from StudentManagementSystem.models import Student
 from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.views.notifications_helper import create_notification
 from StudentManagementSystem.views.teacher.dashboard_teacher import get_teacher_dashboard_context
-
 
 
 # --------------------
@@ -102,16 +102,17 @@ def _attach_section_progress(section, students, all_levels, all_achievements):
 
 from GameProgress.models.level_schedule import SectionLevelSchedule
 
+
 def _handle_post_action(
-    request,
-    action,
-    students,
-    handled_sections,
-    level_name=None,
-    achievement_code=None,
-    section_id=None,
-    start_date=None,
-    due_date=None,
+        request,
+        action,
+        students,
+        handled_sections,
+        level_name=None,
+        achievement_code=None,
+        section_id=None,
+        start_date=None,
+        due_date=None,
 ):
     """Handle teacher progress actions and return (msg_type, msg_text)."""
 
@@ -233,7 +234,6 @@ def _handle_post_action(
         )
 
     return "error", "Unknown action. Please try again."
-
 
 
 # --------------------

@@ -4,6 +4,7 @@ from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.models.section import Section, YearLevel
 from StudentManagementSystem.views.login_key import make_login_key
 
+
 # GameProgress models will be imported lazily inside methods to avoid circular import
 
 

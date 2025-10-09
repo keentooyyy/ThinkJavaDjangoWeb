@@ -44,16 +44,15 @@ def student_student_ranking(request):
         rankings = [
             r for r in rankings
             if search_query in str(r.get("student_id", "")).lower()
-            or search_query in str(r.get("first_name", "")).lower()
-            or search_query in str(r.get("last_name", "")).lower()
-            or search_query in f"{r.get('first_name', '')} {r.get('last_name', '')}".lower()
-            or search_query in str(r.get("section", "")).lower()
-            or search_query in str(r.get("score", "")).lower()
+               or search_query in str(r.get("first_name", "")).lower()
+               or search_query in str(r.get("last_name", "")).lower()
+               or search_query in f"{r.get('first_name', '')} {r.get('last_name', '')}".lower()
+               or search_query in str(r.get("section", "")).lower()
+               or search_query in str(r.get("score", "")).lower()
         ]
 
     # ✅ Paginate after filtering
     page_obj = paginate_queryset(rankings, params["per_page"], params["page_number"])
-
 
     user_context = {
         "username": f"{student.first_name} {student.last_name}",

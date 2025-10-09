@@ -1,6 +1,7 @@
+from django.contrib.auth.hashers import check_password
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth.hashers import check_password
+
 from StudentManagementSystem.models import Student, UserProfile
 
 
@@ -29,13 +30,11 @@ def api_student_login(request):
         if not check_password(password, student.password):
             return JsonResponse({"error": "Incorrect password"}, status=401)
 
-
         # Get UserProfile
         try:
             profile = UserProfile.objects.get(object_id=student.id, content_type__model="student")
         except UserProfile.DoesNotExist:
             profile = None
-
 
         # phone = f"0{profile.phone}"
         # Build response
@@ -70,7 +69,8 @@ def api_student_login(request):
                     "city": profile.city if profile else None,
                     "province": profile.province if profile else None,
                 } if profile else None,
-                "profile_picture": request.build_absolute_uri(profile.avatar_url) if (profile and profile.avatar_url) else None,
+                "profile_picture": request.build_absolute_uri(profile.avatar_url) if (
+                            profile and profile.avatar_url) else None,
                 "education": [
                     {
                         "institution": edu.institution,

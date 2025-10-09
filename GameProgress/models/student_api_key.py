@@ -1,7 +1,8 @@
+import secrets
+from datetime import timedelta
+
 from django.db import models
 from django.utils import timezone
-from datetime import timedelta
-import secrets
 
 
 class StudentAPISession(models.Model):

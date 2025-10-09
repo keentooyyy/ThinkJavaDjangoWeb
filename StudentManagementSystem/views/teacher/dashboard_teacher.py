@@ -4,11 +4,9 @@ from GameProgress.models import LevelDefinition, AchievementDefinition
 from GameProgress.services.ranking import get_all_student_rankings
 from StudentManagementSystem.decorators.custom_decorators import session_login_required
 from StudentManagementSystem.models import Notification
-
 from StudentManagementSystem.models.roles import Role
 from StudentManagementSystem.models.section import Section, Department
 from StudentManagementSystem.models.student import Student
-from StudentManagementSystem.models.teachers import HandledSection
 
 
 def get_teacher_dashboard_context(teacher):
@@ -56,9 +54,8 @@ def get_teacher_dashboard_context(teacher):
         "total_it_section": total_it_section,
         "top_5_students": top_5_students,
         'notifications': notifications,
-        'unread_count' :unread_count
+        'unread_count': unread_count
     }
-
 
 
 @session_login_required(role=Role.TEACHER)
@@ -66,7 +63,6 @@ def teacher_dashboard(request):
     teacher = request.user_obj  # ✅ validated Teacher from decorator
     context = get_teacher_dashboard_context(teacher)
     return render(request, "teacher/main/dashboard.html", context)
-
 
 
 def get_teacher_top_students(teacher, limit=5, sort_by="score", sort_order="desc"):

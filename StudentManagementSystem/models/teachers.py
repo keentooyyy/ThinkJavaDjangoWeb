@@ -43,7 +43,8 @@ class HandledSection(models.Model):
     class Meta:
         unique_together = ('teacher', 'department', 'year_level', 'section')
         indexes = [
-            models.Index(fields=['teacher', 'department', 'year_level', 'section']),  # Composite index for teacher + section
+            models.Index(fields=['teacher', 'department', 'year_level', 'section']),
+            # Composite index for teacher + section
         ]
 
     def __str__(self):
