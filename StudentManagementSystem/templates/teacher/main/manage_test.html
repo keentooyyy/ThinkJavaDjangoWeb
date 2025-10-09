@@ -12,41 +12,39 @@
 {% endblock %}
 
 {% block content %}
-    <div class="page-wrapper p-5">
+<div class="page-wrapper p-3 p-md-5">
 
-        <!-- CSRF once -->
-        <input type="hidden" id="csrf-token" value="{{ csrf_token }}">
+    <!-- CSRF once -->
+    <input type="hidden" id="csrf-token" value="{{ csrf_token }}">
 
-        <!-- Test Info -->
-        <div class="row">
-            <div class="col">
-                <div class="card mx-auto" style="width: 65%;" data-test-id="{{ test.id }}">
-                    <div class="card-body p-5">
+    <!-- Test Info -->
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-10 col-lg-8">
+            <div class="card" data-test-id="{{ test.id }}">
+                <div class="card-body p-4 p-md-5">
 
-                        <!-- Header -->
-                        <div class="d-flex justify-content-between align-items-center">
-                            <!-- View Mode -->
-                            <div id="test-view" class="">
-                                <h6>{{ test.name }}</h6>
-                                <p class="mb-0 text-muted small">
-                                    {{ test.get_test_type_display|upper }} •
-                                    Created: {{ test.created_at|date:"M d, Y" }}
-                                </p>
-                                <p class="mb-0 text-muted small mt-3">Maximum Score: <span
-                                        class="ms-3 badge bg-primary px-3 py-2 font-14">{{ total_points|floatformat:"0" }} points</span>
-                                </p>
-                            </div>
+                    <!-- Header -->
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
 
-                            <!-- Edit Mode Fields -->
-                            <div id="test-edit-fields" class="d-none">
-                                <!-- Wider name input -->
+                        <!-- View Mode -->
+                        <div id="test-view">
+                            <h6 class="mb-1">{{ test.name }}</h6>
+                            <p class="mb-0 text-muted small">
+                                {{ test.get_test_type_display|upper }} • Created: {{ test.created_at|date:"M d, Y" }}
+                            </p>
+                            <p class="mb-0 text-muted small mt-2">
+                                Maximum Score:
+                                <span class="ms-2 badge bg-primary px-3 py-2 font-14">{{ total_points|floatformat:"0" }} points</span>
+                            </p>
+                        </div>
+
+                        <!-- Edit Mode Fields -->
+                        <div id="test-edit-fields" class="d-none w-100 w-md-auto">
+                            <div class="row g-2">
                                 <div class="col-12">
-                                    <input type="text" id="test-name" class="form-control"
-                                           value="{{ test.name }}" required>
+                                    <input type="text" id="test-name" class="form-control" value="{{ test.name }}" required>
                                 </div>
-
-                                <!-- Smaller dropdown -->
-                                <div class="col-6">
+                                <div class="col-12 col-md-6">
                                     <select id="test-type" class="form-select">
                                         {% for val,label in test.TEST_TYPE_CHOICES %}
                                             <option value="{{ val }}" {% if test.test_type == val %}selected{% endif %}>
@@ -56,175 +54,146 @@
                                     </select>
                                 </div>
                             </div>
-
-                            <!-- Back/Delete -->
-                            <div class="d-flex flex-column">
-                                <div class="d-flex justify-content-end gap-2">
-                                    <a href="{% url 'pre_post_test_view' %}"
-                                       class="btn btn-outline-secondary btn-sm">
-                                        <i class="bx bx-arrow-back"></i>Back
-                                    </a>
-                                    <button id="delete-test-btn" class="btn btn-outline-danger btn-sm"
-                                            data-test-id="{{ test.id }}">
-                                        <i class="bx bxs-trash"></i>Delete Test
-                                    </button>
-                                </div>
-                            </div>
                         </div>
 
-                        <hr>
-
-                        <!-- Test settings -->
-                        <h6 class="mb-3">TEST SETTINGS</h6>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div class="d-flex gap-4">
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox"
-                                           id="shuffle_questions"
-                                           {% if test.shuffle_questions %}checked{% endif %}>
-                                    <label class="form-check-label" for="shuffle_questions">Shuffle Questions</label>
-                                </div>
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox"
-                                           id="shuffle_choices"
-                                           {% if test.shuffle_choices %}checked{% endif %}>
-                                    <label class="form-check-label" for="shuffle_choices">Shuffle Choices</label>
-                                </div>
-                            </div>
-                            <!-- 🔹 Action buttons -->
-                            <div class="d-flex gap-2" id="test-actions">
-                                <button id="edit-test-btn" class="btn btn-outline-primary btn-sm" type="button">
-                                    <i class="bx bx-edit"></i>Edit
+                        <!-- Back/Delete -->
+                        <div class="d-flex flex-column align-self-stretch align-items-end w-100 w-md-auto">
+                            <div class="d-flex flex-wrap justify-content-end gap-2">
+                                <a href="{% url 'pre_post_test_view' %}" class="btn btn-outline-secondary btn-sm">
+                                    <i class="bx bx-arrow-back"></i> Back
+                                </a>
+                                <button id="delete-test-btn" class="btn btn-outline-danger btn-sm" data-test-id="{{ test.id }}">
+                                    <i class="bx bxs-trash"></i> Delete Test
                                 </button>
                             </div>
                         </div>
                     </div>
+
+                    <hr>
+
+                    <!-- Test settings -->
+                    <h6 class="mb-3">TEST SETTINGS</h6>
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+                        <div class="d-flex flex-column flex-sm-row gap-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="shuffle_questions"
+                                       {% if test.shuffle_questions %}checked{% endif %}>
+                                <label class="form-check-label" for="shuffle_questions">Shuffle Questions</label>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="shuffle_choices"
+                                       {% if test.shuffle_choices %}checked{% endif %}>
+                                <label class="form-check-label" for="shuffle_choices">Shuffle Choices</label>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2" id="test-actions">
+                            <button id="edit-test-btn" class="btn btn-outline-primary btn-sm" type="button">
+                                <i class="bx bx-edit"></i> Edit
+                            </button>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
+    </div>
 
-
-        <!-- Questions -->
-        <div class="row mt-4">
-            <div class="col">
-                {% for q in questions %}
-                    <div class="card mx-auto question-card" style="width: 65%"
-                         data-test-id="{{ test.id }}" data-question-id="{{ q.id }}">
-                        <div class="card-body p-5">
-                            <!-- Question + Points -->
-                            <div class="row d-flex">
-                                <div class="col-8 mb-3">
-                                    <!-- view mode -->
-                                    <h6 class="mb-0 view-mode">{{ forloop.counter }}. {{ q.text }}</h6>
-                                    <!-- edit mode -->
-                                    <input type="text" class="form-control question-text d-none"
-                                           value="{{ q.text }}" disabled>
-                                </div>
-                                <div class="col-4 text-end">
-                                    <!-- view mode -->
-                                    <p class="m-0 text-muted view-mode">{{ q.points|floatformat:"0" }} point(s)</p>
-                                    <!-- edit mode -->
-                                    <input type="number" class="form-control question-points d-none"
-                                           value="{{ q.points }}" step="1" disabled>
-                                </div>
+    <!-- Questions -->
+    <div class="row mt-4 justify-content-center">
+        <div class="col-12 col-md-10 col-lg-8">
+            {% for q in questions %}
+                <div class="card mb-4 question-card" data-test-id="{{ test.id }}" data-question-id="{{ q.id }}">
+                    <div class="card-body p-4 p-md-5">
+                        <div class="row">
+                            <div class="col-12 col-md-8 mb-3">
+                                <h6 class="mb-0 view-mode">{{ forloop.counter }}. {{ q.text }}</h6>
+                                <input type="text" class="form-control question-text d-none" value="{{ q.text }}" disabled>
                             </div>
-
-                            <!-- Choices -->
-                            <div class="mt-3 choices-wrapper-existing sortable-choices" data-qid="{{ q.id }}">
-                                {% for c in q.choices.all %}
-                                    <div class="input-group mb-2 choice-item" data-choice-id="{{ c.id }}">
-                                        <div class="input-group-text handle">
-                                            <i class="bx bx-grid-vertical"></i>
-                                        </div>
-                                        <input type="radio" class="mx-3 choice-correct"
-                                               name="correct_choice_{{ q.id }}"
-                                               {% if c.is_correct %}checked{% endif %} disabled>
-                                        <input type="text" class="form-control choice-text" value="{{ c.text }}"
-                                               disabled>
-                                        <button type="button" class="btn btn-outline-danger remove-choice d-none"
-                                                data-qid="{{ q.id }}" data-cid="{{ c.id }}">
-                                            ✕
-                                        </button>
-                                    </div>
-                                {% empty %}
-                                    <p class="text-muted">No choices yet.</p>
-                                {% endfor %}
+                            <div class="col-12 col-md-4 text-md-end">
+                                <p class="m-0 text-muted view-mode">{{ q.points|floatformat:"0" }} point(s)</p>
+                                <input type="number" class="form-control question-points d-none" value="{{ q.points }}" step="1" disabled>
                             </div>
-
-                            <div class="d-flex justify-content-end gap-3 mt-4">
-                                <button class="btn btn-sm btn-outline-primary toggle-edit">
-                                    <i class="bx bx-edit"></i>
-                                </button>
-                                <div class="action-buttons d-none d-flex gap-3">
-                                    <button type="button" class="btn btn-sm btn-success save-question">
-                                        <i class="bx bx-save"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-sm btn-secondary cancel-edit">
-                                        <i class="bx bx-x"></i>
-                                    </button>
-                                </div>
-                                <button class="btn btn-sm btn-outline-danger delete-question"
-                                        data-qid="{{ q.id }}">
-                                    <i class="bx bx-trash"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-        </div>
-
-        <!-- New Question Section -->
-        <div class="row">
-            <div class="col">
-                <div class="card mx-auto" style="width: 65%;">
-                    <div class="card-body p-5" data-test-id="{{ test.id }}">
-                        <h6 class="mb-3">ADD NEW QUESTION</h6>
-                        <hr>
-
-                        <!-- Question text -->
-                        <div class="mb-3">
-                            <input type="text" id="new-question-text" class="form-control"
-                                   placeholder="Untitled Question" required>
                         </div>
 
                         <!-- Choices -->
-                        <div id="choices-wrapper" class="mt-4"></div>
-                        <button type="button" id="add-choice" class="btn btn-outline-primary btn-sm mt-2">
-                            <i class="bx bx-plus"></i> Add Choice
-                        </button>
-
-                        <hr>
-
-                        <!-- Points -->
-                        <div class="row">
-                            <div class="col-3">
-                                <label class="form-label">Points</label>
-                                <input type="number" id="new-question-points" class="form-control" value="1" step="1">
-                            </div>
-                            <input type="hidden" id="new-question-required" value="1">
+                        <div class="mt-3 choices-wrapper-existing sortable-choices" data-qid="{{ q.id }}">
+                            {% for c in q.choices.all %}
+                                <div class="input-group mb-2 choice-item" data-choice-id="{{ c.id }}">
+                                    <div class="input-group-text handle"><i class="bx bx-grid-vertical"></i></div>
+                                    <input type="radio" class="mx-3 choice-correct" name="correct_choice_{{ q.id }}"
+                                           {% if c.is_correct %}checked{% endif %} disabled>
+                                    <input type="text" class="form-control choice-text" value="{{ c.text }}" disabled>
+                                    <button type="button" class="btn btn-outline-danger remove-choice d-none"
+                                            data-qid="{{ q.id }}" data-cid="{{ c.id }}">✕</button>
+                                </div>
+                            {% empty %}
+                                <p class="text-muted">No choices yet.</p>
+                            {% endfor %}
                         </div>
 
-                        <!-- Submit -->
-                        <button id="save-new-question" class="btn btn-primary mt-3">
-                            <i class="bx bx-save"></i> Save Question
-                        </button>
+                        <div class="d-flex flex-wrap justify-content-end gap-2 mt-4">
+                            <button class="btn btn-sm btn-outline-primary toggle-edit"><i class="bx bx-edit"></i></button>
+                            <div class="action-buttons d-none d-flex gap-2 flex-wrap">
+                                <button type="button" class="btn btn-sm btn-success save-question"><i class="bx bx-save"></i></button>
+                                <button type="button" class="btn btn-sm btn-secondary cancel-edit"><i class="bx bx-x"></i></button>
+                            </div>
+                            <button class="btn btn-sm btn-outline-danger delete-question" data-qid="{{ q.id }}">
+                                <i class="bx bx-trash"></i>
+                            </button>
+                        </div>
                     </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- New Question Section -->
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-10 col-lg-8">
+            <div class="card mb-5">
+                <div class="card-body p-4 p-md-5" data-test-id="{{ test.id }}">
+                    <h6 class="mb-3">ADD NEW QUESTION</h6>
+                    <hr>
+
+                    <div class="mb-3">
+                        <input type="text" id="new-question-text" class="form-control" placeholder="Untitled Question" required>
+                    </div>
+
+                    <div id="choices-wrapper" class="mt-4"></div>
+                    <button type="button" id="add-choice" class="btn btn-outline-primary btn-sm mt-2">
+                        <i class="bx bx-plus"></i> Add Choice
+                    </button>
+
+                    <hr>
+
+                    <div class="row g-3 align-items-center">
+                        <div class="col-6 col-sm-4 col-md-3">
+                            <label class="form-label">Points</label>
+                            <input type="number" id="new-question-points" class="form-control" value="1" step="1">
+                        </div>
+                        <input type="hidden" id="new-question-required" value="1">
+                    </div>
+
+                    <button id="save-new-question" class="btn btn-primary mt-3">
+                        <i class="bx bx-save"></i> Save Question
+                    </button>
                 </div>
             </div>
         </div>
-
     </div>
 
-    <!-- Choice template -->
-    <div id="choice-template" class="d-none">
-        <div class="input-group mb-2 choice-item">
-            <div class="input-group-text handle"><i class="bx bx-grid-vertical"></i></div>
-            <input type="radio" class="mx-3 choice-correct" name="is_correct">
-            <input type="text" class="form-control choice-text" name="choice_text[]" placeholder="Choice" required>
-            <button type="button" class="btn btn-outline-danger remove-choice">✕</button>
-        </div>
+</div>
+
+<!-- Choice template -->
+<div id="choice-template" class="d-none">
+    <div class="input-group mb-2 choice-item">
+        <div class="input-group-text handle"><i class="bx bx-grid-vertical"></i></div>
+        <input type="radio" class="mx-3 choice-correct" name="is_correct">
+        <input type="text" class="form-control choice-text" name="choice_text[]" placeholder="Choice" required>
+        <button type="button" class="btn btn-outline-danger remove-choice">✕</button>
     </div>
+</div>
 {% endblock %}
 
 {% block footer %}

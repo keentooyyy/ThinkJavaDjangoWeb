@@ -125,9 +125,9 @@ USE_TZ = True
 MEDIA_ROOT = BASE_DIR / "media"
 MEDIA_URL = "/media/"
 
-# STATIC_ROOT = BASE_DIR / "staticfiles"
-# STATIC_URL = 'static/'
-# STATICFILES_DIRS = [BASE_DIR / "assets"]
+STATIC_ROOT = BASE_DIR / "staticfiles"
+STATIC_URL = 'static/'
+STATICFILES_DIRS = [BASE_DIR / "assets"]
 
 
 # Default primary key field type
@@ -144,13 +144,13 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
-# DISABLE ON CADDY PROD
-# Let Caddy do HTTP→HTTPS redirects and HSTS instead of Django
-SECURE_SSL_REDIRECT = False
-SECURE_HSTS_SECONDS = 0
-SECURE_HSTS_INCLUDE_SUBDOMAINS = False
-SECURE_HSTS_PRELOAD = False
-# DISABLE ON CADDY PROD
+# # DISABLE ON CADDY PROD
+# # Let Caddy do HTTP→HTTPS redirects and HSTS instead of Django
+# SECURE_SSL_REDIRECT = False
+# SECURE_HSTS_SECONDS = 0
+# SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+# SECURE_HSTS_PRELOAD = False
+# # DISABLE ON CADDY PROD
 
 
 ALLOWED_HOSTS = ['*']  # Allow local development domains

@@ -2,28 +2,36 @@
 
 from django.db import models
 from django.utils.timezone import now
-
-from StudentManagementSystem.models import Teacher
 from StudentManagementSystem.models.roles import Role
-from StudentManagementSystem.models.section import Section
-from StudentManagementSystem.models.student import Student
 
 
 class Notification(models.Model):
     # Who sent it
     sender_role = models.CharField(max_length=20, choices=Role.choices)
-    sender_id = models.CharField(max_length=50)  # store admin_id, teacher_id, etc. as string
+    sender_id = models.CharField(max_length=50)
 
     # Who receives it
     recipient_role = models.CharField(max_length=20, choices=Role.choices)
     teacher_recipient = models.ForeignKey(
-        Teacher, on_delete=models.CASCADE, null=True, blank=True, related_name="notifications"
+        "StudentManagementSystem.Teacher",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="notifications",
     )
     student_recipient = models.ForeignKey(
-        Student, on_delete=models.CASCADE, null=True, blank=True, related_name="notifications"
+        "StudentManagementSystem.Student",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="notifications",
     )
     section_recipient = models.ForeignKey(
-        Section, on_delete=models.CASCADE, null=True, blank=True, related_name="notifications"
+        "StudentManagementSystem.Section",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="notifications",
     )
 
     # Content
