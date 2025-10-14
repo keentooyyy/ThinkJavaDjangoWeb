@@ -207,6 +207,22 @@ MIDDLEWARE = [
 ROOT_URLCONF = "ThinkJava.urls"
 WSGI_APPLICATION = "ThinkJava.wsgi.application"
 
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [BASE_DIR / 'templates']
+        ,
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
+
 # ----------------------------------------------------
 # DATABASE (PostgreSQL only, all from .env)
 # ----------------------------------------------------
@@ -250,9 +266,9 @@ MEDIA_ROOT = BASE_DIR / "media"
 # ----------------------------------------------------
 # SECURITY / HTTPS (for proxy like Caddy)
 # ----------------------------------------------------
-SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
+# SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+# SESSION_COOKIE_SECURE = True
+# CSRF_COOKIE_SECURE = True
 
 # SECURE_SSL_REDIRECT = False  # handled by Caddy
 # SECURE_HSTS_SECONDS = 0
