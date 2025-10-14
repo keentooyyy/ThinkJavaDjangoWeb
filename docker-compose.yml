@@ -1,0 +1,49 @@
+version: "3.9"
+
+services:
+  web:
+    build: .
+    image: thinkjava-django:latest       # Build once, reuse
+    container_name: thinkjava-django
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      - db
+    expose:
+      - "8000"
+    volumes:
+      - ./media:/app/media
+      - ./assets:/app/assets
+
+  db:
+    image: postgres:16
+    container_name: thinkjava-db
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: thinkjava-caddy
+    restart: unless-stopped
+    depends_on:
+      - web
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - DOMAIN=${DOMAIN}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ./media:/app/media
+      - ./assets:/app/assets
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  pgdata:
+  caddy_data:
+  caddy_config:

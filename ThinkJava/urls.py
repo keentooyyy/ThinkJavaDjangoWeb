@@ -41,4 +41,4 @@ urlpatterns = [
                   path("notifications/read/all/", mark_all_as_read_view, name="mark_all_notifications_as_read"),
                   path("notifications/delete/<int:notif_id>/", delete_notification, name="delete_notification")
 
-              ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+              ]

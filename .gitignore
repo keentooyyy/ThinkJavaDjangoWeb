@@ -62,8 +62,6 @@ node_modules/
 npm-debug.log
 yarn-error.log
 
-# JetBrains
-.idea/
 
 # System Files
 .DS_Store
@@ -71,3 +69,5 @@ Thumbs.db
 /.django_tailwind_cli/tailwindcss-windows-x64-4.1.11.exe
 /main-files
 /assets/
+server commands.txt
+Caddyfile

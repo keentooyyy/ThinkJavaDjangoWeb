@@ -1,0 +1,6 @@
+.venv
+./main-files
+server commands.txt
+README.md
+docker-compose.yml
+Dockerfile
