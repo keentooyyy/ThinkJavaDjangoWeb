@@ -39,10 +39,7 @@ services:
           memory: 170M
 
   caddy:
-    build:
-      context: .
-      dockerfile: Dockerfile.caddy
-    image: thinkjava-caddy:latest
+    image: serfriz/caddy-ratelimit-dockerproxy-sablier:latest
     container_name: thinkjava-caddy
     restart: unless-stopped
     depends_on:
