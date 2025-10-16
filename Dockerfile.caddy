@@ -2,7 +2,7 @@
 FROM caddy:2.10.2-builder AS builder
 
 RUN xcaddy build \
-    --with github.com/caddyserver/ratelimit@v0.5.0
+    --with github.com/caddyserver/ratelimit
 
 # Stage 2: Final lightweight image
 FROM caddy:2.10.2-alpine
