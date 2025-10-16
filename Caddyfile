@@ -1,0 +1,29 @@
+{$DOMAIN} {
+    encode gzip
+
+    handle_path /static/* {
+        root * /app/assets
+        file_server
+    }
+
+    handle_path /media/* {
+        root * /app/media
+        file_server
+    }
+
+    # 🛡️ Rate limit settings
+    rate_limit {
+        zone global {
+            key {remote_ip}
+            events 100
+            window 1m
+        }
+        zone burst {
+            key {remote_ip}
+            events 20
+            window 5s
+        }
+    }
+
+    reverse_proxy web:8000
+}

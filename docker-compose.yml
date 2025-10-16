@@ -39,7 +39,10 @@ services:
           memory: 170M
 
   caddy:
-    image: caddy:2.10.2-alpine
+    build:
+      context: .
+      dockerfile: Dockerfile.caddy
+    image: thinkjava-caddy:latest
     container_name: thinkjava-caddy
     restart: unless-stopped
     depends_on:
