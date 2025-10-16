@@ -1,7 +1,8 @@
+# Stage 1: Build Caddy with rate-limit plugin
 FROM caddy:2.10.2-builder AS builder
 
 RUN xcaddy build \
-    --with github.com/mholt/caddy-ratelimit@v2.13.0
+    --with github.com/caddyserver/ratelimit@v0.5.0
 
 # Stage 2: Final lightweight image
 FROM caddy:2.10.2-alpine
