@@ -29,13 +29,15 @@ services:
       - web
     expose:
       - "80"
+      - "443"
     environment:
       - DOMAIN=${DOMAIN}
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:80"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
+      test: [ "CMD", "wget", "--spider", "-q", "http://localhost:2019/config/" ] # admin API is always local
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - ./:/app
