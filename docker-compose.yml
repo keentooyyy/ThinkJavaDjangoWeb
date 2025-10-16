@@ -1,7 +1,6 @@
 version: "3.9"
 
 services:
-  # 🌐 NGINX — main reverse proxy + rate limiter
   nginx:
     image: nginx:alpine
     container_name: thinkjava-nginx
@@ -13,6 +12,8 @@ services:
       - "443:443"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certbot/conf:/etc/letsencrypt   # SSL certificates
+      - ./certbot/www:/var/www/certbot    # ACME challenge
       - ./:/app
     deploy:
       resources:
@@ -20,7 +21,6 @@ services:
           cpus: "0.17"
           memory: 120M
 
-  # 🐍 DJANGO — backend
   web:
     build: .
     image: thinkjava-django:latest
@@ -38,13 +38,7 @@ services:
       sh -c "python manage.py makemigrations &&
              python manage.py migrate &&
              gunicorn ThinkJava.wsgi:application --bind 0.0.0.0:8000"
-    deploy:
-      resources:
-        limits:
-          cpus: "0.17"
-          memory: 170M
 
-  # 🗃️ POSTGRES — database
   db:
     image: postgres:16
     container_name: thinkjava-db
@@ -55,11 +49,19 @@ services:
       - "5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
-    deploy:
-      resources:
-        limits:
-          cpus: "0.17"
-          memory: 170M
+
+  certbot:
+    image: certbot/certbot
+    container_name: thinkjava-certbot
+    restart: unless-stopped
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    entrypoint: >
+      sh -c "trap exit TERM; while :; do
+        certbot renew --webroot -w /var/www/certbot --quiet;
+        sleep 12h & wait $${!};
+      done"
 
 volumes:
   pgdata:
