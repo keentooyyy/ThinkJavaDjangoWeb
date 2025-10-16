@@ -15,7 +15,7 @@ urlpatterns = [
     # Login and Logout Routes
     path('', unified_login, name='unified_login'),
     path('logout/', unified_logout, name='unified_logout'),
-    path('admin-register/', admin_register, name='admin_register'),
+    # path('admin-register/', admin_register, name='admin_register'),
     path('register/', register_student, name='register'),
 
     # Dashboard

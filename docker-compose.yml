@@ -16,6 +16,11 @@ services:
       sh -c "python manage.py makemigrations &&
              python manage.py migrate &&
              gunicorn ThinkJava.wsgi:application --bind 0.0.0.0:8000"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.17"
+          memory: 170M
 
   db:
     image: postgres:16
@@ -25,6 +30,11 @@ services:
       - .env
     volumes:
       - pgdata:/var/lib/postgresql/data
+    deploy:
+      resources:
+        limits:
+          cpus: "0.17"
+          memory: 170M
 
   caddy:
     image: caddy:2.10.2-alpine
@@ -42,6 +52,11 @@ services:
       - ./:/app
       - caddy_data:/data
       - caddy_config:/config
+    deploy:
+      resources:
+        limits:
+          cpus: "0.17"
+          memory: 170M
 
 volumes:
   pgdata:
