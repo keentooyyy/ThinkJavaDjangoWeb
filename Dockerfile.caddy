@@ -1,10 +1,15 @@
-# Stage 1: Build Caddy with rate-limit plugin
+# Stage 1: Build Caddy with the rate_limit plugin
 FROM caddy:2.10.2-builder AS builder
 
-RUN xcaddy build \
-    --with github.com/mholt/caddy-ratelimit@v1.5.0
+# Let Go fetch public modules through the proxy and disable interactive auth
+ENV GOPROXY=https://proxy.golang.org,direct
+ENV GIT_TERMINAL_PROMPT=0
 
-# Stage 2: Final lightweight image
+# Build Caddy with the official rate-limit plugin
+RUN xcaddy build \
+    --with github.com/mholt/caddy-ratelimit@latest
+
+# Stage 2: Lightweight runtime image
 FROM caddy:2.10.2-alpine
 
 COPY --from=builder /usr/bin/caddy /usr/bin/caddy
