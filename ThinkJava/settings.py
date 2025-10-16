@@ -266,9 +266,9 @@ MEDIA_ROOT = BASE_DIR / "media"
 # ----------------------------------------------------
 # SECURITY / HTTPS (for proxy like Caddy)
 # ----------------------------------------------------
-# SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-# SESSION_COOKIE_SECURE = True
-# CSRF_COOKIE_SECURE = True
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
 
 # SECURE_SSL_REDIRECT = False  # handled by Caddy
 # SECURE_HSTS_SECONDS = 0

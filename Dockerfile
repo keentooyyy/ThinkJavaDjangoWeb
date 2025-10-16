@@ -17,8 +17,3 @@ RUN pip install --upgrade pip && pip install -r requirements.txt gunicorn
 # Copy Django app
 COPY . .
 
-# Expose internal Gunicorn port
-EXPOSE 8000
-
-# Start Django using Gunicorn
-CMD ["gunicorn", "ThinkJava.wsgi:application", "--bind", "0.0.0.0:8000"]

@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   web:
     build: .
@@ -13,10 +11,7 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./StudentManagementSystem/migrations:/app/StudentManagementSystem/migrations
-      - ./GameProgress/migrations:/app/GameProgress/migrations
-      - ./media:/app/media
-      - ./assets:/app/assets
+      - ./:/app
 
   db:
     image: postgres:16
@@ -29,25 +24,25 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
-#  caddy:
-#    image: caddy:2-alpine
-#    container_name: thinkjava-caddy
-#    restart: unless-stopped
-#    depends_on:
-#      - web
-#    ports:
-#      - "80:80"
-#      - "443:443"
-#    environment:
-#      - DOMAIN=${DOMAIN}
-#    volumes:
-#      - ./Caddyfile:/etc/caddy/Caddyfile
-#      - ./media:/app/media
-#      - ./assets:/app/assets
-#      - caddy_data:/data
-#      - caddy_config:/config
+  caddy:
+    image: caddy:2-alpine
+    container_name: thinkjava-caddy
+    restart: unless-stopped
+    depends_on:
+      - web
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - DOMAIN=${DOMAIN}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ./media:/app/media
+      - ./assets:/app/assets
+      - caddy_data:/data
+      - caddy_config:/config
 
 volumes:
   pgdata:
-#  caddy_data:
-#  caddy_config:
+  caddy_data:
+  caddy_config:
