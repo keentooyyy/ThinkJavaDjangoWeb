@@ -67,6 +67,7 @@ services:
     volumes:
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
+      - certbot_logs:/var/log/letsencrypt   # named volume for logs
     entrypoint: >
       sh -c "trap exit TERM; while :; do
         certbot renew --webroot -w /var/www/certbot --quiet;
@@ -75,8 +76,9 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.07"      # 7 % CPU
-          memory: 64M       # renewal helper (idle most of the time)
+          cpus: "0.07"
+          memory: 64M
 
 volumes:
   pgdata:
+  certbot_logs:
