@@ -1,19 +1,30 @@
-FROM python:3.12-slim
+FROM python:3.12-slim AS base
 
+# Set working directory
 WORKDIR /app
 
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
+# Environment optimizations
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PATH="/venv/bin:$PATH"
 
-# Install system dependencies for psycopg2, Pillow, etc.
-RUN apt-get update && apt-get install -y \
-    build-essential libpq-dev libjpeg-dev zlib1g-dev \
+# Install system dependencies (only essentials)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libpq-dev \
+    libjpeg-dev \
+    zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies first (cache layer)
+# Copy only requirements first (better build cache)
 COPY requirements.txt .
-RUN pip install --upgrade pip && pip install -r requirements.txt gunicorn
 
-# Copy Django app
+# Install dependencies
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt \
+    && pip install --no-cache-dir gunicorn
+
+# Copy application code (after deps for caching)
 COPY . .
-
