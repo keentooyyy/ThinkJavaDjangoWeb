@@ -11,19 +11,5 @@
         file_server
     }
 
-    # 🛡️ Rate limit settings
-    rate_limit {
-        zone global {
-            key {remote_ip}
-            events 100
-            window 1m
-        }
-        zone burst {
-            key {remote_ip}
-            events 20
-            window 5s
-        }
-    }
-
     reverse_proxy web:8000
 }

@@ -1,13 +1,14 @@
 version: "3.9"
 
 services:
-  # 🌐 NGINX - entry point & rate limiter
+  # 🌐 NGINX — entry point & rate limiter
   nginx:
     image: nginx:alpine
     container_name: thinkjava-nginx
     restart: unless-stopped
     depends_on:
-      - caddy
+      caddy:
+        condition: service_healthy
     ports:
       - "80:80"
       - "443:443"
@@ -19,7 +20,7 @@ services:
           cpus: "0.10"
           memory: 100M
 
-  # 🚀 CADDY - reverse proxy & static/media server
+  # 🚀 CADDY — reverse proxy & static/media server
   caddy:
     image: caddy:2.10.2-alpine
     container_name: thinkjava-caddy
@@ -30,6 +31,11 @@ services:
       - "80"
     environment:
       - DOMAIN=${DOMAIN}
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:80"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - ./:/app
@@ -41,7 +47,7 @@ services:
           cpus: "0.17"
           memory: 170M
 
-  # 🐍 DJANGO - your app
+  # 🐍 DJANGO — application backend
   web:
     build: .
     image: thinkjava-django:latest
@@ -65,7 +71,7 @@ services:
           cpus: "0.17"
           memory: 170M
 
-  # 🗃️ POSTGRES - database
+  # 🗃️ POSTGRES — database
   db:
     image: postgres:16
     container_name: thinkjava-db
