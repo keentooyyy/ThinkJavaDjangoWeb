@@ -1,4 +1,6 @@
 import os
+
+from django.contrib.auth.hashers import make_password
 from django.core.management.base import BaseCommand, CommandError
 from StudentManagementSystem.models import SimpleAdmin
 
@@ -30,7 +32,7 @@ class Command(BaseCommand):
         # Create admin
         SimpleAdmin.objects.create(
             username=username,
-            password=password,
+            password=make_password(password),
             first_name=first_name,
             last_name=last_name,
             role="ADMIN",
