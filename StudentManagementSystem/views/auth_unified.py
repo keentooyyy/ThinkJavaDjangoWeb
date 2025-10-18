@@ -10,6 +10,7 @@ from StudentManagementSystem.models.teachers import HandledSection
 from StudentManagementSystem.views.logger import create_log
 from StudentManagementSystem.views.login_key import make_login_key
 from StudentManagementSystem.views.notifications_helper import create_notification
+from StudentManagementSystem.views.sync_all_progress import run_sync_in_background
 
 
 def unified_login(request):
@@ -151,7 +152,7 @@ def register_student(request):
             section=join_code.section,
             role=Role.STUDENT,
         )
-
+        run_sync_in_background()
         # --- Notify teacher(s) who handle this section ---
         handled_sections = HandledSection.objects.select_related("teacher").filter(
             section=join_code.section,
@@ -184,6 +185,7 @@ def register_student(request):
                 f"({join_code.department.name}{join_code.year_level.year}{join_code.section.letter})."
             ),
         )
+
 
         # --- Store session manually for @session_login_required ---
         request.session["user_id"] = student.id
