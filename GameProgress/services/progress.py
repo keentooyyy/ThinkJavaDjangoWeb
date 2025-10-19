@@ -147,7 +147,7 @@ def reset_all_progress():
     - Deletes all SectionLevelSchedule entries (so cron can't re-unlock old levels).
     - Ensures all teacher and cron schedules are wiped clean.
     """
-
+    sync_all_students_with_all_progress()
     with transaction.atomic():
         # 1️⃣ Lock all global levels
         LevelDefinition.objects.update(unlocked=False)
