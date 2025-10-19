@@ -27,7 +27,7 @@ def update_game_progress(request, student_id):
 
     try:
         student = request.user_obj  # ✅ injected by decorator
-        data = json.loads(request.body)
+        data = json.loads(request.POST.get("payload"))
 
         # Prefetch existing progress
         existing_levels = {
