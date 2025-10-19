@@ -7,6 +7,7 @@ from GameProgress.models import (
     LevelProgress,
     AchievementProgress,
 )
+from GameProgress.models.level_schedule import SectionLevelSchedule
 from StudentManagementSystem.models.student import Student
 
 
@@ -133,41 +134,34 @@ def disable_all_achievements():
 
 
 # ============================================================
-# 🔹 GLOBAL RESET (FULL)
+# 🔹 GLOBAL BULK HELPERS
 # ============================================================
 
 def reset_all_progress():
     """
-    Completely reset all levels and achievements globally and per-student.
+    Completely reset all levels and achievements globally and per student.
 
-    Actions:
+    ✅ Source of Truth Reset:
     - Locks all LevelDefinition entries globally.
-    - Resets all LevelProgress (times + unlocked flags).
-    - Resets all AchievementProgress (unlocked + is_active=True).
+    - Resets all per-student LevelProgress and AchievementProgress.
+    - Deletes all SectionLevelSchedule entries (so cron can't re-unlock old levels).
+    - Ensures all teacher and cron schedules are wiped clean.
     """
+
     with transaction.atomic():
         # 1️⃣ Lock all global levels
         LevelDefinition.objects.update(unlocked=False)
 
         # 2️⃣ Reset per-student progress
         LevelProgress.objects.update(best_time=0, current_time=0, unlocked=False)
-
-        # 3️⃣ Reset per-student achievements
         AchievementProgress.objects.update(unlocked=False, is_active=True)
 
-    print("✅ Global reset complete: all levels locked, all progress reset.")
+        # 3️⃣ 🚨 Remove all active schedules so no background cron can alter state afterward
+        deleted_count, _ = SectionLevelSchedule.objects.all().delete()
 
-
-# ============================================================
-# 🔹 GLOBAL BULK HELPERS
-# ============================================================
-
-def full_system_sync_and_reset():
-    """
-    Runs a full cleanup + sync:
-    1. Ensures all students have complete progress data.
-    2. Resets everything globally.
-    """
-    sync_all_students_with_all_progress()
-    reset_all_progress()
-    print("🌍 Full global sync + reset completed successfully.")
+    print(
+        f"✅ Global reset complete:\n"
+        f"   - All levels locked\n"
+        f"   - All progress reset\n"
+        f"   - Cleared {deleted_count} schedule(s) to prevent re-unlocking"
+    )
