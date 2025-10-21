@@ -27,6 +27,16 @@
                         <h6>CREATE NEW TEST</h6>
                         <hr>
 
+                        <div id="create_message">
+                            {% if messages %}
+                                {% for message in messages %}
+                                    {% if 'create_message' in message.tags %}
+                                        {% include 'utility/alert_message.html' %}
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
                         <form method="post">
                             {% csrf_token %}
                             <div class="row g-3 mb-3">

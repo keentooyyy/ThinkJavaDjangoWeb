@@ -97,6 +97,7 @@ def manage_test_view(request, test_id):
 
 @transaction.atomic
 def _handle_add_question(request, test):
+    extra_tags = "control_messages"
     text = request.POST.get("question_text")
     points = float(request.POST.get("points") or 1)
     required = bool(request.POST.get("required"))
@@ -117,44 +118,48 @@ def _handle_add_question(request, test):
     ]
     TestChoice.objects.bulk_create(choices)
 
-    messages.success(request, f"Question with choices added to {test.name}")
+    messages.success(request, f"Question with choices added to {test.name}", extra_tags=extra_tags)
     return redirect("manage_test_view", test_id=test.id)
 
 
 @session_login_required(role=Role.TEACHER)
 @require_POST
 def update_test(request, test_id):
+    extra_tags = "control_messages"
     test = _update_test_fields(_get_test(test_id), request.POST)
     test.save(update_fields=["name", "test_type", "shuffle_questions", "shuffle_choices"])
     create_log(request, "UPDATE", f"Updated test '{test.name}' (ID {test.id})")
-    messages.success(request, f"Test '{test.name}' updated successfully.")
+    messages.success(request, f"Test '{test.name}' updated successfully.", extra_tags=extra_tags)
     return redirect("manage_test_view", test_id=test.id)
 
 
 @session_login_required(role=Role.TEACHER)
 @require_POST
 def update_test_settings(request, test_id):
+    extra_tags = "control_messages"
     test = _update_test_fields(_get_test(test_id), request.POST, only_settings=True)
     test.save(update_fields=["shuffle_questions", "shuffle_choices"])
     create_log(request, "UPDATE", f"Updated settings for test '{test.name}'")
-    messages.success(request, f"Settings updated for {test.name}")
+    messages.success(request, f"Settings updated for {test.name}", extra_tags=extra_tags)
     return redirect("manage_test_view", test_id=test.id)
 
 
 @session_login_required(role=Role.TEACHER)
 @require_POST
 def delete_test(request, test_id):
+    extra_tags = "control_messages"
     test = _get_test(test_id)
     name = test.name
     test.delete()
     create_log(request, "DELETE", f"Deleted test '{name}'")
-    messages.success(request, f"Test '{name}' deleted successfully.")
+    messages.success(request, f"Test '{name}' deleted successfully.", extra_tags=extra_tags)
     return redirect("pre_post_test_view")
 
 
 @session_login_required(role=Role.TEACHER)
 @require_POST
 def assign_test(request, test_id):
+    extra_tags = "create_message"
     teacher = request.user_obj
     test = _get_test(test_id)
 
@@ -169,7 +174,7 @@ def assign_test(request, test_id):
     ])
 
     create_log(request, "UPDATE", f"Assigned test '{test.name}' to sections {section_ids}")
-    messages.success(request, f"Assigned '{test.name}' to {len(section_ids)} section(s).")
+    messages.success(request, f"Assigned '{test.name}' to {len(section_ids)} section(s).", extra_tags=extra_tags)
     return redirect("pre_post_test_view")
 
 

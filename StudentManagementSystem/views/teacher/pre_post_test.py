@@ -109,6 +109,7 @@ def _get_teacher_results_context(request, teacher):
 
 @session_login_required(role=Role.TEACHER)
 def pre_post_test_view(request):
+    extra_tags = "create_message"
     teacher = request.user_obj
 
     if request.method == "POST":
@@ -118,7 +119,7 @@ def pre_post_test_view(request):
         shuffle_c = _parse_checkbox(request.POST.get("shuffle_choices"))
 
         if not name:
-            messages.error(request, "Test name is required.")
+            messages.error(request, "Test name is required.", extra_tags=extra_tags)
         else:
             test = TestDefinition.objects.create(
                 name=name,
@@ -127,7 +128,7 @@ def pre_post_test_view(request):
                 shuffle_choices=shuffle_c,
             )
             create_log(request, "CREATE", f"Created test '{test.name}' ({test.test_type})")
-            messages.success(request, f"Test '{name}' created successfully.")
+            messages.success(request, f"Test '{name}' created successfully.", extra_tags=extra_tags)
             return redirect("pre_post_test_view")
 
     context = _get_teacher_test_context(teacher)
@@ -138,6 +139,7 @@ def pre_post_test_view(request):
 @session_login_required(role=Role.TEACHER)
 @transaction.atomic
 def duplicate_test(request, test_id):
+    extra_tags = "create_message"
     orig = get_object_or_404(TestDefinition, id=test_id)
 
     new_test = TestDefinition.objects.create(
@@ -164,5 +166,5 @@ def duplicate_test(request, test_id):
             )
 
     create_log(request, "CREATE", f"Duplicated test '{orig.name}' to '{new_test.name}'")
-    messages.success(request, f"Test '{orig.name}' duplicated successfully.")
+    messages.success(request, f"Test '{orig.name}' duplicated successfully.", extra_tags=extra_tags)
     return redirect("pre_post_test_view")
