@@ -155,7 +155,7 @@
                         <tr id="level_{{ level.id }}">
                             <td>{{ level.name }}</td>
                             <td>
-                                <button class="btn btn-danger btn-sm" onclick="deleteLevel({{ level.id }})">Delete
+                                <button class="btn btn-danger btn-sm" onclick="deleteLevel('{{ level.id }}')">Delete
                                 </button>
                             </td>
                         </tr>
@@ -195,8 +195,11 @@
                             <td>{{ achievement.code }}</td>
                             <td>{{ achievement.title }}</td>
                             <td>
+                                <button class="btn btn-primary btn-sm"
+                                        onclick="openEditAchievementModal('{{ achievement.id }}')">Edit
+                                </button>
                                 <button class="btn btn-danger btn-sm"
-                                        onclick="deleteAchievement({{ achievement.id }})">Delete
+                                        onclick="deleteAchievement('{{ achievement.id }}')">Delete
                                 </button>
                             </td>
                         </tr>
@@ -214,6 +217,47 @@
     </div>
 </div>
 
+<!-- 🔹 Edit Achievement Modal -->
+<div class="modal fade" id="editAchievementModal" tabindex="-1" role="dialog" aria-labelledby="editAchievementModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editAchievementModalLabel">Edit Achievement</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editAchievementForm" method="POST">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <input type="hidden" id="achievement_id_modal" name="achievement_id">
+
+                    <div class="mb-3">
+                        <label for="achievement_code_modal" class="form-label">Achievement Code:</label>
+                        <input type="text" class="form-control" id="achievement_code_modal" name="achievement_code" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="achievement_title_modal" class="form-label">Title:</label>
+                        <input type="text" class="form-control" id="achievement_title_modal" name="achievement_title" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="achievement_description_modal" class="form-label">Description:</label>
+                        <textarea class="form-control" id="achievement_description_modal" name="achievement_description" required></textarea>
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="achievement_is_active_modal" name="achievement_is_active">
+                        <label class="form-check-label" for="achievement_is_active_modal">Active</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 {% block script %}
     <script>
@@ -261,6 +305,61 @@
                     }
                 });
             }
+        }
+
+        function openEditAchievementModal(achievementId) {
+            achievementId = parseInt(achievementId);
+            $.ajax({
+                url: `/admin_achievement/${achievementId}/get_details/`,
+                method: 'GET',
+                success: function (data) {
+                    if (!data.success) {
+                        alert("Failed to fetch achievement details.");
+                        return;
+                    }
+
+                    const achievement = data.achievement;
+
+                    // Fill modal fields
+                    $('#achievement_id_modal').val(achievement.id);
+                    $('#achievement_code_modal').val(achievement.code);
+                    $('#achievement_title_modal').val(achievement.title);
+                    $('#achievement_description_modal').val(achievement.description);
+                    $('#achievement_is_active_modal').prop('checked', achievement.is_active);
+
+                    // Show modal
+                    $('#editAchievementModal').modal('show');
+
+                    // Submit handler
+                    $('#editAchievementForm').off('submit').on('submit', function (e) {
+                        e.preventDefault();
+                        let formData = $(this).serialize();
+
+                        $.ajax({
+                            url: `/admin_achievement/${achievementId}/edit/`,
+                            method: 'POST',
+                            data: formData,
+                            headers: {
+                                'X-CSRFToken': $('input[name=csrfmiddlewaretoken]').val()
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    $('#editAchievementModal').modal('hide');
+                                    location.reload();
+                                } else {
+                                    alert(response.message || "Failed to update achievement.");
+                                }
+                            },
+                            error: function () {
+                                alert("Something went wrong while saving.");
+                            }
+                        });
+                    });
+                },
+                error: function () {
+                    alert("Error fetching achievement data.");
+                }
+            });
         }
     </script>
 {% endblock %}

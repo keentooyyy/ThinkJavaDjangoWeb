@@ -113,6 +113,60 @@ def delete_achievement(request, achievement_id):
 
 
 @session_login_required(role=Role.ADMIN)
+def get_achievement_details(request, achievement_id):
+    """Fetch achievement data for modal editing"""
+    if request.method == 'GET':
+        achievement = get_object_or_404(AchievementDefinition, id=achievement_id)
+        return JsonResponse({
+            'success': True,
+            'achievement': {
+                'id': achievement.id,
+                'code': achievement.code,
+                'title': achievement.title,
+                'description': achievement.description,
+                'is_active': achievement.is_active,
+            }
+        })
+    return JsonResponse({'success': False}, status=400)
+
+
+@session_login_required(role=Role.ADMIN)
+def edit_achievement(request, achievement_id):
+    """Update achievement via AJAX"""
+    if request.method == 'POST':
+        achievement = get_object_or_404(AchievementDefinition, id=achievement_id)
+        admin = request.user_obj  # ✅ validated SimpleAdmin
+
+        ach_code = request.POST.get('achievement_code')
+        ach_title = request.POST.get('achievement_title')
+        ach_description = request.POST.get('achievement_description')
+        ach_is_active = request.POST.get('achievement_is_active') == 'on'
+
+        if not ach_code or not ach_title or not ach_description:
+            return JsonResponse({'success': False, 'message': 'All fields are required.'}, status=400)
+
+        # Check if code is being changed and if the new code already exists
+        if ach_code != achievement.code:
+            if AchievementDefinition.objects.filter(code=ach_code).exists():
+                return JsonResponse({'success': False, 'message': 'Achievement code already exists.'}, status=400)
+
+        # Update achievement
+        old_title = achievement.title
+        achievement.code = ach_code
+        achievement.title = ach_title
+        achievement.description = ach_description
+        achievement.is_active = ach_is_active
+        achievement.save()
+
+        run_sync_in_background()
+        create_log(request, "UPDATE", f"Admin {admin.username} updated achievement '{old_title}' to '{ach_title}'.")
+
+        return JsonResponse({'success': True, 'message': f"Achievement '{ach_title}' updated successfully."})
+    
+    return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=400)
+
+
+@session_login_required(role=Role.ADMIN)
 def force_sync_everyone(request):
     message_tag = 'sync_message'
     admin = request.user_obj  # ✅ validated SimpleAdmin

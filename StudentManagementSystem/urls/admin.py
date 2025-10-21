@@ -5,7 +5,7 @@ from StudentManagementSystem.views.admin.dashboard_admin import dashboard_rankin
 from StudentManagementSystem.views.admin.manage_teachers import create_teacher, get_teacher_details, \
     edit_teacher, remove_section, delete_teacher
 from StudentManagementSystem.views.admin.proggress_addition_admin import add_achievement, add_level, delete_achievement, \
-    delete_level, force_sync_everyone
+    delete_level, force_sync_everyone, get_achievement_details, edit_achievement
 from StudentManagementSystem.views.admin.student_ranking import admin_student_ranking
 from StudentManagementSystem.views.auth_unified import unified_login, unified_logout, register_student
 from StudentManagementSystem.views.edit_profile import edit_profile
@@ -42,6 +42,8 @@ urlpatterns = [
     path('add-achievement/', add_achievement, name='add_achievement'),
     path('delete_level/<int:level_id>/', delete_level, name='delete_level'),
     path('delete_achievement/<int:achievement_id>/', delete_achievement, name='delete_achievement'),
+    path('admin_achievement/<int:achievement_id>/get_details/', get_achievement_details, name='get_achievement_details'),
+    path('admin_achievement/<int:achievement_id>/edit/', edit_achievement, name='edit_achievement'),
     path('force_sync/', force_sync_everyone, name='force_sync'),
 
     path('logs/', view_log, name='admin_view_logs')
