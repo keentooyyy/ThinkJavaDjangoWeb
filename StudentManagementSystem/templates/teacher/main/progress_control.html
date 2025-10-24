@@ -9,254 +9,261 @@
 {% block content %}
     <div class="page-wrapper">
 
-        <div class="row p-5">
-            <div class="card w-100">
-                <div class="card-body p-4 p-md-5">
+        <div class="row mx-2 py-3">
+            <div class="col-12">
+                <div class="card w-100">
+                    <div class="card-body p-4 p-md-5">
 
-                    <h6 class="mb-3">PROGRESS CONTROL FOR YOUR SECTION</h6>
-                    <hr>
+                        <h6 class="mb-3">PROGRESS CONTROL FOR YOUR SECTION</h6>
+                        <hr>
 
-                    <!-- Messages -->
-                    <div id="control_messages">
-                        {% if messages %}
-                            {% for message in messages %}
-                                {% if 'control_messages' in message.tags %}
-                                    {% include 'utility/alert_message.html' %}
-                                {% endif %}
-                            {% endfor %}
+                        <!-- Messages -->
+                        <div id="control_messages">
+                            {% if messages %}
+                                {% for message in messages %}
+                                    {% if 'control_messages' in message.tags %}
+                                        {% include 'utility/alert_message.html' %}
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <!-- Quick Controls -->
+                        <form method="post" action="{% url 'progress_control_teacher' %}" class="mb-4">
+                            {% csrf_token %}
+                            <div class="row g-2">
+                                <div class="col-12 col-sm-6 col-md-3 d-grid">
+                                    <button name="action" value="unlock_levels" class="btn btn-primary w-100">
+                                        Unlock All Levels
+                                    </button>
+                                </div>
+                                <div class="col-12 col-sm-6 col-md-3 d-grid">
+                                    <button name="action" value="enable_achievements" class="btn btn-primary w-100">
+                                        Enable All Achievements
+                                    </button>
+                                </div>
+                                <div class="col-12 col-sm-6 col-md-3 d-grid">
+                                    <button name="action" value="lock_levels" class="btn btn-danger w-100">
+                                        Lock All Levels
+                                    </button>
+                                </div>
+                                <div class="col-12 col-sm-6 col-md-3 d-grid">
+                                    <button name="action" value="disable_achievements" class="btn btn-danger w-100">
+                                        Disable All Achievements
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+
+                        <!-- Global Controls -->
+                        <div class="row mb-5 gy-4 text-center">
+                            <!-- Levels -->
+                            <div class="col-12 col-lg-6">
+                                <h6 class="mb-2">Global Level Controls (All Sections)</h6>
+                                <form method="post" action="{% url 'progress_control_teacher' %}"
+                                      class="d-flex flex-wrap gap-2 justify-content-center">
+                                    {% csrf_token %}
+                                    <select name="level_name" class="form-select" style="max-width: 220px;">
+                                        <option value="" disabled selected>Select Level</option>
+                                        {% for level in all_levels %}
+                                            <option value="{{ level.name }}">{{ level.name }}</option>
+                                        {% empty %}
+                                            <option disabled>No levels defined</option>
+                                        {% endfor %}
+                                    </select>
+                                    <button name="action" value="unlock_single_level_global" class="btn btn-primary">
+                                        Unlock For All
+                                    </button>
+                                    <button name="action" value="lock_single_level_global" class="btn btn-danger">
+                                        Lock For All
+                                    </button>
+                                </form>
+                            </div>
+
+                            <!-- Achievements -->
+                            <div class="col-12 col-lg-6">
+                                <h6 class="mb-2">Global Achievement Controls (All Sections)</h6>
+                                <form method="post" action="{% url 'progress_control_teacher' %}"
+                                      class="d-flex flex-wrap gap-2 justify-content-center">
+                                    {% csrf_token %}
+                                    <select name="achievement_code" class="form-select" style="max-width: 220px;">
+                                        <option value="" disabled selected>Select Achievement</option>
+                                        {% for ach in all_achievements %}
+                                            <option value="{{ ach.code }}">{{ ach.title }}</option>
+                                        {% empty %}
+                                            <option disabled>No achievements defined</option>
+                                        {% endfor %}
+                                    </select>
+                                    <button name="action" value="enable_single_achievement_global"
+                                            class="btn btn-primary">
+                                        Enable For All
+                                    </button>
+                                    <button name="action" value="disable_single_achievement_global"
+                                            class="btn btn-danger">
+                                        Disable For All
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <!-- Section Filter -->
+                        <form method="get" class="mb-4">
+                            <div class="row g-2 align-items-center">
+                                <div class="col-12 col-sm-6 col-md-4">
+                                    <select name="filter_by" id="filter_by" class="form-select">
+                                        <option value="">Select Section</option>
+                                        {% for section in sections %}
+                                            {% with section_key=section.id|stringformat:"s" %}
+                                                <option value="{{ section_key }}"
+                                                        {% if section_key == selected_section %}selected{% endif %}>
+                                                    {{ section.department.name }}{{ section.year_level.year }}{{ section.letter }}
+                                                </option>
+                                            {% endwith %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-12 col-sm-6 col-md-2 d-grid">
+                                    <button type="submit" class="btn btn-primary w-100">
+                                        <i class="bx bx-filter"></i> Filter
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+
+                        <!-- Per Section Tables -->
+                        {% if selected_section_obj %}
+                            <div class="mb-5">
+                                <h5 class="mb-3">
+                                    {{ selected_section_obj.department.name }}{{ selected_section_obj.year_level.year }}{{ selected_section_obj.letter }}
+                                </h5>
+
+                                <div class="row gy-4">
+                                    <!-- Levels Table -->
+                                    <div class="col-12 col-lg-6">
+                                        <h6>Levels</h6>
+                                        <div class="table-responsive">
+                                            <table class="table table-hover align-middle text-center">
+                                                <thead>
+                                                <tr>
+                                                    <th>Level</th>
+                                                    <th>Status</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                {% for level in selected_section_obj.levels %}
+                                                    <tr>
+                                                        <td>{{ level.name }}</td>
+                                                        <td>
+                                                            {% if level.unlocked %}
+                                                                <span class="badge bg-success">Unlocked</span>
+                                                            {% else %}
+                                                                <span class="badge bg-secondary">Locked</span>
+                                                            {% endif %}
+                                                        </td>
+                                                        <td>
+                                                            <form method="post"
+                                                                  action="{% url 'progress_control_teacher' %}"
+                                                                  class="d-inline">
+                                                                {% csrf_token %}
+                                                                <input type="hidden" name="section_id"
+                                                                       value="{{ selected_section_obj.id }}">
+                                                                <input type="hidden" name="level_name"
+                                                                       value="{{ level.name }}">
+                                                                {% if level.unlocked %}
+                                                                    <button name="action" value="lock_single_level"
+                                                                            class="btn btn-sm btn-danger">
+                                                                        Lock
+                                                                    </button>
+                                                                {% else %}
+                                                                    <button type="button" class="btn btn-sm btn-primary"
+                                                                            onclick="openAssignTaskModal('{{ selected_section_obj.id }}', '{{ level.name }}')">
+                                                                        Unlock
+                                                                    </button>
+                                                                {% endif %}
+                                                            </form>
+                                                        </td>
+                                                    </tr>
+                                                {% empty %}
+                                                    <tr>
+                                                        <td colspan="3" class="text-muted">No levels defined.</td>
+                                                    </tr>
+                                                {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                    <!-- Achievements Table -->
+                                    <div class="col-12 col-lg-6">
+                                        <h6>Achievements</h6>
+                                        <div class="table-responsive">
+                                            <table class="table table-hover align-middle text-center">
+                                                <thead>
+                                                <tr>
+                                                    <th>Code</th>
+                                                    <th>Title</th>
+                                                    <th>Status</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                {% for ach in selected_section_obj.achievements %}
+                                                    <tr>
+                                                        <td>{{ ach.code }}</td>
+                                                        <td>{{ ach.title }}</td>
+                                                        <td>
+                                                            {% if ach.is_active %}
+                                                                <span class="badge bg-success">Obtainable</span>
+                                                            {% else %}
+                                                                <span class="badge bg-secondary">Unobtainable</span>
+                                                            {% endif %}
+                                                        </td>
+                                                        <td>
+                                                            <form method="post"
+                                                                  action="{% url 'progress_control_teacher' %}"
+                                                                  class="d-inline">
+                                                                {% csrf_token %}
+                                                                <input type="hidden" name="section_id"
+                                                                       value="{{ selected_section_obj.id }}">
+                                                                <input type="hidden" name="achievement_code"
+                                                                       value="{{ ach.code }}">
+                                                                {% if ach.is_active %}
+                                                                    <button name="action"
+                                                                            value="disable_single_achievement"
+                                                                            class="btn btn-sm btn-danger">
+                                                                        Disable
+                                                                    </button>
+                                                                {% else %}
+                                                                    <button name="action"
+                                                                            value="enable_single_achievement"
+                                                                            class="btn btn-sm btn-success">
+                                                                        Enable
+                                                                    </button>
+                                                                {% endif %}
+                                                            </form>
+                                                        </td>
+                                                    </tr>
+                                                {% empty %}
+                                                    <tr>
+                                                        <td colspan="4" class="text-muted">No achievements defined.</td>
+                                                    </tr>
+                                                {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% else %}
+                            <p class="text-muted">Please select a section to view progress controls.</p>
                         {% endif %}
                     </div>
-
-                    <!-- Quick Controls -->
-                    <form method="post" action="{% url 'progress_control_teacher' %}" class="mb-4">
-                        {% csrf_token %}
-                        <div class="row g-2">
-                            <div class="col-12 col-sm-6 col-md-3 d-grid">
-                                <button name="action" value="unlock_levels" class="btn btn-primary w-100">
-                                    Unlock All Levels
-                                </button>
-                            </div>
-                            <div class="col-12 col-sm-6 col-md-3 d-grid">
-                                <button name="action" value="enable_achievements" class="btn btn-primary w-100">
-                                    Enable All Achievements
-                                </button>
-                            </div>
-                            <div class="col-12 col-sm-6 col-md-3 d-grid">
-                                <button name="action" value="lock_levels" class="btn btn-danger w-100">
-                                    Lock All Levels
-                                </button>
-                            </div>
-                            <div class="col-12 col-sm-6 col-md-3 d-grid">
-                                <button name="action" value="disable_achievements" class="btn btn-danger w-100">
-                                    Disable All Achievements
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-
-                    <!-- Global Controls -->
-                    <div class="row mb-5 gy-4 text-center">
-                        <!-- Levels -->
-                        <div class="col-12 col-lg-6">
-                            <h6 class="mb-2">Global Level Controls (All Sections)</h6>
-                            <form method="post" action="{% url 'progress_control_teacher' %}"
-                                  class="d-flex flex-wrap gap-2 justify-content-center">
-                                {% csrf_token %}
-                                <select name="level_name" class="form-select" style="max-width: 220px;">
-                                    <option value="" disabled selected>Select Level</option>
-                                    {% for level in all_levels %}
-                                        <option value="{{ level.name }}">{{ level.name }}</option>
-                                    {% empty %}
-                                        <option disabled>No levels defined</option>
-                                    {% endfor %}
-                                </select>
-                                <button name="action" value="unlock_single_level_global" class="btn btn-primary">
-                                    Unlock For All
-                                </button>
-                                <button name="action" value="lock_single_level_global" class="btn btn-danger">
-                                    Lock For All
-                                </button>
-                            </form>
-                        </div>
-
-                        <!-- Achievements -->
-                        <div class="col-12 col-lg-6">
-                            <h6 class="mb-2">Global Achievement Controls (All Sections)</h6>
-                            <form method="post" action="{% url 'progress_control_teacher' %}"
-                                  class="d-flex flex-wrap gap-2 justify-content-center">
-                                {% csrf_token %}
-                                <select name="achievement_code" class="form-select" style="max-width: 220px;">
-                                    <option value="" disabled selected>Select Achievement</option>
-                                    {% for ach in all_achievements %}
-                                        <option value="{{ ach.code }}">{{ ach.title }}</option>
-                                    {% empty %}
-                                        <option disabled>No achievements defined</option>
-                                    {% endfor %}
-                                </select>
-                                <button name="action" value="enable_single_achievement_global" class="btn btn-primary">
-                                    Enable For All
-                                </button>
-                                <button name="action" value="disable_single_achievement_global" class="btn btn-danger">
-                                    Disable For All
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-
-                    <hr>
-
-                    <!-- Section Filter -->
-                    <form method="get" class="mb-4">
-                        <div class="row g-2 align-items-center">
-                            <div class="col-12 col-sm-6 col-md-4">
-                                <select name="filter_by" id="filter_by" class="form-select">
-                                    <option value="">Select Section</option>
-                                    {% for section in sections %}
-                                        {% with section_key=section.id|stringformat:"s" %}
-                                            <option value="{{ section_key }}"
-                                                    {% if section_key == selected_section %}selected{% endif %}>
-                                                {{ section.department.name }}{{ section.year_level.year }}{{ section.letter }}
-                                            </option>
-                                        {% endwith %}
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <div class="col-12 col-sm-6 col-md-2 d-grid">
-                                <button type="submit" class="btn btn-primary w-100">
-                                    <i class="bx bx-filter"></i> Filter
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-
-                    <!-- Per Section Tables -->
-                    {% if selected_section_obj %}
-                        <div class="mb-5">
-                            <h5 class="mb-3">
-                                {{ selected_section_obj.department.name }}{{ selected_section_obj.year_level.year }}{{ selected_section_obj.letter }}
-                            </h5>
-
-                            <div class="row gy-4">
-                                <!-- Levels Table -->
-                                <div class="col-12 col-lg-6">
-                                    <h6>Levels</h6>
-                                    <div class="table-responsive">
-                                        <table class="table table-hover align-middle text-center">
-                                            <thead>
-                                            <tr>
-                                                <th>Level</th>
-                                                <th>Status</th>
-                                                <th>Action</th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            {% for level in selected_section_obj.levels %}
-                                                <tr>
-                                                    <td>{{ level.name }}</td>
-                                                    <td>
-                                                        {% if level.unlocked %}
-                                                            <span class="badge bg-success">Unlocked</span>
-                                                        {% else %}
-                                                            <span class="badge bg-secondary">Locked</span>
-                                                        {% endif %}
-                                                    </td>
-                                                    <td>
-                                                        <form method="post"
-                                                              action="{% url 'progress_control_teacher' %}"
-                                                              class="d-inline">
-                                                            {% csrf_token %}
-                                                            <input type="hidden" name="section_id"
-                                                                   value="{{ selected_section_obj.id }}">
-                                                            <input type="hidden" name="level_name"
-                                                                   value="{{ level.name }}">
-                                                            {% if level.unlocked %}
-                                                                <button name="action" value="lock_single_level"
-                                                                        class="btn btn-sm btn-danger">
-                                                                    Lock
-                                                                </button>
-                                                            {% else %}
-                                                                <button type="button" class="btn btn-sm btn-primary"
-                                                                        onclick="openAssignTaskModal('{{ selected_section_obj.id }}', '{{ level.name }}')">
-                                                                    Unlock
-                                                                </button>
-                                                            {% endif %}
-                                                        </form>
-                                                    </td>
-                                                </tr>
-                                            {% empty %}
-                                                <tr>
-                                                    <td colspan="3" class="text-muted">No levels defined.</td>
-                                                </tr>
-                                            {% endfor %}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-
-                                <!-- Achievements Table -->
-                                <div class="col-12 col-lg-6">
-                                    <h6>Achievements</h6>
-                                    <div class="table-responsive">
-                                        <table class="table table-hover align-middle text-center">
-                                            <thead>
-                                            <tr>
-                                                <th>Code</th>
-                                                <th>Title</th>
-                                                <th>Status</th>
-                                                <th>Action</th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            {% for ach in selected_section_obj.achievements %}
-                                                <tr>
-                                                    <td>{{ ach.code }}</td>
-                                                    <td>{{ ach.title }}</td>
-                                                    <td>
-                                                        {% if ach.is_active %}
-                                                            <span class="badge bg-success">Obtainable</span>
-                                                        {% else %}
-                                                            <span class="badge bg-secondary">Unobtainable</span>
-                                                        {% endif %}
-                                                    </td>
-                                                    <td>
-                                                        <form method="post"
-                                                              action="{% url 'progress_control_teacher' %}"
-                                                              class="d-inline">
-                                                            {% csrf_token %}
-                                                            <input type="hidden" name="section_id"
-                                                                   value="{{ selected_section_obj.id }}">
-                                                            <input type="hidden" name="achievement_code"
-                                                                   value="{{ ach.code }}">
-                                                            {% if ach.is_active %}
-                                                                <button name="action" value="disable_single_achievement"
-                                                                        class="btn btn-sm btn-danger">
-                                                                    Disable
-                                                                </button>
-                                                            {% else %}
-                                                                <button name="action" value="enable_single_achievement"
-                                                                        class="btn btn-sm btn-success">
-                                                                    Enable
-                                                                </button>
-                                                            {% endif %}
-                                                        </form>
-                                                    </td>
-                                                </tr>
-                                            {% empty %}
-                                                <tr>
-                                                    <td colspan="4" class="text-muted">No achievements defined.</td>
-                                                </tr>
-                                            {% endfor %}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    {% else %}
-                        <p class="text-muted">Please select a section to view progress controls.</p>
-                    {% endif %}
                 </div>
             </div>
+
 
         </div>
 

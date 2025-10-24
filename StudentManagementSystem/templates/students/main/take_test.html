@@ -40,14 +40,13 @@
             border-radius: 0.5rem;
         }
     </style>
-    <div class="page-wrapper py-4 py-md-5">
-        <div class="container">
+    <div class="page-wrapper">
+        <div class="row mx-2 py-3">
 
             <!-- PRE-TEST CARD -->
-            <div class="row mb-4">
-                <div class="col-12 col-sm-10 col-md-8 col-lg-6 mx-auto px-2 px-sm-3 px-md-4">
-                    <div class="card">
-                        <div class="card-body p-4 p-md-5 text-center">
+            <div class="col-12 col-md-10 col-lg-8 mx-auto mb-4">
+                <div class="card">
+                    <div class="card-body p-4 p-md-5 text-center">
                             <h6 class="mb-3">TAKE PRE-TEST</h6>
                             {% if pre_taken %}
                                 <div class="alert alert-success">
@@ -59,16 +58,14 @@
                             {% else %}
                                 <div class="alert alert-info">No Pre-Test assigned to your section yet.</div>
                             {% endif %}
-                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- POST-TEST CARD -->
-            <div class="row mb-4">
-                <div class="col-12 col-sm-10 col-md-8 col-lg-6 mx-auto px-2 px-sm-3 px-md-4">
-                    <div class="card">
-                        <div class="card-body p-4 p-md-5 text-center">
+            <div class="col-12 col-md-10 col-lg-8 mx-auto mb-4">
+                <div class="card">
+                    <div class="card-body p-4 p-md-5 text-center">
                             <h6 class="mb-3">TAKE POST-TEST</h6>
                             {% if post_taken %}
                                 <div class="alert alert-success">
@@ -85,7 +82,6 @@
                             {% else %}
                                 <div class="alert alert-info">No Post-Test assigned to your section yet.</div>
                             {% endif %}
-                        </div>
                     </div>
                 </div>
             </div>
@@ -93,17 +89,15 @@
             <!-- PRE-TEST QUESTIONS -->
             {% if pre_test and not pre_taken %}
                 <div id="pre-test-container" class="d-none">
-                    <!-- Header -->
-                    <div class="row mb-4">
-                        <div class="col-12 col-sm-10 col-md-8 col-lg-6 mx-auto px-2 px-sm-3 px-md-4">
-                            <div class="card border-top border-0 border-4 border-primary">
-                                <div class="card-body p-4 p-md-5">
+                    <!-- Test Header -->
+                    <div class="col-12 col-md-10 col-lg-8 mx-auto mb-4">
+                        <div class="card border-top border-0 border-4 border-primary">
+                            <div class="card-body p-4 p-md-5">
                                     <h3>{{ pre_test.name }}</h3>
                                     <p class="mb-0 text-muted small mt-3">
                                         Maximum Score:
                                         <span class="ms-3 badge bg-primary px-3 py-2">{{ pre_max|floatformat:"0" }} points</span>
                                     </p>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -112,11 +106,11 @@
                         {% csrf_token %}
                         <input type="hidden" name="test_id" value="{{ pre_test.id }}">
 
+                        <!-- Questions -->
                         {% for q in pre_progress.get_page_questions %}
-                            <div class="row mb-4">
-                                <div class="col-12 col-sm-10 col-md-8 col-lg-6 mx-auto px-2 px-sm-3 px-md-4">
-                                    <div class="card border-start border-0 border-4 border-primary">
-                                        <div class="card-body p-4 p-md-5">
+                            <div class="col-12 col-md-10 col-lg-8 mx-auto mb-4">
+                                <div class="card border-start border-0 border-4 border-primary">
+                                    <div class="card-body p-4 p-md-5">
                                             <div class="d-flex justify-content-between">
                                                 <h5>{{ forloop.counter }}. {{ q.text }}</h5>
                                                 <p class="text-muted">{{ q.points|floatformat:"0" }} point(s)</p>
@@ -141,9 +135,9 @@
                             </div>
                         {% endfor %}
 
-                        <!-- Submit -->
-                        <div class="row">
-                            <div class="col-12 col-sm-10 col-md-8 col-lg-6 mx-auto d-flex justify-content-end gap-3 mb-3">
+                        <!-- Action Buttons -->
+                        <div class="col-12 col-md-10 col-lg-8 mx-auto mb-4">
+                            <div class="d-flex justify-content-end gap-3">
                                 <button type="submit" class="btn btn-primary">Submit</button>
                                 <button type="button" class="btn btn-secondary btn-cancel">Cancel</button>
                             </div>
@@ -155,17 +149,15 @@
             <!-- POST-TEST QUESTIONS -->
             {% if post_test and not post_taken and can_take_posttest %}
                 <div id="post-test-container" class="d-none">
-                    <!-- Header -->
-                    <div class="row mb-4">
-                        <div class="col-12 col-sm-10 col-md-8 col-lg-6 mx-auto px-2 px-sm-3 px-md-4">
-                            <div class="card border-top border-0 border-4 border-primary">
-                                <div class="card-body p-4 p-md-5">
+                    <!-- Test Header -->
+                    <div class="col-12 col-md-10 col-lg-8 mx-auto mb-4">
+                        <div class="card border-top border-0 border-4 border-primary">
+                            <div class="card-body p-4 p-md-5">
                                     <h3>{{ post_test.name }}</h3>
                                     <p class="mb-0 text-muted small mt-3">
                                         Maximum Score:
                                         <span class="ms-3 badge bg-primary px-3 py-2">{{ post_max|floatformat:"0" }} points</span>
                                     </p>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -174,11 +166,11 @@
                         {% csrf_token %}
                         <input type="hidden" name="test_id" value="{{ post_test.id }}">
 
+                        <!-- Questions -->
                         {% for q in post_progress.get_page_questions %}
-                            <div class="row mb-4">
-                                <div class="col-12 col-sm-10 col-md-8 col-lg-6 mx-auto px-2 px-sm-3 px-md-4">
-                                    <div class="card border-start border-0 border-4 border-primary">
-                                        <div class="card-body p-4 p-md-5">
+                            <div class="col-12 col-md-10 col-lg-8 mx-auto mb-4">
+                                <div class="card border-start border-0 border-4 border-primary">
+                                    <div class="card-body p-4 p-md-5">
                                             <div class="d-flex justify-content-between">
                                                 <h5>{{ forloop.counter }}. {{ q.text }}</h5>
                                                 <p class="text-muted">{{ q.points|floatformat:"0" }} point(s)</p>
@@ -195,15 +187,14 @@
                                                     </label>
                                                 {% endfor %}
                                             </div>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
                         {% endfor %}
 
-                        <!-- Submit -->
-                        <div class="row">
-                            <div class="col-12 col-sm-10 col-md-8 col-lg-6 mx-auto d-flex justify-content-end gap-3 mb-3">
+                        <!-- Action Buttons -->
+                        <div class="col-12 col-md-10 col-lg-8 mx-auto mb-4">
+                            <div class="d-flex justify-content-end gap-3">
                                 <button type="submit" class="btn btn-primary">Submit</button>
                                 <button type="button" class="btn btn-secondary btn-cancel">Cancel</button>
                             </div>
@@ -213,6 +204,8 @@
             {% endif %}
 
         </div>
+
+
     </div>
 
 
@@ -231,43 +224,17 @@
             const $postContainer = $("#post-test-container");
 
             $preBtn.on("click", function () {
-                $(".page-wrapper > .container > .row").hide();
+                $(".page-wrapper > .row > .col-12").not("#pre-test-container, #post-test-container").hide();
                 $preContainer.removeClass("d-none");
             });
 
             $postBtn.on("click", function () {
-                $(".page-wrapper > .container > .row").hide();
+                $(".page-wrapper > .row > .col-12").not("#pre-test-container, #post-test-container").hide();
                 $postContainer.removeClass("d-none");
             });
 
             $(".btn-cancel").on("click", function () {
-                $(".page-wrapper > .container > .row").show();
-                $("#pre-test-container, #post-test-container").addClass("d-none");
-            });
-        });
-    </script>
-
-
-    <script>
-        $(function () {
-            const $preBtn = $("#start-pre-btn");
-            const $preContainer = $("#pre-test-container");
-            const $postBtn = $("#start-post-btn");
-            const $postContainer = $("#post-test-container");
-
-            $preBtn.on("click", function () {
-                $(".page-wrapper > .row").hide();
-                $preContainer.removeClass("d-none");
-            });
-
-            $postBtn.on("click", function () {
-                $(".page-wrapper > .row").hide();
-                $postContainer.removeClass("d-none");
-            });
-
-            // Cancel button handler
-            $(".btn-cancel").on("click", function () {
-                $(".page-wrapper > .row").show();
+                $(".page-wrapper > .row > .col-12").not("#pre-test-container, #post-test-container").show();
                 $("#pre-test-container, #post-test-container").addClass("d-none");
             });
         });
