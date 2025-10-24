@@ -42,3 +42,8 @@ urlpatterns = [
                   path("notifications/delete/<int:notif_id>/", delete_notification, name="delete_notification")
 
               ]
+
+# Serve static and media files in development mode
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.BASE_DIR / "assets")
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -2,6 +2,7 @@ version: "3.9"
 
 services:
   nginx:
+    profiles: ["production"]
     image: nginx:alpine
     container_name: thinkjava-nginx
     restart: unless-stopped
@@ -30,6 +31,8 @@ services:
       - .env
     depends_on:
       - db
+    ports:
+      - "8000:8000"
     expose:
       - "8000"
     volumes:
@@ -37,7 +40,7 @@ services:
     command: >
       sh -c "python manage.py makemigrations &&
              python manage.py migrate &&
-             gunicorn ThinkJava.wsgi:application --bind 0.0.0.0:8000"
+             python manage.py runserver 0.0.0.0:8000"
     deploy:
       resources:
         limits:
@@ -61,6 +64,7 @@ services:
           memory: 128M      # PostgreSQL instance (lightweight)
 
   certbot:
+    profiles: ["production"]
     image: certbot/certbot
     container_name: thinkjava-certbot
     restart: unless-stopped

@@ -173,7 +173,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # ----------------------------------------------------
 SECRET_KEY = os.environ["SECRET_KEY"]
 DEBUG = os.environ["DEBUG"].lower() == "true"
-ALLOWED_HOSTS = os.environ["ALLOWED_HOSTS"].split(",")
+ALLOWED_HOSTS = ["*"] if DEBUG else os.environ["ALLOWED_HOSTS"].split(",")
 
 # ----------------------------------------------------
 # INSTALLED APPS
@@ -264,16 +264,17 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 # ----------------------------------------------------
-# SECURITY / HTTPS (for proxy like Caddy)
+# SECURITY / HTTPS (for proxy like nginx/Caddy)
 # ----------------------------------------------------
-SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
-
-# SECURE_SSL_REDIRECT = False  # handled by Caddy
-# SECURE_HSTS_SECONDS = 0
-# SECURE_HSTS_INCLUDE_SUBDOMAINS = False
-# SECURE_HSTS_PRELOAD = False
+if not DEBUG:
+    # Only enforce HTTPS security in production
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    # SECURE_SSL_REDIRECT = False  # handled by nginx/Caddy
+    # SECURE_HSTS_SECONDS = 0
+    # SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+    # SECURE_HSTS_PRELOAD = False
 
 # ----------------------------------------------------
 # OTHER DEFAULTS
