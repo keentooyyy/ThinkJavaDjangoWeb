@@ -11,8 +11,6 @@
 
 </div>
 
----
-
 ## About
 
 ThinkJavaWeb is a comprehensive web-based control panel for managing the [ThinkJava Unity Game](https://github.com/keentooyyy/ThinkJavaRewrite). This Django-powered Student Management System provides a complete administrative interface for tracking student progress, managing game content, and analyzing performance data from the Unity game.
@@ -27,8 +25,6 @@ ThinkJavaWeb is a comprehensive web-based control panel for managing the [ThinkJ
 - Section-based academic organization
 - Game level and achievement management
 
----
-
 ## Prerequisites
 
 Before running the project, ensure you have the following installed:
@@ -41,8 +37,6 @@ You can verify installation with:
 docker --version
 docker compose version
 ```
-
----
 
 ## Environment Setup
 
@@ -71,8 +65,6 @@ ALLOWED_HOSTS=localhost,127.0.0.1
 ```
 
 > **Note:** Replace all placeholder values with your own secure credentials.
-
----
 
 ## Installation and Deployment
 
@@ -135,8 +127,6 @@ docker compose exec web python manage.py seed_students --students 20
 
 > **Note:** These commands are optional and mainly for development/testing purposes.
 
----
-
 ## Running the Application
 
 ### Development Mode
@@ -172,8 +162,6 @@ The application will be available at:
 - HTTP: [http://localhost](http://localhost)
 - HTTPS: [https://localhost](https://localhost) (if SSL configured)
 
----
-
 ## Configuration
 
 ### Changing Default Port
@@ -201,16 +189,12 @@ docker compose up --build
 
 The application will now be available at: [http://localhost:9000](http://localhost:9000)
 
----
-
 ## Development Notes
 
 - **Auto-migrations:** Migrations run automatically on container start
 - **Hot reload:** Mounted volume (`.:/app`) enables instant code reloads during development
 - **Container auto-restart:** Containers auto-restart if they crash (`restart: unless-stopped`)
 - **Resource limits:** Containers have CPU and memory limits configured for efficient resource usage
-
----
 
 ## Management Commands
 
@@ -241,8 +225,6 @@ docker compose exec web python manage.py lock_all_levels
 docker compose exec web python manage.py unlock_all_levels
 ```
 
----
-
 ## Verification
 
 After startup, verify the following endpoints:
@@ -253,8 +235,6 @@ After startup, verify the following endpoints:
 - **Teacher Dashboard:** [http://localhost:8000/teacher/dashboard/](http://localhost:8000/teacher/dashboard/)
 
 If all pages load successfully, your local development environment is ready.
-
----
 
 ## Tech Stack
 
@@ -270,8 +250,6 @@ If all pages load successfully, your local development environment is ready.
   - openpyxl (Excel export)
   - aiohttp (async HTTP)
   - psycopg2 (PostgreSQL adapter)
-
----
 
 ## Project Structure
 
@@ -291,8 +269,6 @@ ThinkJavaDjangoWeb/
 ├── Dockerfile                   # Container definition
 └── requirements.txt             # Python dependencies
 ```
-
----
 
 ## Troubleshooting
 
@@ -317,8 +293,6 @@ If port 8000 is already in use:
 
 1. Change the port in `docker-compose.yml` (see "Changing Default Port" above)
 2. Or stop the service using port 8000
-
----
 
 ## License
 
