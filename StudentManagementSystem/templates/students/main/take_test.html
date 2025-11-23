@@ -44,11 +44,10 @@
         #pre-test-container,
         #post-test-container {
             display: none !important;
-        }
-        
-        #pre-test-container.show,
-        #post-test-container.show {
-            display: block !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            height: 0 !important;
+            overflow: hidden !important;
         }
     </style>
     <div class="page-wrapper">
@@ -99,7 +98,7 @@
 
             <!-- PRE-TEST QUESTIONS -->
             {% if pre_test and not pre_taken %}
-                <div id="pre-test-container" class="w-100" style="display: none !important;">
+                <div id="pre-test-container" class="w-100" style="display: none !important; visibility: hidden !important; height: 0 !important; overflow: hidden !important;">
                     <!-- Test Header -->
                     <div class="col-12 col-md-10 col-lg-8 mx-auto mb-4">
                         <div class="card border-top border-0 border-4 border-primary">
@@ -159,7 +158,7 @@
 
             <!-- POST-TEST QUESTIONS -->
             {% if post_test and not post_taken and can_take_posttest %}
-                <div id="post-test-container" class="w-100" style="display: none !important;">
+                <div id="post-test-container" class="w-100" style="display: none !important; visibility: hidden !important; height: 0 !important; overflow: hidden !important;">
                     <!-- Test Header -->
                     <div class="col-12 col-md-10 col-lg-8 mx-auto mb-4">
                         <div class="card border-top border-0 border-4 border-primary">
@@ -236,21 +235,28 @@
             const $postBtn = $("#start-post-btn");
             const $postContainer = $("#post-test-container");
 
+            // Force hide containers on page load - CRITICAL
+            $preContainer.hide();
+            $postContainer.hide();
+            $preContainer.css('display', 'none');
+            $postContainer.css('display', 'none');
+
             $preBtn.on("click", function () {
                 $(".page-wrapper > .row > .col-12").not("#pre-test-container, #post-test-container").hide();
-                $postContainer.hide();
-                $preContainer.show();
+                $postContainer.css({'display': 'none', 'visibility': 'hidden', 'height': '0', 'overflow': 'hidden'}).hide();
+                $preContainer.css({'display': 'block', 'visibility': 'visible', 'height': 'auto', 'overflow': 'visible'}).show();
             });
 
             $postBtn.on("click", function () {
                 $(".page-wrapper > .row > .col-12").not("#pre-test-container, #post-test-container").hide();
-                $preContainer.hide();
-                $postContainer.show();
+                $preContainer.css({'display': 'none', 'visibility': 'hidden', 'height': '0', 'overflow': 'hidden'}).hide();
+                $postContainer.css({'display': 'block', 'visibility': 'visible', 'height': 'auto', 'overflow': 'visible'}).show();
             });
 
             $(".btn-cancel").on("click", function () {
                 $(".page-wrapper > .row > .col-12").not("#pre-test-container, #post-test-container").show();
-                $("#pre-test-container, #post-test-container").hide();
+                $preContainer.css('display', 'none').hide();
+                $postContainer.css('display', 'none').hide();
             });
         });
     </script>
