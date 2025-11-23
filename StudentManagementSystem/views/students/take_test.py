@@ -42,9 +42,20 @@ def take_test_view(request):
     pre_max = sum(q.points for q in pre_test.questions.all()) if pre_test else None
     pre_score = pre_taken.score if pre_taken else None
 
-    # Build choices map for pre-test
+    # Build choices map for pre-test and populate answers
     pre_choices_map = {}
     if pre_progress:
+        # Populate answers from StudentAnswer records if not already in progress.answers
+        if not pre_progress.answers:
+            existing_answers = StudentAnswer.objects.filter(
+                student=student,
+                question__test=pre_test
+            ).select_related('choice')
+            for ans in existing_answers:
+                pre_progress.answers[str(ans.question.id)] = ans.choice.id
+            if existing_answers.exists():
+                pre_progress.save(update_fields=['answers'])
+        
         for q in pre_progress.get_page_questions():
             pre_choices_map[q.id] = pre_progress.get_choices_for_question(q)
 
@@ -66,9 +77,20 @@ def take_test_view(request):
     post_max = sum(q.points for q in post_test.questions.all()) if post_test else None
     post_score = post_taken.score if post_taken else None
 
-    # Build choices map for post-test
+    # Build choices map for post-test and populate answers
     post_choices_map = {}
     if post_progress:
+        # Populate answers from StudentAnswer records if not already in progress.answers
+        if not post_progress.answers:
+            existing_answers = StudentAnswer.objects.filter(
+                student=student,
+                question__test=post_test
+            ).select_related('choice')
+            for ans in existing_answers:
+                post_progress.answers[str(ans.question.id)] = ans.choice.id
+            if existing_answers.exists():
+                post_progress.save(update_fields=['answers'])
+        
         for q in post_progress.get_page_questions():
             post_choices_map[q.id] = post_progress.get_choices_for_question(q)
 
