@@ -39,6 +39,17 @@
             background: rgba(0, 0, 0, 0.65);
             border-radius: 0.5rem;
         }
+        
+        /* Ensure test containers are completely hidden by default */
+        #pre-test-container,
+        #post-test-container {
+            display: none !important;
+        }
+        
+        #pre-test-container.show,
+        #post-test-container.show {
+            display: block !important;
+        }
     </style>
     <div class="page-wrapper">
         <div class="row mx-2 py-3">
@@ -88,7 +99,7 @@
 
             <!-- PRE-TEST QUESTIONS -->
             {% if pre_test and not pre_taken %}
-                <div id="pre-test-container" class="d-none">
+                <div id="pre-test-container" class="w-100" style="display: none !important;">
                     <!-- Test Header -->
                     <div class="col-12 col-md-10 col-lg-8 mx-auto mb-4">
                         <div class="card border-top border-0 border-4 border-primary">
@@ -148,7 +159,7 @@
 
             <!-- POST-TEST QUESTIONS -->
             {% if post_test and not post_taken and can_take_posttest %}
-                <div id="post-test-container" class="d-none">
+                <div id="post-test-container" class="w-100" style="display: none !important;">
                     <!-- Test Header -->
                     <div class="col-12 col-md-10 col-lg-8 mx-auto mb-4">
                         <div class="card border-top border-0 border-4 border-primary">
@@ -227,17 +238,19 @@
 
             $preBtn.on("click", function () {
                 $(".page-wrapper > .row > .col-12").not("#pre-test-container, #post-test-container").hide();
-                $preContainer.removeClass("d-none");
+                $postContainer.hide();
+                $preContainer.show();
             });
 
             $postBtn.on("click", function () {
                 $(".page-wrapper > .row > .col-12").not("#pre-test-container, #post-test-container").hide();
-                $postContainer.removeClass("d-none");
+                $preContainer.hide();
+                $postContainer.show();
             });
 
             $(".btn-cancel").on("click", function () {
                 $(".page-wrapper > .row > .col-12").not("#pre-test-container, #post-test-container").show();
-                $("#pre-test-container, #post-test-container").addClass("d-none");
+                $("#pre-test-container, #post-test-container").hide();
             });
         });
     </script>
