@@ -44,19 +44,11 @@
         #pre-test-container.hidden,
         #post-test-container.hidden {
             display: none !important;
-            visibility: hidden !important;
-            opacity: 0 !important;
-            height: 0 !important;
-            overflow: hidden !important;
         }
         
         #pre-test-container:not(.hidden),
         #post-test-container:not(.hidden) {
             display: block !important;
-            visibility: visible !important;
-            opacity: 1 !important;
-            height: auto !important;
-            overflow: visible !important;
         }
     </style>
     <div class="page-wrapper">
@@ -107,7 +99,7 @@
 
             <!-- PRE-TEST QUESTIONS -->
             {% if pre_test and not pre_taken %}
-                <div id="pre-test-container" class="w-100 hidden">
+                <div id="pre-test-container" class="col-12 hidden">
                     <!-- Test Header -->
                     <div class="col-12 col-md-10 col-lg-8 mx-auto mb-4">
                         <div class="card border-top border-0 border-4 border-primary">
@@ -167,7 +159,7 @@
 
             <!-- POST-TEST QUESTIONS -->
             {% if post_test and not post_taken and can_take_posttest %}
-                <div id="post-test-container" class="w-100 hidden">
+                <div id="post-test-container" class="col-12 hidden">
                     <!-- Test Header -->
                     <div class="col-12 col-md-10 col-lg-8 mx-auto mb-4">
                         <div class="card border-top border-0 border-4 border-primary">
